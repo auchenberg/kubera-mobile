@@ -134,15 +134,28 @@ and "ship it":
    *with a path*, whose document repeats that URL verbatim in its own `client_id`.
    For native clients it further requires `redirect_uris` to be `http://localhost`
    or a **custom scheme matching the client_id hostname in reverse-domain order**,
-   written `scheme:/path` (one colon, one slash). A document at
-   `https://auchenberg.github.io/kubera-widgets/oauth-client.json` therefore
-   implies `io.github.auchenberg:/oauth-callback` — not an arbitrary
-   `kuberamobile://`. Hosting on a domain Kenneth controls
-   (`https://auchenberg.dk/kubera-mobile/oauth-client.json`) yields
-   `dk.auchenberg:/oauth-callback`. Implementations differ on whether extra
-   trailing components are tolerated, so assume the exact reversed host. On iOS,
-   register the scheme in `CFBundleURLTypes` and pass only the scheme to
-   `ASWebAuthenticationSession`'s `callbackURLScheme`.
+   written `scheme:/path` (one colon, one slash).
+
+   The intended scheme for this app is **`com.kubera.mobile`**, giving
+   `com.kubera.mobile:/oauth-callback`. Note the tension: read strictly, that
+   scheme implies a metadata document hosted at `mobile.kubera.com` — a host
+   Kubera controls, not us. Three ways out, in preference order:
+   1. **Test whether Kubera's authorize endpoint enforces the reversal at all.**
+      Many servers validate only that the redirect matches one listed in the
+      metadata document. If so, `com.kubera.mobile` works with the document
+      hosted anywhere. This folds into the live test below — check it there.
+   2. **Ask Kubera to host or bless the document**, which would also make this
+      app a sanctioned client rather than an unofficial one.
+   3. **Fall back to a scheme we can justify** from a domain we control, e.g. a
+      document at `https://auchenberg.dk/kubera-mobile/oauth-client.json` giving
+      `dk.auchenberg:/oauth-callback`.
+
+   Whichever scheme wins, register exactly that one in `CFBundleURLTypes` and
+   pass only the scheme to `ASWebAuthenticationSession`'s `callbackURLScheme`.
+   Do not ship `com.kubera.mobile` as a *claimed* identity beyond the redirect
+   scheme — the app's bundle id stays `com.auchenberg.kuberawidgets`, since this
+   is an unofficial client and impersonating Kubera's namespace is exactly the
+   kind of thing the README disclaimer exists to avoid.
 2. **OAuth covers the MCP resource, not the HMAC REST API.** The
    protected-resource document names exactly one `resource`:
    `.../api/v1/mcp`. Nothing suggests these bearer tokens authenticate
@@ -310,18 +323,18 @@ The flow, concretely:
 1. Host `client_id` metadata at a stable HTTPS URL with a path, e.g.
    `https://auchenberg.github.io/kubera-widgets/oauth-client.json`:
    `{"client_id": "<the same URL, verbatim>", "client_name": "Kubera Mobile",
-   "redirect_uris": ["io.github.auchenberg:/oauth-callback"],
+   "redirect_uris": ["com.kubera.mobile:/oauth-callback"],
    "token_endpoint_auth_method": "none",
    "grant_types": ["authorization_code","refresh_token"],
    "response_types": ["code"], "scope": "read_profile read_portfolio"}`
-   The scheme must be the client_id host reversed (see caveat 1), and the same
-   scheme goes in `CFBundleURLTypes` in `App/Info.plist`.
+   The same scheme goes in `CFBundleURLTypes` in `App/Info.plist`. See caveat 1
+   for the host-reversal question this raises.
 2. Generate a 32-byte `code_verifier`, `code_challenge = S256(verifier)`, and a
    `state` nonce. Request `scope=read_profile read_portfolio` only — the app is
    read-only, so never ask for `write_portfolio`.
 3. `ASWebAuthenticationSession` to
    `https://app.kubera.com/oauth/authorize?...` with
-   `callbackURLScheme: "io.github.auchenberg"`. Leave
+   `callbackURLScheme: "com.kubera.mobile"`. Leave
    `prefersEphemeralWebBrowserSession = false` so an existing Kubera web session
    in Safari means one tap to approve. This is the only supported way to do this
    on iOS — `WKWebView` is both rejected by many providers and an App Store
