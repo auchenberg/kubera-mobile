@@ -1,0 +1,21 @@
+App/Views/OverviewView.swift
+  s_3b694bad7ccc14::t_6bd48fda9dccba 211-212,214
+  s_3b694bad7ccc14::t_d43bee32c85119 14
+  s_3b694bad7ccc14::t_b08cbc09791441 426-432
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "fc8c05794d944ded0d0764d5b585b00f805b636e",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
