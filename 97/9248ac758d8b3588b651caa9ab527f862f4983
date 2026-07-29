@@ -1,0 +1,29 @@
+Widgets/Provider.swift
+  s_3b694bad7ccc14::t_2df5439c621477 69-86
+Shared/KuberaMCP.swift
+  s_3b694bad7ccc14::t_4bf628f2f81fab 18-20,22-25,29-36
+  s_3b694bad7ccc14::t_be30a6b288f3a7 61,67,77,81,85-93
+  s_3b694bad7ccc14::t_30363a4480c074 37-38
+  s_3b694bad7ccc14::t_fd8ace66992ba4 94-95
+App/Views/SettingsView.swift
+  s_3b694bad7ccc14::t_f0caf2bfbd5e14 162-167
+Shared/Shared.swift
+  s_3b694bad7ccc14::t_8ec29bc3be8e3c 17-18
+  s_3b694bad7ccc14::t_ce490d2f143428 237-246
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "979248ac758d8b3588b651caa9ab527f862f4983",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
