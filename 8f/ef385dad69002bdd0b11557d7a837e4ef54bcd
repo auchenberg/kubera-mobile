@@ -1,0 +1,26 @@
+App/Views/SettingsView.swift
+  s_3b694bad7ccc14::t_2975393c7cb422 29-30
+  s_3b694bad7ccc14::t_97a6d76096a56e 49-51,71,78,86,153
+  s_3b694bad7ccc14::t_38f5dfeefd31be 31
+App/Views/ConnectView.swift
+  s_3b694bad7ccc14::t_e3c52d50afd022 248-250,256-266,271-275
+  s_3b694bad7ccc14::t_c88f675f50facd 340
+  s_3b694bad7ccc14::t_97fcd66e3a50a9 16-17,74,108,114-116,118-119,123-131,414
+  s_3b694bad7ccc14::t_f3c41dba5422ea 276
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "8fef385dad69002bdd0b11557d7a837e4ef54bcd",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
