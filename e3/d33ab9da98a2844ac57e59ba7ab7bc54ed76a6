@@ -1,0 +1,22 @@
+Widgets/NetWorthStatsWidget.swift
+  s_3b694bad7ccc14::t_a00b9b478b6590 99,105-115
+  s_3b694bad7ccc14::t_6fd0dfec9c1369 82-84
+App/Views/WidgetsView.swift
+  s_3b694bad7ccc14::t_ed2431ad902ec8 239
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "e3d33ab9da98a2844ac57e59ba7ab7bc54ed76a6",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
