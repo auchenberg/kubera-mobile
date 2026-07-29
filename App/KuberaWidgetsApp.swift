@@ -91,9 +91,9 @@ private struct MainTabView: View {
 
     var body: some View {
         TabView(selection: $selection) {
-            DashboardView()
+            OverviewView()
                 .tabItem {
-                    Label("Net Worth", systemImage: symbol("chart.pie", for: .dashboard))
+                    Label("Overview", systemImage: symbol("chart.line.uptrend.xyaxis", for: .dashboard))
                 }
                 .tag(Tab.dashboard)
 
