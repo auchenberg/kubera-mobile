@@ -1,0 +1,78 @@
+App/Views/SignInView.swift
+  s_3b694bad7ccc14::t_91239454fb5b55 3-4,7
+App/KuberaWidgetsApp.swift
+  s_3b694bad7ccc14::t_a83633d8c7c968 94,96
+App/AppStore.swift
+  s_3b694bad7ccc14::t_b16eb996950661 11-14,16,25-27,40-43,45,49-60,65-73,75-101,103-115,117,119,121-131,133-141,153,159,175-196,210,212-213,231-238,245,258-261,267-287
+  s_3b694bad7ccc14::t_f1e9bc3f60a4ff 288
+project.yml
+  s_3b694bad7ccc14::t_bc3cc30fead1eb 37,42,55,73
+specs/backlog.md
+  s_3b694bad7ccc14::t_aa7530609ba91d 10-14
+  s_3b694bad7ccc14::t_2d607f8b8e6d1e 3,6-8
+  s_3b694bad7ccc14::t_bc3cc30fead1eb 5
+Shared/Shared.swift
+  s_3b694bad7ccc14::t_332352ff00f61d 8
+  s_3b694bad7ccc14::t_e0324538675db5 251-257
+  s_3b694bad7ccc14::t_52f2d1a7ddd612 20-23,264
+Widgets/KuberaWidgetsExtension.entitlements
+  s_3b694bad7ccc14::t_289f47ffca35a2 7,11
+App/KuberaWidgets.entitlements
+  s_3b694bad7ccc14::t_289f47ffca35a2 7,11
+dev
+  s_3b694bad7ccc14::t_bc3cc30fead1eb 10
+README.md
+  s_3b694bad7ccc14::t_bc3cc30fead1eb 102
+  s_3b694bad7ccc14::t_aa666bcd7df808 103-104
+Tests/OverviewChartTests.swift
+  s_3b694bad7ccc14::t_433f5c6215ada4 1-333
+App/Views/OverviewView.swift
+  s_3b694bad7ccc14::t_b59e88e3518825 289-290
+  s_3b694bad7ccc14::t_4cba79f06c6a8d 1-288,291-503
+Shared/OverviewChart.swift
+  s_3b694bad7ccc14::t_6e8e808d8177ff 223-229,231-235,237,239-247
+  s_3b694bad7ccc14::t_63e3071fa9b4e6 1-222,230,236,238,248-251
+Shared/ConnectionStatus.swift
+  s_3b694bad7ccc14::t_4f4f5447c5c79b 280
+  s_3b694bad7ccc14::t_3b38a9bd6a7aae 1-248,250-273,327-333,335-369,371-373,380-382,384-392
+  s_3b694bad7ccc14::t_72c221403f8112 249,274-279,281-326,334,370,374-379,383
+App/Views/SettingsView.swift
+  s_3b694bad7ccc14::t_da6afd86180b99 82,90,98,171,182,194
+  s_3b694bad7ccc14::t_b270db1f7a8896 99
+  s_3b694bad7ccc14::t_de5f0d7d652c70 7-15,21,46-48,57-64,69-70,73-81,83-89,91-97,100-159,161,163-166,168-170,172-178,180-181,183-189,191-193,195-207,211-212,252-253,313
+Tests/ConnectionStatusTests.swift
+  s_3b694bad7ccc14::t_c151836f9581bb 1-5,10-34,36-51,53-76,79-95,97-137,142-164,167-208,330-363
+  s_3b694bad7ccc14::t_ded7c052da5f0e 6-9,35,52,77-78,96,138-141,165-166,209-329
+App/Views/ConnectView.swift
+  s_3b694bad7ccc14::t_76246a92f16e27 16,38-39,132-135,140,155,185,206,208-221,223-226,260,323,338,341-343,345,349-350,367-368,389
+  s_3b694bad7ccc14::t_0d000b47d057c3 1-15,17,19-37,40-78,80-81,84-114,116-131,136-139,141-154,156-171,173-184,186-195,199-205,207,222,227-259,261-276,280-294,296-298,301-322,324-337,339-340,344,346-348,351-366,369-388,390-406
+  s_3b694bad7ccc14::t_1b53878a1e9778 18,79,82-83,172,196-198,295
+  s_3b694bad7ccc14::t_bc3cc30fead1eb 115
+  s_3b694bad7ccc14::t_81fde51de71b55 277-279
+  s_3b694bad7ccc14::t_a468f26b2253df 299-300
+specs/settings-and-auth.md
+  s_3b694bad7ccc14::t_bb1c08e5ef7443 147-149
+  s_3b694bad7ccc14::t_aa7530609ba91d 139-143,151-152
+  s_3b694bad7ccc14::t_6e5fbaaf8dd9f6 150
+  s_3b694bad7ccc14::t_d573f912362cff 144-146
+App/Info.plist
+  s_3b694bad7ccc14::t_d2b2b66c0cca96 25
+KuberaWidgets.xcodeproj/project.pbxproj
+  s_3b694bad7ccc14::t_7496fb4bfcb4e4 13-14,16,19,27,33,38,40,64,66,94,125,127,129,131,136,144-145,208,214,224,229,365-366,376-377,393-394,400-401,419,425,456,542,561,578,655,672
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "cabfb653861b329471585e7b3531dc7aac095bec",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
