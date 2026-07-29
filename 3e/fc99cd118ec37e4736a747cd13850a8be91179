@@ -1,0 +1,27 @@
+App/AppStore.swift
+  s_3b694bad7ccc14::t_7bcecab7c4975f 126-141
+App/Views/WidgetsView.swift
+  s_3b694bad7ccc14::t_583e6cdbfcb831 11
+  s_3b694bad7ccc14::t_2636bd5c48fa9c 232-241,243-246
+Shared/KuberaAPI.swift
+  s_3b694bad7ccc14::t_fcc964f8929ded 207,212-216,221,225
+  s_3b694bad7ccc14::t_2c6377b298de29 3
+Widgets/NetWorthStatsWidget.swift
+  s_3b694bad7ccc14::t_9773ea01500c4d 48-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "3efc99cd118ec37e4736a747cd13850a8be91179",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
