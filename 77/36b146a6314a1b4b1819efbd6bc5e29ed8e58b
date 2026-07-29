@@ -1,0 +1,21 @@
+App/Views/DashboardView.swift
+  s_3b694bad7ccc14::t_9f8dfab818a86f 114,122
+README.md
+  s_3b694bad7ccc14::t_fb8428136dc5a7 18-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "7736b146a6314a1b4b1819efbd6bc5e29ed8e58b",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
