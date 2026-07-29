@@ -13,23 +13,19 @@ the credentials it needs, plus a verdict on whether OAuth can replace them.
 - Status is per-surface, not global: `REST: connected · History: connected`.
   Balances come from the HMAC REST API; growth history comes only from MCP. One
   can work while the other is broken, and today the UI can't say which.
-- **OAuth is real and viable.** Kubera publishes RFC 9728 protected-resource
-  metadata and RFC 8414 authorization-server metadata. It supports
-  `authorization_code` + `refresh_token`, PKCE `S256`, and
-  `token_endpoint_auth_methods_supported: ["none"]` — i.e. public clients. There
-  is **no** `registration_endpoint` (no RFC 7591 dynamic client registration),
-  but `client_id_metadata_document_supported: true`, which is the modern
-  substitute: the client_id *is* an HTTPS URL serving the client's metadata. A
-  native app with no secret can therefore get tokens without Kubera
-  pre-provisioning anything.
-- One unverified link remains before committing to OAuth: whether Kubera's
-  authorize endpoint accepts a metadata-document `client_id` from *any* host or
-  only whitelisted ones, and which redirect scheme it will take. That is a single
-  live test, spelled out below. Kubera's help centre documents none of this
-  OAuth surface, so treat it as undocumented-but-real and keep the API-key path.
-- Plan: phase 1 unified connect screen + Settings IA (no protocol change),
-  phase 2 per-credential validation and status, phase 3 OAuth behind a flag.
-  Phase 1 and 2 are worth doing regardless of how phase 3 lands.
+- **OAuth exists and works, but is closed to us today.** Kubera publishes RFC 9728
+  and RFC 8414 metadata with `authorization_code` + `refresh_token`, PKCE `S256`,
+  and public clients (`"none"`). Tested live, though: despite advertising
+  `client_id_metadata_document_supported: true`, the server never fetches a client
+  metadata document — client lookup is a **registry read**, and only clients Kubera
+  registered (e.g. Claude's MCP integration) resolve. Ours returns
+  `1003 Invalid input`. OAuth therefore needs Kubera to add us; it is not
+  something this app can adopt on its own. Full evidence in
+  [OAuth: verdict](#oauth-verdict).
+- Plan: phase 1 unified connect screen + Settings IA (done), phase 2
+  per-credential validation and status (done), phase 3 OAuth **parked** pending a
+  registration from Kubera. The MCP token stays the history credential — and it is
+  required, not optional: Kubera serves history only over MCP.
 
 ## Research findings
 
@@ -303,89 +299,74 @@ Behaviour:
 
 ## OAuth: verdict
 
-**Viable, and the metadata is unusually accommodating — but do it as phase 3,
-after one live test, and don't let it block the Settings work.**
+**Blocked, not broken. OAuth works — but only for clients Kubera has registered
+on its side, so we cannot ship it unilaterally. Keep the token flow.**
 
-The evidence above is conclusive on the parts that usually kill native OAuth:
-public clients are allowed (`none`), PKCE `S256` is supported, refresh tokens
-exist, and client identity needs no pre-provisioning thanks to
-`client_id_metadata_document_supported`. The absence of a `registration_endpoint`
-would have been fatal a few years ago; with CIMD it isn't.
+Tested live against Kubera on 2026-07-29. What we learned:
 
-The flow, concretely:
+1. **The advertised CIMD support is not open registration.** The metadata says
+   `client_id_metadata_document_supported: true`, but the consent UI resolves a
+   client through `GET /api/v1/auth/user/oauth2/client/<url-encoded client_id>`,
+   and that endpoint is a **registry read, not a fetch**. Four probes returned the
+   byte-identical `{"errorCode":1003,"errorMessage":"Invalid input"}`:
+   a URL that 404s, a URL serving valid JSON of the wrong shape, a URL serving
+   arbitrary valid JSON, and a string that is not a URL at all. If the server
+   fetched and parsed the document, those four could not fail identically.
+2. **A registered client resolves and works.** Claude's MCP client is registered:
 
-1. Host `client_id` metadata at a stable HTTPS URL with a path, e.g.
-   `https://auchenberg.github.io/kubera-widgets/oauth-client.json`:
-   `{"client_id": "<the same URL, verbatim>", "client_name": "Kubera Mobile",
-   "redirect_uris": ["com.kubera.mobile:/oauth-callback"],
-   "token_endpoint_auth_method": "none",
-   "grant_types": ["authorization_code","refresh_token"],
-   "response_types": ["code"], "scope": "read_profile read_portfolio"}`
-   The same scheme goes in `CFBundleURLTypes` in `App/Info.plist`. See caveat 1
-   for the host-reversal question this raises.
-2. Generate a 32-byte `code_verifier`, `code_challenge = S256(verifier)`, and a
-   `state` nonce. Request `scope=read_profile read_portfolio` only — the app is
-   read-only, so never ask for `write_portfolio`.
-3. `ASWebAuthenticationSession` to
-   `https://app.kubera.com/oauth/authorize?...` with
-   `callbackURLScheme: "com.kubera.mobile"`. Leave
-   `prefersEphemeralWebBrowserSession = false` so an existing Kubera web session
-   in Safari means one tap to approve. This is the only supported way to do this
-   on iOS — `WKWebView` is both rejected by many providers and an App Store
-   review risk.
-4. Exchange the code at `https://api.kubera.com/api/v1/public/oauth2/token` with
-   `grant_type=authorization_code`, the verifier, and no client secret.
-5. Store `{accessToken, refreshToken, expiresAt, scope}` in the same shared
-   Keychain item, and send `Authorization: Bearer <accessToken>` to
-   `/api/v1/mcp`.
-6. On `Disconnect`, POST the refresh token to the `revocation_endpoint` before
-   deleting the Keychain item, so access actually ends server-side.
+   ```json
+   {"id":"https://claude.ai/oauth/mcp-oauth-client-metadata","name":"Claude",
+    "description":"Anthropic Claude(CIMD) MCP integration",
+    "scopes":"read_profile,read_portfolio,write_portfolio",
+    "tsCreated":1774954354}
+   ```
 
-The hard part is not the handshake, it's **refresh across two processes**. The
-widget extension and the app both read the same Keychain item and both refresh
-timelines in the background. If both notice an expired token and both redeem the
-same refresh token, a server that rotates single-use refresh tokens will
-invalidate one of them and silently log the user out. Mitigations, in order of
-preference: (a) never refresh from the widget extension — the app refreshes on
-foreground and on a background task, the widget uses whatever is stored and
-renders the last cached snapshot if the token is stale; (b) if the widget must
-refresh, guard the exchange with a Keychain-stored lock (owner + timestamp,
-short lease) and re-read the item after acquiring it; (c) tolerate rotation by
-writing the new pair before using it and retrying once on
-`invalid_grant`. On unrecoverable expiry the widgets must show cached values plus
-a small "Reconnect in the app" affordance — never a blank widget.
+   Driving `app.kubera.com/oauth/authorize` with that `client_id` renders the real
+   consent screen — "Claude wants access to your Kubera Account", the account
+   identity, an itemised scope list ("Read your profile", "View your portfolio
+   data"), and Allow / Deny. The same URL with our `client_id` renders
+   "Sorry, something went wrong". So the flow is sound; only client identity is
+   missing. (No grant was made during testing — Allow was never clicked.)
+3. **The token endpoint does not gate on client_id.** `POST .../oauth2/token`
+   with an arbitrary URL `client_id`, a custom-scheme `redirect_uri`, and a bogus
+   code answers `invalid_grant` / "Invalid code", not `invalid_client`. Useful to
+   know, but it does not help: without an authorization code from the consent
+   screen there is nothing to exchange.
+4. **This is a supported integration path, aimed squarely at us.** Kubera's own
+   bundle describes the feature as connecting AI assistants "so they can access
+   your portfolio in real time during a chat session", and lists
+   `/auth/user/oauth2/list` + `/revoke` so users can audit and revoke connected
+   apps. An MCP-consuming client is the intended shape — this app just is not on
+   the list.
 
-What OAuth buys: no key/secret/token paste at all, no credential to leak into a
-screenshot, revocable from Kubera's side, scope-limited to reads. What it costs:
-one static JSON file to host, a URL scheme to register, refresh plumbing across
-two processes, and the v2→v1 MCP migration.
+### What it would take
 
-**Before committing, run this one test** (30 minutes, non-destructive): publish a
-throwaway metadata document, build the authorize URL with it as `client_id` plus
-a PKCE challenge and the reverse-domain redirect, and open it in a browser while
-signed in to Kubera. Outcomes:
-- consent screen renders → CIMD is live for anonymous clients; build it.
-- an error naming the redirect URI → the redirect rules differ from the draft;
-  read the error, adjust the scheme or move the document to a host that yields an
-  acceptable one, retry.
-- `invalid_client` / unregistered client for the URL `client_id` → CIMD is
-  advertised but gated (whitelisted hosts or partners only). Then the honest
-  recommendation is the token flow, and the ask to Kubera is narrow: either an
-  RFC 7591 `registration_endpoint`, or a documented public `client_id` for
-  third-party native apps, plus documented token lifetimes.
-- consent renders but the code exchange fails → capture the `error` and
-  `error_description` verbatim before concluding anything; the metadata says
-  `none` is an accepted auth method, so a failure here is a bug worth reporting
-  to Kubera rather than a design constraint.
+Email `hello@kubera.com` and ask them to register a client. What they need:
 
-Note that Kubera's public help centre documents only the API key / MCP token
-flow — the OAuth deployment is discoverable from the metadata but undocumented.
-Treat undocumented behaviour as changeable: keep the API-key path working, and
-don't ship OAuth as the only way in.
+| Field | Value |
+| --- | --- |
+| `client_id` | the HTTPS URL where we host the metadata document |
+| `client_name` | Kubera Mobile |
+| `redirect_uris` | `com.kubera.mobile:/oauth-callback` |
+| scopes | `read_profile read_portfolio` (read-only; never `write_portfolio`) |
 
-Either way, **phases 1 and 2 are not wasted**: the connect screen becomes a
-one-button "Sign in with Kubera" surface, the per-surface status lines stay
-exactly as designed, and `Update credentials` becomes `Reconnect`.
+Note that Claude registered an **HTTPS** redirect on its own host
+(`https://claude.ai/api/mcp/auth_callback`) because it completes the flow
+server-side. A native app needs a custom scheme instead, so that is the one
+detail worth confirming with them rather than assuming — if they only accept
+HTTPS redirects, OAuth needs a redirect-broker page and stops being attractive
+for a device-only app.
+
+### Recommendation
+
+Do not build phase 3 on spec. The implementation cost is not the blocker —
+the handshake is a day's work and the refresh-token race is a known problem with
+known mitigations — but every line of it is dead code until a stranger at another
+company adds a database row. Ship phases 1-2 (done), keep the MCP token as the
+history credential, and revisit if Kubera answers. If they do register us, the
+payoff is real: one "Sign in with Kubera" button replaces the token field, and
+`revocation_endpoint` makes Disconnect actually end access server-side rather
+than just forgetting a string.
 
 ## Implementation plan
 
