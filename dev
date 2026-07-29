@@ -1,0 +1,49 @@
+#!/bin/bash
+# Build and run the app on the iOS simulator — the `npm run dev` of this repo.
+#
+#   ./dev              build, install, launch, stream logs
+#   SIM_NAME="iPhone 15" ./dev   use a different simulator
+set -euo pipefail
+cd "$(dirname "$0")"
+
+SIM_NAME="${SIM_NAME:-iPhone 15 Pro}"
+BUNDLE_ID="com.auchenberg.kuberawidgets"
+
+# Always regenerate: sources are globbed, so adding/removing files changes the
+# project without touching project.yml. xcodegen is sub-second.
+echo "▸ xcodegen"
+xcodegen --quiet
+
+# Reuse whatever simulator is already booted; otherwise boot $SIM_NAME.
+UDID=$(xcrun simctl list devices booted | grep -Eo '[0-9A-F]{8}-[0-9A-F-]{27}' | head -1 || true)
+if [ -z "$UDID" ]; then
+  UDID=$(xcrun simctl list devices available | grep -F "$SIM_NAME (" | grep -Eo '[0-9A-F]{8}-[0-9A-F-]{27}' | head -1)
+  if [ -z "$UDID" ]; then
+    echo "No available simulator named '$SIM_NAME'." >&2
+    exit 1
+  fi
+  echo "▸ booting $SIM_NAME"
+  xcrun simctl boot "$UDID"
+fi
+open -a Simulator
+
+echo "▸ building"
+xcodebuild \
+  -project KuberaWidgets.xcodeproj \
+  -scheme KuberaWidgets \
+  -destination "id=$UDID" \
+  -derivedDataPath build \
+  -quiet build
+
+APP="build/Build/Products/Debug-iphonesimulator/KuberaWidgets.app"
+echo "▸ installing"
+xcrun simctl install "$UDID" "$APP"
+
+echo "▸ launching"
+xcrun simctl terminate "$UDID" "$BUNDLE_ID" 2>/dev/null || true
+if [ -t 1 ]; then
+  # Interactive: stream the app's console until Ctrl+C.
+  exec xcrun simctl launch --console-pty "$UDID" "$BUNDLE_ID"
+else
+  xcrun simctl launch "$UDID" "$BUNDLE_ID"
+fi

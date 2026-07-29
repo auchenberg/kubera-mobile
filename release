@@ -1,0 +1,30 @@
+#!/bin/bash
+# Archive and upload a TestFlight build using the Apple ID signed into Xcode.
+#
+#   ./release            archive Release, sign for App Store, upload
+set -euo pipefail
+cd "$(dirname "$0")"
+
+ARCHIVE="build/KuberaWidgets.xcarchive"
+
+echo "▸ xcodegen"
+xcodegen --quiet
+
+echo "▸ archiving"
+xcodebuild \
+  -project KuberaWidgets.xcodeproj \
+  -scheme KuberaWidgets \
+  -configuration Release \
+  -destination 'generic/platform=iOS' \
+  -archivePath "$ARCHIVE" \
+  -allowProvisioningUpdates \
+  archive
+
+echo "▸ uploading to App Store Connect"
+xcodebuild \
+  -exportArchive \
+  -archivePath "$ARCHIVE" \
+  -exportOptionsPlist ExportOptions.plist \
+  -allowProvisioningUpdates
+
+echo "✓ uploaded — the build appears in TestFlight after processing (~5-15 min)"

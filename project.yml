@@ -1,0 +1,76 @@
+name: KuberaWidgets
+options:
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "17.0"
+settings:
+  base:
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: LFWWP8X7WA
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: 1
+    TARGETED_DEVICE_FAMILY: "1"
+
+targets:
+  KuberaWidgets:
+    type: application
+    platform: iOS
+    sources:
+      - App
+      - Shared
+    dependencies:
+      - target: KuberaWidgetsExtension
+        embed: true
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: Kubera Widgets
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        ITSAppUsesNonExemptEncryption: false
+        UILaunchScreen: {}
+        UIRequiresFullScreen: true
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        CFBundleURLTypes:
+          - CFBundleURLName: com.auchenberg.kuberawidgets
+            CFBundleURLSchemes:
+              - kuberawidgets
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.auchenberg.kuberawidgets
+        CODE_SIGN_ENTITLEMENTS: App/KuberaWidgets.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+
+  # Pure-logic tests over the Shared sources; no host app needed.
+  KuberaWidgetsTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - Tests
+      - Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.auchenberg.kuberawidgets.tests
+        GENERATE_INFOPLIST_FILE: true
+
+  KuberaWidgetsExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - Widgets
+      - Shared
+    info:
+      path: Widgets/Info.plist
+      properties:
+        CFBundleDisplayName: Kubera Widgets
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.auchenberg.kuberawidgets.widgets
+        CODE_SIGN_ENTITLEMENTS: Widgets/KuberaWidgetsExtension.entitlements
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME: WidgetBackground
+        SKIP_INSTALL: true

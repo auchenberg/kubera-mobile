@@ -1,0 +1,19 @@
+# Xcode
+build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+
+# macOS
+.DS_Store
+
+# Signing material
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+
+# local env files
+.env*.local
