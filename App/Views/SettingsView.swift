@@ -4,15 +4,7 @@ struct SettingsView: View {
     @Environment(AppStore.self) private var store
     @Environment(AppLock.self) private var appLock
     @State private var confirmingDisconnect = false
-    @State private var editRequest: EditRequest?
     @State private var checking = false
-
-    /// A pending presentation of `ConnectView`, carrying which field it should
-    /// open focused. Wrapped in a type with an id so each tap presents afresh.
-    private struct EditRequest: Identifiable {
-        let id = UUID()
-        let focus: ConnectView.Credential?
-    }
 
     var body: some View {
         NavigationStack {
@@ -29,13 +21,13 @@ struct SettingsView: View {
                     SectionTitle("Preferences")
                     preferencesCard
 
-                    SectionTitle("Data & privacy")
-                    privacyCard
-
                     ActionButton(title: "Disconnect Kubera", kind: .destructive) {
                         confirmingDisconnect = true
                     }
                     .padding(.top, 28)
+
+                    SectionTitle("Data & privacy")
+                    privacyCard
 
                     Spacer(minLength: 40)
                 }
@@ -43,9 +35,6 @@ struct SettingsView: View {
             }
             .background(Theme.background)
             .navigationTitle("Settings")
-            .sheet(item: $editRequest) { request in
-                ConnectView(mode: .edit(focus: request.focus))
-            }
             .confirmationDialog(
                 "Disconnect Kubera?",
                 isPresented: $confirmingDisconnect,
@@ -57,9 +46,9 @@ struct SettingsView: View {
                 Text(
                     """
                     This removes your API key, secret and MCP token from this device, along \
-                    with the cached balances and the on-device history log that growth \
-                    numbers are built from. Widgets stop updating. To change a key without \
-                    losing any of that, use Update credentials instead.
+                    with the cached balances and the on-device history log. Widgets stop \
+                    updating until you connect again. This is also how you change \
+                    credentials: disconnect, then reconnect with the new ones.
                     """
                 )
             }
@@ -79,16 +68,14 @@ struct SettingsView: View {
                 credentialRow(
                     label: "API key",
                     value: store.credentials.map { CredentialMask.key($0.apiKey) } ?? "Not set",
-                    isSet: store.credentials != nil,
-                    focus: .apiKey
+                    isSet: store.credentials != nil
                 )
 
                 RowDivider()
                 credentialRow(
                     label: "API secret",
                     value: CredentialMask.secret(store.credentials?.secret),
-                    isSet: store.credentials != nil,
-                    focus: .secret
+                    isSet: store.credentials != nil
                 )
 
                 RowDivider()
@@ -96,14 +83,8 @@ struct SettingsView: View {
                     label: "MCP token",
                     value: CredentialMask.secret(store.credentials?.mcpToken),
                     isSet: store.credentials?.mcpToken != nil,
-                    note: store.credentials?.mcpToken == nil ? "Required for growth history" : nil,
-                    focus: .mcpToken
+                    note: store.credentials?.mcpToken == nil ? "Required for growth history" : nil
                 )
-
-                ActionButton(title: "Update credentials") {
-                    editRequest = EditRequest(focus: nil)
-                }
-                .padding(.top, 18)
             }
         }
     }
@@ -169,8 +150,7 @@ struct SettingsView: View {
         label: String,
         value: String,
         isSet: Bool,
-        note: String? = nil,
-        focus: ConnectView.Credential
+        note: String? = nil
     ) -> some View {
         HStack(alignment: .firstTextBaseline) {
             VStack(alignment: .leading, spacing: 2) {
@@ -190,12 +170,6 @@ struct SettingsView: View {
             }
 
             Spacer(minLength: 12)
-
-            Button(isSet ? "Replace" : "Add") {
-                editRequest = EditRequest(focus: focus)
-            }
-            .font(.system(size: 15, weight: .semibold))
-            .foregroundStyle(Theme.text)
         }
         .padding(.vertical, 12)
     }

@@ -13,7 +13,8 @@ struct ConnectView: View {
     }
 
     enum Mode: Equatable {
-        /// Full screen, no navigation chrome — the app has nothing else to show.
+        /// Step 2 of the first run, pushed from `WelcomeView`. No chrome of its
+        /// own: the navigation stack supplies the back button.
         case firstRun
         /// Sheet from Settings, with Cancel and an optional focus target.
         case edit(focus: Credential?)
@@ -70,7 +71,7 @@ struct ConnectView: View {
     private var form: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                if !mode.isEdit { firstRunHeader }
+                if !mode.isEdit { stepHeader }
 
                 Text("Read-only. Nothing is ever written to your Kubera account.")
                     .font(.system(size: 14))
@@ -104,22 +105,30 @@ struct ConnectView: View {
                 Spacer(minLength: 24)
             }
             .padding(.horizontal, 20)
-            .padding(.top, mode.isEdit ? 8 : 48)
+            .padding(.top, mode.isEdit ? 8 : 12)
         }
         .background(Theme.background)
         .scrollDismissesKeyboard(.interactively)
     }
 
-    private var firstRunHeader: some View {
+    /// Step 2's heading. The app's name and promise belong to `WelcomeView`;
+    /// this screen only has to say what the three values are for.
+    private var stepHeader: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Kubera Mobile")
-                .font(.system(size: 32, weight: .bold))
+            Text("Provide your keys")
+                .font(.system(size: 30, weight: .bold))
                 .kerning(-0.5)
                 .foregroundStyle(Theme.text)
 
-            Text("Your net worth, on your Home Screen.")
-                .font(.system(size: 16))
-                .foregroundStyle(Theme.dim)
+            Text(
+                """
+                The API key and secret fetch your balances. The MCP token fetches \
+                growth history. All three are required.
+                """
+            )
+            .font(.system(size: 16))
+            .lineSpacing(4)
+            .foregroundStyle(Theme.dim)
         }
         .padding(.bottom, 20)
     }
@@ -236,18 +245,34 @@ struct ConnectView: View {
 
                 Text(
                     """
-                    Open Kubera on desktop and go to Settings → API. Create an API key and \
-                    copy the key and secret into the first two fields — the secret is only \
-                    shown once. Create an MCP Token on the same page for the third field. \
-                    Everything is stored only on this device.
+                    In Kubera on the web, "Create New API Key" gives you the first two \
+                    fields — the secret is only shown once. "Create MCP Token" on the same \
+                    page gives you the third. Everything is stored only on this device.
                     """
                 )
                 .font(.system(size: 14))
                 .lineSpacing(4)
                 .foregroundStyle(Theme.dim)
+
+                Link(destination: Self.apiSettingsURL) {
+                    HStack(spacing: 6) {
+                        Text("Open Kubera API settings")
+                            .font(.system(size: 14, weight: .semibold))
+                        Image(systemName: "arrow.up.right.square")
+                            .font(.system(size: 13, weight: .semibold))
+                    }
+                    .foregroundStyle(Theme.text)
+                }
+                .padding(.top, 4)
             }
         }
     }
+
+    /// Deep link straight to the API tab of Kubera's account settings, so the
+    /// three values are one tap away rather than four menus deep.
+    static let apiSettingsURL = URL(
+        string: "https://app.kubera.com/networth#modal=account_settings&tab=api_access"
+    )!
 
     private func fieldError(_ message: String) -> some View {
         Text(message)
@@ -312,7 +337,7 @@ struct ConnectView: View {
     }
 }
 
-/// One labelled credential row: field, reveal toggle, paste button.
+/// One labelled credential row: field plus a reveal toggle for secrets.
 private struct CredentialFieldRow: View {
     let label: String
     let placeholder: String
@@ -364,15 +389,6 @@ private struct CredentialFieldRow: View {
                     .accessibilityLabel(reveal ? "Hide \(label)" : "Show \(label)")
                 }
 
-                // PasteButton rather than a plain button: it reads the clipboard
-                // without the system's paste-permission prompt.
-                PasteButton(payloadType: String.self) { items in
-                    guard let pasted = items.first else { return }
-                    text = sanitize(pasted)
-                }
-                .labelStyle(.iconOnly)
-                .buttonBorderShape(.capsule)
-                .tint(Theme.dim)
             }
             .padding(.horizontal, 12)
             .frame(minHeight: 48)
@@ -395,7 +411,7 @@ private struct CredentialFieldRow: View {
     }
 }
 
-#Preview("First run") {
+#Preview("First run — step 2") {
     ConnectView(mode: .firstRun)
         .environment(AppStore())
 }
