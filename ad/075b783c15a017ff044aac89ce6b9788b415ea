@@ -1,0 +1,51 @@
+App/AppStore.swift
+  s_3b694bad7ccc14::t_4b6233f590a508 72
+Widgets/Provider.swift
+  s_3b694bad7ccc14::t_2c70b70755fead 21
+  s_3b694bad7ccc14::t_f6648aabbc63a2 12-14,37-42,53-58,71-72,82-97,101,104-109,111
+  s_3b694bad7ccc14::t_002fcf3f3d6050 17-20,22
+Widgets/WidgetBundle.swift
+  s_3b694bad7ccc14::t_7f3168af9ddc9f 8
+Tests/FormatTests.swift
+  s_3b694bad7ccc14::t_1f431890039b4e 1-54
+Tests/TrendsCalculatorTests.swift
+  s_3b694bad7ccc14::t_a8f16ace0f4c92 1-53,55-141
+  s_3b694bad7ccc14::t_34685cacd30e14 54
+Widgets/NetWorthStatsWidget.swift
+  s_3b694bad7ccc14::t_4af80f9ae8d675 135-137,139-150
+  s_3b694bad7ccc14::t_b4027d5096b312 1-134,138,151-162
+Shared/KuberaAPI.swift
+  s_3b694bad7ccc14::t_cd66c882fc488e 96,99-118,192-194,198-202,204-230,235-250
+  s_3b694bad7ccc14::t_874f6278c7e921 97-98,119-136,195-197,203,231-234
+App/Views/WidgetsView.swift
+  s_3b694bad7ccc14::t_22933b36d92286 11,19-21,257-293
+  s_3b694bad7ccc14::t_0f67298a083192 294-295
+Shared/Shared.swift
+  s_3b694bad7ccc14::t_cfad7ec223b4bc 14,162-175
+Shared/Trends.swift
+  s_3b694bad7ccc14::t_16fe226a8f6870 1-97
+README.md
+  s_3b694bad7ccc14::t_4aa5018d9321fa 11
+project.yml
+  s_3b694bad7ccc14::t_fa15e43ae9ba8b 44-55
+Shared/Format.swift
+  s_3b694bad7ccc14::t_507d0f1dbac739 57-89
+KuberaWidgets.xcodeproj/project.pbxproj
+  s_3b694bad7ccc14::t_361c62c2028d0c 10,13,16,18,22,26,31,37,39,73,79,82,84,89,115,126,138,160-168,175,201-217,251-254,276,302-314,329,341,345,484-499,561-576,615-623
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "ad075b783c15a017ff044aac89ce6b9788b415ea",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
