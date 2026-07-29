@@ -1,4 +1,4 @@
-# Kubera Widgets
+# Kubera Mobile
 
 A native iOS app (SwiftUI + WidgetKit) that puts your [Kubera](https://www.kubera.com)
 net worth on your Home Screen.
@@ -30,9 +30,12 @@ In the app:
   the live API, stored only on-device.
 - **Net Worth dashboard** — net worth, assets/debts, allocation, pull-to-refresh,
   portfolio switcher for multi-portfolio accounts.
-- **Widgets tab** — live previews of each widget using your data, plus widget options:
-  privacy mode (mask amounts), show/hide gain, compact numbers ($1.24M vs $1,240,000).
-- **Settings** — pick which portfolio widgets display, disconnect.
+- **Widgets tab** — live previews of each widget rendered with your data, and an
+  "Add widgets" walkthrough.
+- **Settings** — Face ID lock (on by default), privacy mode (mask amounts), compact
+  numbers ($1.24M vs $1,240,000), widget portfolio selection, disconnect.
+- **Face ID lock** — the app locks when you leave it (30-second grace period) and
+  unlocks with Face ID / Touch ID / passcode.
 
 ## How data flows
 

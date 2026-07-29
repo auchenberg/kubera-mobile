@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(AppStore.self) private var store
+    @Environment(AppLock.self) private var appLock
     @State private var confirmingDisconnect = false
     @State private var mcpToken = ""
     @State private var savingToken = false
@@ -18,6 +19,9 @@ struct SettingsView: View {
                         SectionTitle("Widget portfolio")
                         portfolioCard
                     }
+
+                    SectionTitle("Preferences")
+                    preferencesCard
 
                     SectionTitle("Growth history")
                     mcpTokenCard
@@ -99,6 +103,65 @@ struct SettingsView: View {
             }
         }
         .contentShape(Rectangle())
+        .padding(.vertical, 12)
+    }
+
+    private var preferencesCard: some View {
+        Card(padding: .cardRows) {
+            VStack(spacing: 0) {
+                preferenceRow(
+                    "Require Face ID",
+                    description: "Lock the app when you leave it",
+                    value: store.settings.appLockEnabled,
+                    onToggle: { appLock.setEnabled($0) }
+                ) { settings, enabled in
+                    settings.appLockEnabled = enabled
+                }
+
+                RowDivider()
+                preferenceRow(
+                    "Privacy mode",
+                    description: "Mask all amounts on the Home Screen",
+                    value: store.settings.privacyMode
+                ) { settings, enabled in
+                    settings.privacyMode = enabled
+                }
+
+                RowDivider()
+                preferenceRow(
+                    "Compact numbers",
+                    description: "Show $1.24M instead of $1,240,000",
+                    value: store.settings.compactNumbers
+                ) { settings, enabled in
+                    settings.compactNumbers = enabled
+                }
+            }
+        }
+    }
+
+    private func preferenceRow(
+        _ label: String,
+        description: String,
+        value: Bool,
+        onToggle: ((Bool) -> Void)? = nil,
+        apply: @escaping (inout WidgetSettings, Bool) -> Void
+    ) -> some View {
+        Toggle(isOn: Binding(
+            get: { value },
+            set: { newValue in
+                store.updateSettings { apply(&$0, newValue) }
+                onToggle?(newValue)
+            }
+        )) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label)
+                    .font(.system(size: 16))
+                    .foregroundStyle(Theme.text)
+                Text(description)
+                    .font(.system(size: 13))
+                    .foregroundStyle(Theme.dim)
+            }
+        }
         .padding(.vertical, 12)
     }
 
