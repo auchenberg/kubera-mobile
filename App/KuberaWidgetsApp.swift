@@ -35,6 +35,13 @@ private struct RootView: View {
     @Environment(AppStore.self) private var store
     @Environment(AppLock.self) private var appLock
 
+    /// Nothing to protect until an account is connected, so onboarding is never
+    /// gated — a first run would otherwise open on a Face ID prompt guarding an
+    /// empty app.
+    private var shouldLock: Bool {
+        store.credentials != nil && store.settings.appLockEnabled && appLock.isLocked
+    }
+
     var body: some View {
         ZStack {
             if store.credentials == nil {
@@ -43,7 +50,7 @@ private struct RootView: View {
                 MainTabView()
             }
 
-            if appLock.isLocked && store.settings.appLockEnabled {
+            if shouldLock {
                 LockScreenView()
             }
         }
@@ -93,19 +100,19 @@ private struct MainTabView: View {
         TabView(selection: $selection) {
             OverviewView()
                 .tabItem {
-                    Label("Overview", systemImage: symbol("chart.line.uptrend.xyaxis", for: .dashboard))
+                    Label("Overview", systemImage: icon(.dashboard))
                 }
                 .tag(Tab.dashboard)
 
             WidgetsView()
                 .tabItem {
-                    Label("Widgets", systemImage: symbol("square.grid.2x2", for: .widgets))
+                    Label("Widgets", systemImage: icon(.widgets))
                 }
                 .tag(Tab.widgets)
 
             SettingsView()
                 .tabItem {
-                    Label("Settings", systemImage: symbol("gearshape", for: .settings))
+                    Label("Settings", systemImage: icon(.settings))
                 }
                 .tag(Tab.settings)
         }
@@ -113,9 +120,9 @@ private struct MainTabView: View {
             // The dashboard shows its own error state for a failed refresh.
             try? await store.refresh()
         }
-        // Deep links select a tab: kuberawidgets://widgets and
-        // kuberawidgets://settings; anything else — including every widget's
-        // plain kuberawidgets:// — lands on the dashboard rather than
+        // Deep links select a tab: kubera://widgets and
+        // kubera://settings; anything else — including every widget's
+        // plain kubera:// — lands on the dashboard rather than
         // whatever tab was open last.
         .onOpenURL { url in
             switch url.host() {
@@ -126,7 +133,15 @@ private struct MainTabView: View {
         }
     }
 
-    private func symbol(_ name: String, for tab: Tab) -> String {
-        selection == tab ? "\(name).fill" : name
+    /// Explicit pairs rather than appending ".fill": not every symbol has a
+    /// filled variant, and a name that doesn't resolve renders as nothing —
+    /// which is how the Overview tab lost its icon when selected.
+    private func icon(_ tab: Tab) -> String {
+        let selected = selection == tab
+        switch tab {
+        case .dashboard: return "chart.line.uptrend.xyaxis"
+        case .widgets: return selected ? "square.grid.2x2.fill" : "square.grid.2x2"
+        case .settings: return selected ? "gearshape.fill" : "gearshape"
+        }
     }
 }
