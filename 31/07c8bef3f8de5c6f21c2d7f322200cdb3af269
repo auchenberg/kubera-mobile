@@ -1,0 +1,21 @@
+specs/settings-and-auth.md
+  s_3b694bad7ccc14::t_ac2578711c1fe3 137-158
+  s_3b694bad7ccc14::t_d1f955bee39e2b 326,330-331
+  s_3b694bad7ccc14::t_de4dfc4b3de5cf 337
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "3107c8bef3f8de5c6f21c2d7f322200cdb3af269",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
