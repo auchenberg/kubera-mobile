@@ -1,0 +1,21 @@
+App/KuberaWidgetsApp.swift
+  s_3b694bad7ccc14::t_e7045b03f6497c 123-125
+  s_3b694bad7ccc14::t_495f649cd3a5ee 38-44,53
+  s_3b694bad7ccc14::t_1d6a83ebcf07c3 103,109,115,136-145
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "7a12d54f8ac92a800f6419740e84a2457afaa4c4",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
