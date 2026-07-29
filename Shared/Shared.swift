@@ -64,6 +64,9 @@ struct WidgetSettings: Codable {
     var privacyMode: Bool = false
     var showGain: Bool = true
     var compactNumbers: Bool = true
+    /// Lock the app behind Face ID / passcode. On by default — settings blobs
+    /// written before this key existed decode to true.
+    var appLockEnabled: Bool = true
 
     init() {}
 
@@ -72,6 +75,7 @@ struct WidgetSettings: Codable {
         privacyMode = try container.decodeIfPresent(Bool.self, forKey: .privacyMode) ?? false
         showGain = try container.decodeIfPresent(Bool.self, forKey: .showGain) ?? true
         compactNumbers = try container.decodeIfPresent(Bool.self, forKey: .compactNumbers) ?? true
+        appLockEnabled = try container.decodeIfPresent(Bool.self, forKey: .appLockEnabled) ?? true
     }
 }
 
