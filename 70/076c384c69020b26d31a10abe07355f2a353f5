@@ -1,0 +1,37 @@
+dev
+  s_3b694bad7ccc14::t_29c9f37efdcb74 6-8,12
+Widgets/NetWorthStatsWidget.swift
+  s_3b694bad7ccc14::t_e7045b03f6497c 34
+Widgets/CagrWidget.swift
+  s_3b694bad7ccc14::t_e7045b03f6497c 36
+KuberaWidgets.xcodeproj/project.pbxproj
+  s_3b694bad7ccc14::t_201fdbe4ee89b3 308,312,316,503,625
+  s_3b694bad7ccc14::t_de36d0fdcfa237 41,135,150,410
+App/Info.plist
+  s_3b694bad7ccc14::t_1c1c9632bfec03 28
+Shared/KuberaMCP.swift
+  s_3b694bad7ccc14::t_1c1c9632bfec03 12
+project.yml
+  s_3b694bad7ccc14::t_e7045b03f6497c 39
+  s_3b694bad7ccc14::t_201fdbe4ee89b3 9
+Shared/KuberaAPI.swift
+  s_3b694bad7ccc14::t_1c1c9632bfec03 207
+Widgets/AssetsDebtsWidget.swift
+  s_3b694bad7ccc14::t_e7045b03f6497c 30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "70076c384c69020b26d31a10abe07355f2a353f5",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
