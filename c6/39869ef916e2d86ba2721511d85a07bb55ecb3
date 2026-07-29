@@ -1,0 +1,205 @@
+App/Theme.swift
+  s_3b694bad7ccc14::t_6d02b456d77bf2 1-33
+App/KuberaWidgetsApp.swift
+  s_3b694bad7ccc14::t_31485b0d8dd083 1-27,32,34-35,37-38,40,42-44,46,48-50,52,54-58,68-69
+  s_3b694bad7ccc14::t_9c3fd810784b34 59-63
+  s_3b694bad7ccc14::t_932be1cec34e62 28-31,33,36,39,41,45,47,51,53,64-67
+Widgets/Provider.swift
+  s_3b694bad7ccc14::t_027664d64bd2cc 7,15-17,24-25,27,35,45-46,62-63,93,96-103,111,117,119,121-126,133-134,137-138
+  s_3b694bad7ccc14::t_f6648aabbc63a2 12-14,41-44,47-61,64,95,113-115,129-132,135
+  s_3b694bad7ccc14::t_002fcf3f3d6050 20-23,26
+  s_3b694bad7ccc14::t_2df5439c621477 66-67,69-86,110,127,136
+  s_3b694bad7ccc14::t_8a9e98f839ee9a 120
+  s_3b694bad7ccc14::t_4170a87d1ee194 116
+  s_3b694bad7ccc14::t_f1668a8609fd65 118
+Shared/Format.swift
+  s_3b694bad7ccc14::t_507d0f1dbac739 57-89,99
+  s_3b694bad7ccc14::t_4ae493fb016f1a 56
+  s_3b694bad7ccc14::t_879850f46131a5 8-55,100-107
+Tests/HistoryLogTests.swift
+  s_3b694bad7ccc14::t_adf5774bae4fd3 1-33,36,38-42,44-45
+  s_3b694bad7ccc14::t_724664f86db9ab 34-35,37,43
+Widgets/Assets.xcassets/Contents.json
+  s_3b694bad7ccc14::t_43e892c37c0059 1-6
+App/Views/WidgetsView.swift
+  s_3b694bad7ccc14::t_6ea340793fa9ce 48
+  s_3b694bad7ccc14::t_2f1916f9ffec94 2,18-35,38-47,50-57,173-177,179-181,196,199-213,215,219-223
+  s_3b694bad7ccc14::t_855e03e9428946 169-172,178,182
+  s_3b694bad7ccc14::t_4b7f202b8677dd 217-218
+  s_3b694bad7ccc14::t_3219f130218dcf 1,3-11,13-16,49,58-71,73-78,80-130,132-168,183-184,192-195,197,224-226
+  s_3b694bad7ccc14::t_c622ceb24593d9 131
+  s_3b694bad7ccc14::t_3fc00934573b59 214,216
+  s_3b694bad7ccc14::t_d5f71d5c3a4132 72
+  s_3b694bad7ccc14::t_291367d418c9d0 185-191
+  s_3b694bad7ccc14::t_5f1556b24a84cf 12,37
+  s_3b694bad7ccc14::t_b3620eff2f3ac7 79
+  s_3b694bad7ccc14::t_e633efc7f3b49e 17
+  s_3b694bad7ccc14::t_b5c88a76ac74bb 36
+  s_3b694bad7ccc14::t_426857febdb0c6 198
+.gitignore
+  s_3b694bad7ccc14::t_8d5222de518e51 1-6,8-9,11
+App/Views/Components.swift
+  s_3b694bad7ccc14::t_cf9b8076fc8c92 1-107
+Tests/FormatTests.swift
+  s_3b694bad7ccc14::t_1f431890039b4e 1-54
+Shared/MarketComps.swift
+  s_3b694bad7ccc14::t_9a787f53e3d12b 150-164
+  s_3b694bad7ccc14::t_4a99c6427e3dc5 1-20,24-39,42,46-55,58-88,90-91,93-101,103-118,122-129,132,134-137,139-149
+  s_3b694bad7ccc14::t_804255fbd5fec3 120-121
+  s_3b694bad7ccc14::t_9fd434278391cf 21-23,40-41,43-45,56-57,89,92,102,119,130-131,133,138
+App/Views/DashboardView.swift
+  s_3b694bad7ccc14::t_9f8dfab818a86f 114,122
+  s_3b694bad7ccc14::t_ca45d358a24cc1 1-113,115-121,123-176
+KuberaWidgets.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+  s_3b694bad7ccc14::t_0f357b96975bf5 1-7
+README.md
+  s_3b694bad7ccc14::t_e2e361b0f8dbcc 77-82
+  s_3b694bad7ccc14::t_38b1b60de3f283 3-4,6-9,15-16,23-24,33,44,48-56,66-72,85-88,90-94
+  s_3b694bad7ccc14::t_442940a86a4bdc 84
+  s_3b694bad7ccc14::t_c623e339e49a8d 103-105
+Widgets/KuberaWidgetsExtension.entitlements
+  s_3b694bad7ccc14::t_fa1755b1057798 1-14
+Widgets/AssetsDebtsWidget.swift
+  s_3b694bad7ccc14::t_f085dfbbbb20cd 25-30
+Widgets/Assets.xcassets/WidgetBackground.colorset/Contents.json
+  s_3b694bad7ccc14::t_5d4565ccc87d30 2-20
+Tests/TrendsCalculatorTests.swift
+  s_3b694bad7ccc14::t_a8f16ace0f4c92 1-37,39-54,56-64,69-71,84-158
+  s_3b694bad7ccc14::t_34685cacd30e14 55
+  s_3b694bad7ccc14::t_23bc8471a02c30 65-68,72-81
+  s_3b694bad7ccc14::t_6f1124a03eab32 82-83
+  s_3b694bad7ccc14::t_fae068ad7b8b86 38
+  s_3b694bad7ccc14::t_1b3c6bd7b0a85b 159
+Tests/KuberaMCPParseTests.swift
+  s_3b694bad7ccc14::t_27a2b9c17a2ff9 1-45,47-54
+  s_3b694bad7ccc14::t_be76dee8aed9b0 46
+Shared/Trends.swift
+  s_3b694bad7ccc14::t_c4ff1585d72f48 33,41-47,53
+  s_3b694bad7ccc14::t_0df9f26cf30094 105,109-133,139-141,151-162
+  s_3b694bad7ccc14::t_43370a820aaa1c 134-138,142-150
+  s_3b694bad7ccc14::t_16fe226a8f6870 1-12,14-32,34-40,48-52,54-104,106-108
+  s_3b694bad7ccc14::t_ed73fd3822b4c8 13
+App/Views/SignInView.swift
+  s_3b694bad7ccc14::t_5a0f7712379413 121
+  s_3b694bad7ccc14::t_b194352d04c404 95-98
+  s_3b694bad7ccc14::t_dfee4ff7ccb54c 1-7,9-59,67-94,99-120,122-146
+  s_3b694bad7ccc14::t_e9b80006317448 8
+  s_3b694bad7ccc14::t_46f1d36ff392dd 60-66
+dev
+  s_3b694bad7ccc14::t_6e6f150d7e492a 1-11,16-49
+  s_3b694bad7ccc14::t_7e863efe3852e4 12-15
+Shared/Shared.swift
+  s_3b694bad7ccc14::t_7a80980bf39f95 4-13,19-30,35-169,247-318
+  s_3b694bad7ccc14::t_4c80fd021158f6 15,185-197
+  s_3b694bad7ccc14::t_21e5762c884ba2 31-34
+  s_3b694bad7ccc14::t_cfad7ec223b4bc 14,170-183
+  s_3b694bad7ccc14::t_294ac8664576fa 16
+  s_3b694bad7ccc14::t_8ec29bc3be8e3c 17-18
+  s_3b694bad7ccc14::t_ce490d2f143428 237-246
+  s_3b694bad7ccc14::t_0a80372ef3b5b0 198
+  s_3b694bad7ccc14::t_d81c0a2a94d207 184,199-222,234-236
+  s_3b694bad7ccc14::t_cad0bba86ca80b 223-233
+Widgets/WidgetBundle.swift
+  s_3b694bad7ccc14::t_7f3168af9ddc9f 7
+  s_3b694bad7ccc14::t_825670b36094e7 8
+Shared/WidgetViews.swift
+  s_3b694bad7ccc14::t_d07dfd791d77ea 1-361
+App/KuberaWidgets.entitlements
+  s_3b694bad7ccc14::t_fa1755b1057798 1-14
+Shared/KuberaMCP.swift
+  s_3b694bad7ccc14::t_4bf628f2f81fab 18-20,22-25,29-36
+  s_3b694bad7ccc14::t_ece42a81113731 15-17,26
+  s_3b694bad7ccc14::t_af4aee00d04be6 71,84-101
+  s_3b694bad7ccc14::t_e05b5380bdc7ee 103
+  s_3b694bad7ccc14::t_daa910f6ddab2c 72-76,102,104-122,126,131-132,173
+  s_3b694bad7ccc14::t_be30a6b288f3a7 61,67,80,123-125,127-130
+  s_3b694bad7ccc14::t_041e26d46eca06 65-66
+  s_3b694bad7ccc14::t_30363a4480c074 37-38
+  s_3b694bad7ccc14::t_fd8ace66992ba4 133-134
+  s_3b694bad7ccc14::t_ff038fa68cbbb7 144,151-172
+  s_3b694bad7ccc14::t_3bbb9aaff15c6f 1-14,21,27-28,39-60,62-64,68-70,77-79,81-83,135-143,145-150,174
+Tests/HistoryParseTests.swift
+  s_3b694bad7ccc14::t_de8be696a0d15e 1-36
+Widgets/CagrWidget.swift
+  s_3b694bad7ccc14::t_3cc9a00a250a20 5-7,15
+  s_3b694bad7ccc14::t_1ab2740d594fb3 1-4,8-14,16-28,37-39
+  s_3b694bad7ccc14::t_c56dc9add4c4bf 29-36
+App/Info.plist
+  s_3b694bad7ccc14::t_0f357b96975bf5 1-37,40-45
+  s_3b694bad7ccc14::t_061178a7d7e9b1 38-39
+App/AppStore.swift
+  s_3b694bad7ccc14::t_4b6233f590a508 83
+  s_3b694bad7ccc14::t_d6b4b98e34c6b5 27-31
+  s_3b694bad7ccc14::t_d768dc7e909722 84
+  s_3b694bad7ccc14::t_e6798721d5b8d3 156-159,161-164
+  s_3b694bad7ccc14::t_7bcecab7c4975f 153-155,160,165
+  s_3b694bad7ccc14::t_a017218264918b 49-50,53-54
+  s_3b694bad7ccc14::t_e06951cb2bc0d4 78-79
+  s_3b694bad7ccc14::t_b58e1f4d992857 1-26,32-42,45-48,51-52,55-77,80-82,85-111,127-152,166-171
+  s_3b694bad7ccc14::t_d5f4fa919f61ce 43-44
+  s_3b694bad7ccc14::t_db0433ed660447 112-126
+KuberaWidgets.xcodeproj/project.pbxproj
+  s_3b694bad7ccc14::t_92b149865fde76 21,26,29,49,81,97,187,199,340-341,360,380
+  s_3b694bad7ccc14::t_361c62c2028d0c 11,15,18,20,24,30,39,50,52,88,95,101,103,110,135,146,159,180-183,188-192,201,228-244,278-281,303,329-334,337,342-344,346-348,365,381,384,524-539,601-616,655-663
+  s_3b694bad7ccc14::t_2b5aa9d1479451 34,40-41,44,80,96,185,198,336,338,358,379
+  s_3b694bad7ccc14::t_4dd40007b4825d 10,13,104,106,156,184,335,376
+  s_3b694bad7ccc14::t_3a31dfbdff2e55 31-32,35,48,94,98,186,202,339,345,366,386
+  s_3b694bad7ccc14::t_0f357b96975bf5 1-9,12,14,16-17,19,22-23,25,27-28,33,36-38,42-43,45-47,51,53-79,82-87,89-93,99-100,102,105,107-109,111-134,136-145,147-155,157-158,160-179,193-197,200,203-227,245-277,282-302,304-328,349-357,359,361-364,367-375,377-378,382-383,385,387-523,540-600,617-654,664-676
+App/Assets.xcassets/Contents.json
+  s_3b694bad7ccc14::t_5c92835010d3aa 1-6
+project.yml
+  s_3b694bad7ccc14::t_fa15e43ae9ba8b 45-56
+  s_3b694bad7ccc14::t_ed85edf98da76d 32
+  s_3b694bad7ccc14::t_e514d0d8bba350 1-31,33-44,57-76
+Widgets/Info.plist
+  s_3b694bad7ccc14::t_0f357b96975bf5 1-29
+App/Assets.xcassets/AppIcon.appiconset/Contents.json
+  s_3b694bad7ccc14::t_9f37d41c38f9d9 1-14
+Shared/KuberaAPI.swift
+  s_3b694bad7ccc14::t_900bd7fe3cf546 5-96,138-152,162-192
+  s_3b694bad7ccc14::t_10b04bbb345084 234-235
+  s_3b694bad7ccc14::t_859495c3a73170 236-239
+  s_3b694bad7ccc14::t_25a14b988bf098 153
+  s_3b694bad7ccc14::t_fcc964f8929ded 207,212-216,221,225
+  s_3b694bad7ccc14::t_cd66c882fc488e 97,100-119,193-195,199-203,205-206,208-211,217-220,222-224,226-233,240-244,249-264
+  s_3b694bad7ccc14::t_874f6278c7e921 98-99,120-137,196-198,204,245-248
+  s_3b694bad7ccc14::t_2c6377b298de29 3
+Widgets/Assets.xcassets/AccentColor.colorset/Contents.json
+  s_3b694bad7ccc14::t_38006a0a9fa01e 2-18
+  s_3b694bad7ccc14::t_d50784a5c28f90 20
+App/Views/SettingsView.swift
+  s_3b694bad7ccc14::t_0c44ec8c2e408c 22-24
+  s_3b694bad7ccc14::t_c09c7e361f3ca0 1-5,9-21,25-104,172-192
+  s_3b694bad7ccc14::t_f0caf2bfbd5e14 162-167
+  s_3b694bad7ccc14::t_4daec62c812508 105-161,168-171
+  s_3b694bad7ccc14::t_e911e3100421b2 6-8
+Widgets/NetWorthStatsWidget.swift
+  s_3b694bad7ccc14::t_7206c9b716e701 12-15
+  s_3b694bad7ccc14::t_00c3858f4d9fb8 10
+  s_3b694bad7ccc14::t_b4027d5096b312 1-9,11,16-27,35-37
+  s_3b694bad7ccc14::t_8a3ab069d9900a 28-34
+Tests/MarketCompsTests.swift
+  s_3b694bad7ccc14::t_24545da466c8f6 1-105
+release
+  s_3b694bad7ccc14::t_a978302b127289 1-30
+ExportOptions.plist
+  s_3b694bad7ccc14::t_e301c73d01565a 1-16
+LICENSE
+  s_3b694bad7ccc14::t_f3a12f2d1cabdc 1-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "c639869ef916e2d86ba2721511d85a07bb55ecb3",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
