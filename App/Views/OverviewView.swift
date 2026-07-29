@@ -11,14 +11,13 @@ struct OverviewView: View {
     @Environment(AppStore.self) private var store
     @Environment(\.colorScheme) private var colorScheme
 
-    @State private var range: ChartRange = .month
+    @State private var range: ChartRange = .ytd
     @State private var errorMessage: String?
     /// Parsed once per load rather than per render — each parse walks the whole
     /// series through a DateFormatter.
     @State private var netWorthSeries: [ChartPoint] = []
     @State private var assetSeries: [ChartPoint] = []
     @State private var debtSeries: [ChartPoint] = []
-    @State private var historyNote: String?
 
     /// Falls back to the sample portfolio so the screen never renders empty —
     /// a signed-out or pre-first-fetch launch still shows the real layout.
@@ -209,8 +208,10 @@ struct OverviewView: View {
         .foregroundStyle(Theme.dim)
     }
 
+    /// Shown only in place of a chart that has nothing to draw, so it explains
+    /// an absence rather than annotating real data.
     private var emptyChartNote: some View {
-        Text(historyNote ?? "Growth history needs a Kubera MCP token.")
+        Text("Not enough history yet. Growth fills in as Kubera's history loads.")
             .font(.system(size: 13))
             .foregroundStyle(Theme.dim)
             .fixedSize(horizontal: false, vertical: true)
@@ -422,21 +423,13 @@ struct OverviewView: View {
     // MARK: - Footer
 
     private var footer: some View {
-        VStack(spacing: 4) {
-            Text("Updated \(Format.updatedAt(snapshot.updatedAt))")
-                .font(.system(size: 12))
-                .foregroundStyle(Theme.dim)
-            // Only worth showing next to the chart; repeating it here when the
-            // chart is hidden would say the same thing twice.
-            if let historyNote, visiblePoints.count >= 2 {
-                Text(historyNote)
-                    .font(.system(size: 12))
-                    .foregroundStyle(Theme.dim)
-                    .multilineTextAlignment(.center)
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 24)
+        // The history fetch outcome is a diagnostic, not dashboard content — it
+        // belongs in Settings, where it can be acted on.
+        Text("Updated \(Format.updatedAt(snapshot.updatedAt))")
+            .font(.system(size: 12))
+            .foregroundStyle(Theme.dim)
+            .frame(maxWidth: .infinity)
+            .padding(.top, 24)
     }
 
     // MARK: - Data
@@ -461,7 +454,6 @@ struct OverviewView: View {
         netWorthSeries = OverviewChart.points(from: series, calendar: .current)
         assetSeries = OverviewChart.points(from: series, calendar: .current) { $0.assetTotal }
         debtSeries = OverviewChart.points(from: series, calendar: .current) { $0.debtTotal }
-        historyNote = SharedStore.historyStatus()
     }
 
     // MARK: - Formatting helpers
