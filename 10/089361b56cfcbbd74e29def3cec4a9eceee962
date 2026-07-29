@@ -1,0 +1,35 @@
+KuberaWidgets.xcodeproj/project.pbxproj
+  s_3b694bad7ccc14::t_4dd40007b4825d 10,13,86,88,138,166,311,343
+Widgets/NetWorthStatsWidget.swift
+  s_3b694bad7ccc14::t_4fb38dda100d4b 196-202
+  s_3b694bad7ccc14::t_d8df12c097798f 36-64
+  s_3b694bad7ccc14::t_7206c9b716e701 12-15
+  s_3b694bad7ccc14::t_2be77dec327c78 203-204
+README.md
+  s_3b694bad7ccc14::t_a81ef4151e5ae8 10-11
+Widgets/CagrWidget.swift
+  s_3b694bad7ccc14::t_1ab2740d594fb3 1-94
+Widgets/WidgetBundle.swift
+  s_3b694bad7ccc14::t_825670b36094e7 8
+App/Views/WidgetsView.swift
+  s_3b694bad7ccc14::t_3fc00934573b59 269-296
+  s_3b694bad7ccc14::t_5f1556b24a84cf 11,16,19-20
+  s_3b694bad7ccc14::t_6ea340793fa9ce 21
+  s_3b694bad7ccc14::t_4b7f202b8677dd 297-298
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "10089361b56cfcbbd74e29def3cec4a9eceee962",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
