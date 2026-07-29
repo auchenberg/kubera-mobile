@@ -1,0 +1,46 @@
+README.md
+  s_3b694bad7ccc14::t_331dec6b94629f 11
+Shared/Shared.swift
+  s_3b694bad7ccc14::t_4c80fd021158f6 15,179-191
+  s_3b694bad7ccc14::t_0a80372ef3b5b0 192
+App/Views/WidgetsView.swift
+  s_3b694bad7ccc14::t_3506c48ddb845d 238-239,249-250
+  s_3b694bad7ccc14::t_9dc5d8bde2e21c 273,280,284-285,287,293-294,296-301,303-306,308
+  s_3b694bad7ccc14::t_e6217c39548e27 286
+KuberaWidgets.xcodeproj/project.pbxproj
+  s_3b694bad7ccc14::t_92b149865fde76 21,26,29,41,72,86,173,184,321-322,339,357
+Widgets/Provider.swift
+  s_3b694bad7ccc14::t_027664d64bd2cc 15-17,24-25,45-46,62-63,78-85,101-113,117,124-125,128
+Widgets/CagrWidget.swift
+  s_3b694bad7ccc14::t_69a3d25633f5f2 83-84
+  s_3b694bad7ccc14::t_23974af9798ca6 46,111-112
+  s_3b694bad7ccc14::t_3cc9a00a250a20 5-7,15,45,55,60-71,77-82,85-94,98,100-105,108
+Tests/MarketCompsTests.swift
+  s_3b694bad7ccc14::t_24545da466c8f6 1-105
+Widgets/NetWorthStatsWidget.swift
+  s_3b694bad7ccc14::t_1104bebdc6ec67 151,154,157,160,165-170,176-177,179-187
+  s_3b694bad7ccc14::t_796918f690cb57 90
+  s_3b694bad7ccc14::t_e67a969595e48a 191-192,200,209-211
+  s_3b694bad7ccc14::t_88f3c9c228dccb 105-106
+  s_3b694bad7ccc14::t_de8de19fd3b826 212-213
+Shared/MarketComps.swift
+  s_3b694bad7ccc14::t_4a99c6427e3dc5 1-20,24-39,42,46-55,58-88,90-91,93-101,103-118,122-129,132,134-137,139-149
+  s_3b694bad7ccc14::t_9fd434278391cf 21-23,40-41,43-45,56-57,89,92,102,119,130-131,133,138
+  s_3b694bad7ccc14::t_804255fbd5fec3 120-121
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "8e6b864e3f729f22979ac0546a117b5a137e592e",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
