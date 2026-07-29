@@ -34,12 +34,12 @@ targets:
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         CFBundleURLTypes:
-          - CFBundleURLName: com.auchenberg.kuberawidgets
+          - CFBundleURLName: com.kubera.mobile
             CFBundleURLSchemes:
               - kuberawidgets
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.auchenberg.kuberawidgets
+        PRODUCT_BUNDLE_IDENTIFIER: com.kubera.mobile
         CODE_SIGN_ENTITLEMENTS: App/KuberaWidgets.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
 
@@ -52,7 +52,7 @@ targets:
       - Shared
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.auchenberg.kuberawidgets.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.kubera.mobile.tests
         GENERATE_INFOPLIST_FILE: true
 
   KuberaWidgetsExtension:
@@ -70,7 +70,7 @@ targets:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.auchenberg.kuberawidgets.widgets
+        PRODUCT_BUNDLE_IDENTIFIER: com.kubera.mobile.widgets
         CODE_SIGN_ENTITLEMENTS: Widgets/KuberaWidgetsExtension.entitlements
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME: WidgetBackground

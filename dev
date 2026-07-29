@@ -7,7 +7,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 SIM_NAME="${SIM_NAME:-iPhone 15 Pro}"
-BUNDLE_ID="com.auchenberg.kuberawidgets"
+BUNDLE_ID="com.kubera.mobile"
 
 # Always regenerate: sources are globbed, so adding/removing files changes the
 # project without touching project.yml. xcodegen is sub-second.

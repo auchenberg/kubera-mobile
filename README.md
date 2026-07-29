@@ -99,10 +99,9 @@ with `SIM_NAME="iPhone 15" ./dev`) and regenerates the Xcode project whenever
 then add widgets from the iOS widget gallery.
 
 **Forking?** Change these to your own before building: `DEVELOPMENT_TEAM` in
-`project.yml` (and `teamID` in `ExportOptions.plist`), the
-`com.auchenberg.kuberawidgets` bundle identifiers, and the App Group / Keychain
-group ids in `project.yml`, both `.entitlements` files, and
-`SharedKeys.appGroup` in `Shared/Shared.swift`.
+`project.yml` (and `teamID` in `ExportOptions.plist`), the `com.kubera.mobile`
+bundle identifiers, and the App Group / Keychain group ids in `project.yml`,
+both `.entitlements` files, and `SharedKeys.appGroup` in `Shared/Shared.swift`.
 
 ## Notes & future work
 

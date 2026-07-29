@@ -136,26 +136,20 @@ and "ship it":
    or a **custom scheme matching the client_id hostname in reverse-domain order**,
    written `scheme:/path` (one colon, one slash).
 
-   The intended scheme for this app is **`com.kubera.mobile`**, giving
-   `com.kubera.mobile:/oauth-callback`. Note the tension: read strictly, that
-   scheme implies a metadata document hosted at `mobile.kubera.com` — a host
-   Kubera controls, not us. Three ways out, in preference order:
-   1. **Test whether Kubera's authorize endpoint enforces the reversal at all.**
-      Many servers validate only that the redirect matches one listed in the
-      metadata document. If so, `com.kubera.mobile` works with the document
-      hosted anywhere. This folds into the live test below — check it there.
-   2. **Ask Kubera to host or bless the document**, which would also make this
-      app a sanctioned client rather than an unofficial one.
-   3. **Fall back to a scheme we can justify** from a domain we control, e.g. a
-      document at `https://auchenberg.dk/kubera-mobile/oauth-client.json` giving
-      `dk.auchenberg:/oauth-callback`.
+   The scheme is **`com.kubera.mobile`**, matching the bundle id, giving
+   `com.kubera.mobile:/oauth-callback`. Read strictly, the draft would want that
+   scheme's document hosted at `mobile.kubera.com`; in practice most servers only
+   check the redirect against the `redirect_uris` in the metadata document, which
+   can live anywhere. That is the one thing the live test below has to settle.
 
-   Whichever scheme wins, register exactly that one in `CFBundleURLTypes` and
-   pass only the scheme to `ASWebAuthenticationSession`'s `callbackURLScheme`.
-   Do not ship `com.kubera.mobile` as a *claimed* identity beyond the redirect
-   scheme — the app's bundle id stays `com.auchenberg.kuberawidgets`, since this
-   is an unofficial client and impersonating Kubera's namespace is exactly the
-   kind of thing the README disclaimer exists to avoid.
+   Remaining unknown for the live test: whether Kubera's authorize endpoint
+   enforces the host reversal strictly, or merely checks that the redirect
+   matches one listed in the metadata document. Worth noting either way: asking
+   Kubera to bless the document would make this a sanctioned client rather than
+   an unofficial one.
+   Register exactly that scheme in `CFBundleURLTypes` and pass only the scheme
+   to `ASWebAuthenticationSession`'s `callbackURLScheme`. It matches the app's
+   bundle id, `com.kubera.mobile`.
 2. **OAuth covers the MCP resource, not the HMAC REST API.** The
    protected-resource document names exactly one `resource`:
    `.../api/v1/mcp`. Nothing suggests these bearer tokens authenticate

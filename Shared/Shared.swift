@@ -5,7 +5,7 @@ import Security
 /// The on-disk formats are live on user devices — changing a key or a JSON
 /// shape orphans existing data, so treat them as fixed.
 enum SharedKeys {
-    static let appGroup = "group.com.auchenberg.kuberawidgets"
+    static let appGroup = "group.com.kubera.mobile"
     /// Legacy NSUserDefaults location for credentials (pre-Keychain builds).
     static let legacyCredentials = "kubera.credentials"
     static let selectedPortfolioId = "kubera.selectedPortfolioId"
@@ -17,10 +17,10 @@ enum SharedKeys {
     /// Human-readable outcome of the last history fetch, for the Settings card.
     static let historyStatus = "kubera.historyStatus"
 
-    /// Keychain coordinates for credentials. Earlier builds wrote these items
-    /// with expo-secure-store, which appends ":no-auth" to the service name and
-    /// stores the account as raw UTF-8 bytes; both quirks are preserved here so
-    /// items already on device keep resolving.
+    /// Keychain coordinates for credentials. The service string and the
+    /// bytes-not-string account attribute are inherited from the app's
+    /// expo-secure-store era; they are kept because changing them buys nothing
+    /// and would strand items written by any build that shipped before now.
     static let keychainService = "kubera-widgets:no-auth"
     static let keychainAccount = "kubera.credentials"
 }
@@ -248,13 +248,20 @@ enum SharedStore {
     static func setHistoryStatus(_ status: String) {
         defaults?.set(status, forKey: SharedKeys.historyStatus)
     }
+
+    /// Drops the last history outcome. Called when the MCP token changes or
+    /// goes away, so the status line in Settings can't keep reporting a result
+    /// that belonged to a different token.
+    static func clearHistoryStatus() {
+        defaults?.removeObject(forKey: SharedKeys.historyStatus)
+    }
 }
 
 /// Credential storage in the Keychain access group both targets share.
 /// No kSecAttrAccessGroup is specified: reads search every access group the
 /// caller is entitled to, and writes land in the default group — the first
 /// entry in keychain-access-groups, which is the shared
-/// `$(AppIdentifierPrefix)com.auchenberg.kuberawidgets.shared` group.
+/// `$(AppIdentifierPrefix)com.kubera.mobile.shared` group.
 enum Keychain {
     static func credentials() -> KuberaCredentials? {
         var query = baseQuery()

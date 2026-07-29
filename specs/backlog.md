@@ -1,13 +1,17 @@
 # Backlog
 
-## 1. Rename the app to "Kubera Mobile"
+## 1. Rename the app ✅ done
 
-Change the display name (`CFBundleDisplayName` in `project.yml`) and the
-widget-gallery strings. Bundle identifiers can stay — renaming them would orphan
-the Keychain access group and App Group on existing installs.
+Shipped as **Kubera Mobile** (`CFBundleDisplayName` on both targets, plus the
+in-app and widget-gallery strings). The name signals an unofficial client instead
+of implying endorsement, which is the cheapest way to reduce the trademark
+exposure this project carries — see the README disclaimer.
 
-Note: leaning further into the "Kubera" name increases the trademark exposure
-this unofficial project already carries (see the README disclaimer).
+Bundle identifiers are `com.kubera.mobile` / `.widgets` / `.tests`. Because iOS
+keys installs by bundle id, the first install under the new id arrives as a fresh
+app: delete the old icon, and expect to re-enter credentials once. Growth history
+re-downloads from Kubera's MCP endpoint, so only the credentials are a real
+re-entry cost.
 
 ## 2. Face ID lock
 
