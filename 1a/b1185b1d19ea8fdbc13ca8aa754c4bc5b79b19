@@ -1,0 +1,47 @@
+Shared/KuberaAPI.swift
+  s_3b694bad7ccc14::t_859495c3a73170 236-239
+  s_3b694bad7ccc14::t_10b04bbb345084 234-235
+App/Views/SettingsView.swift
+  s_3b694bad7ccc14::t_4daec62c812508 105-165
+  s_3b694bad7ccc14::t_e911e3100421b2 6-8
+  s_3b694bad7ccc14::t_0c44ec8c2e408c 22-24
+App/Views/SignInView.swift
+  s_3b694bad7ccc14::t_5a0f7712379413 121
+  s_3b694bad7ccc14::t_e9b80006317448 8
+  s_3b694bad7ccc14::t_46f1d36ff392dd 60-66
+  s_3b694bad7ccc14::t_b194352d04c404 95-98
+App/AppStore.swift
+  s_3b694bad7ccc14::t_a017218264918b 42-43,46-47
+  s_3b694bad7ccc14::t_db0433ed660447 103-117
+Shared/KuberaMCP.swift
+  s_3b694bad7ccc14::t_3bbb9aaff15c6f 1-14,18,21-47,50-80
+  s_3b694bad7ccc14::t_ece42a81113731 15-17,19-20
+  s_3b694bad7ccc14::t_041e26d46eca06 48-49
+Shared/Trends.swift
+  s_3b694bad7ccc14::t_43370a820aaa1c 134-138,142-150
+Tests/HistoryParseTests.swift
+  s_3b694bad7ccc14::t_de8be696a0d15e 1-36
+Shared/Shared.swift
+  s_3b694bad7ccc14::t_cad0bba86ca80b 221-231
+  s_3b694bad7ccc14::t_21e5762c884ba2 29-32
+App/KuberaWidgetsApp.swift
+  s_3b694bad7ccc14::t_9c3fd810784b34 59-63
+KuberaWidgets.xcodeproj/project.pbxproj
+  s_3b694bad7ccc14::t_2b5aa9d1479451 32,37-38,41,76,91,179,191,328,330,348,368
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "1ab1185b1d19ea8fdbc13ca8aa754c4bc5b79b19",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
