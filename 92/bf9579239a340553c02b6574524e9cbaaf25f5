@@ -1,0 +1,28 @@
+Widgets/Provider.swift
+  s_3b694bad7ccc14::t_8a9e98f839ee9a 120
+App/Views/WidgetsView.swift
+  s_3b694bad7ccc14::t_855e03e9428946 169-172,178,182
+App/AppStore.swift
+  s_3b694bad7ccc14::t_d5f4fa919f61ce 43-44
+  s_3b694bad7ccc14::t_e6798721d5b8d3 156-159,161-164
+  s_3b694bad7ccc14::t_d6b4b98e34c6b5 27-31
+  s_3b694bad7ccc14::t_e06951cb2bc0d4 78-79
+Shared/MarketComps.swift
+  s_3b694bad7ccc14::t_9a787f53e3d12b 150-164
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "92bf9579239a340553c02b6574524e9cbaaf25f5",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
