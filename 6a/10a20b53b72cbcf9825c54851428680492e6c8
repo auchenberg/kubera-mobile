@@ -1,0 +1,21 @@
+App/Views/WidgetsView.swift
+  s_3b694bad7ccc14::t_5fbd3eadf98892 11
+dev
+  s_3b694bad7ccc14::t_7e863efe3852e4 12-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "6a10a20b53b72cbcf9825c54851428680492e6c8",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
