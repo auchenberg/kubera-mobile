@@ -1,0 +1,36 @@
+Shared/Trends.swift
+  s_3b694bad7ccc14::t_ed73fd3822b4c8 13
+  s_3b694bad7ccc14::t_0df9f26cf30094 105,109-153
+  s_3b694bad7ccc14::t_c4ff1585d72f48 33,41-47,53
+Widgets/Provider.swift
+  s_3b694bad7ccc14::t_4170a87d1ee194 85
+Tests/HistoryLogTests.swift
+  s_3b694bad7ccc14::t_724664f86db9ab 34-35,37,43
+  s_3b694bad7ccc14::t_adf5774bae4fd3 1-33,36,38-42,44-45
+Shared/Shared.swift
+  s_3b694bad7ccc14::t_d81c0a2a94d207 177-204
+  s_3b694bad7ccc14::t_294ac8664576fa 15
+App/AppStore.swift
+  s_3b694bad7ccc14::t_d768dc7e909722 73
+  s_3b694bad7ccc14::t_975dfe57faa7db 134
+Tests/TrendsCalculatorTests.swift
+  s_3b694bad7ccc14::t_23bc8471a02c30 65-69,73-82
+  s_3b694bad7ccc14::t_fae068ad7b8b86 38
+  s_3b694bad7ccc14::t_6f1124a03eab32 83-84
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "feb304e05ac013824ea15f6cbd78dd2e7b939a20",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
