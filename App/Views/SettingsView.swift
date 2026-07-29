@@ -4,15 +4,21 @@ struct SettingsView: View {
     @Environment(AppStore.self) private var store
     @Environment(AppLock.self) private var appLock
     @State private var confirmingDisconnect = false
-    @State private var mcpToken = ""
-    @State private var savingToken = false
-    @State private var tokenStatus: String?
+    @State private var editRequest: EditRequest?
+    @State private var checking = false
+
+    /// A pending presentation of `ConnectView`, carrying which field it should
+    /// open focused. Wrapped in a type with an id so each tap presents afresh.
+    private struct EditRequest: Identifiable {
+        let id = UUID()
+        let focus: ConnectView.Credential?
+    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    SectionTitle("Account")
+                    SectionTitle("Kubera account")
                     accountCard
 
                     if !store.portfolios.isEmpty {
@@ -22,9 +28,6 @@ struct SettingsView: View {
 
                     SectionTitle("Preferences")
                     preferencesCard
-
-                    SectionTitle("Growth history")
-                    mcpTokenCard
 
                     SectionTitle("Data & privacy")
                     privacyCard
@@ -40,6 +43,9 @@ struct SettingsView: View {
             }
             .background(Theme.background)
             .navigationTitle("Settings")
+            .sheet(item: $editRequest) { request in
+                ConnectView(mode: .edit(focus: request.focus))
+            }
             .confirmationDialog(
                 "Disconnect Kubera?",
                 isPresented: $confirmingDisconnect,
@@ -48,24 +54,161 @@ struct SettingsView: View {
                 Button("Disconnect", role: .destructive) { store.signOut() }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("Your API key will be removed from this device and widgets will stop updating.")
+                Text(
+                    """
+                    This removes your API key, secret and MCP token from this device, along \
+                    with the cached balances and the on-device history log that growth \
+                    numbers are built from. Widgets stop updating. To change a key without \
+                    losing any of that, use Update credentials instead.
+                    """
+                )
             }
         }
     }
+
+    // MARK: - Kubera account
 
     private var accountCard: some View {
         Card {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Connected with API key")
-                    .font(.system(size: 13))
-                    .foregroundStyle(Theme.dim)
+            VStack(alignment: .leading, spacing: 0) {
+                statusHeader
 
-                Text(store.credentials.map { maskKey($0.apiKey) } ?? "Not connected")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(Theme.text)
+                RowDivider()
+                    .padding(.vertical, 14)
+
+                credentialRow(
+                    label: "API key",
+                    value: store.credentials.map { CredentialMask.key($0.apiKey) } ?? "Not set",
+                    isSet: store.credentials != nil,
+                    focus: .apiKey
+                )
+
+                RowDivider()
+                credentialRow(
+                    label: "API secret",
+                    value: CredentialMask.secret(store.credentials?.secret),
+                    isSet: store.credentials != nil,
+                    focus: .secret
+                )
+
+                RowDivider()
+                credentialRow(
+                    label: "MCP token",
+                    value: CredentialMask.secret(store.credentials?.mcpToken),
+                    isSet: store.credentials?.mcpToken != nil,
+                    note: store.credentials?.mcpToken == nil ? "Required for growth history" : nil,
+                    focus: .mcpToken
+                )
+
+                ActionButton(title: "Update credentials") {
+                    editRequest = EditRequest(focus: nil)
+                }
+                .padding(.top, 18)
             }
         }
     }
+
+    /// The two lines that matter: balances and growth history fail
+    /// independently, so each reports its own last real outcome.
+    private var statusHeader: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(store.connection.headline)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(color(for: store.connection.headlineRole))
+
+                Spacer(minLength: 12)
+
+                Button {
+                    checking = true
+                    Task {
+                        await store.checkConnection()
+                        checking = false
+                    }
+                } label: {
+                    if checking {
+                        ProgressView().controlSize(.small)
+                    } else {
+                        Text("Check now")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(Theme.text)
+                    }
+                }
+                .disabled(checking || store.credentials == nil)
+            }
+
+            statusLine(store.connection.restLine())
+            statusLine(store.connection.historyLine)
+        }
+    }
+
+    private func statusLine(_ line: ConnectionStatus.Line) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 6) {
+                Text(line.surface.uppercased())
+                    .font(.system(size: 12, weight: .semibold))
+                    .kerning(1)
+                    .foregroundStyle(Theme.dim)
+
+                Text(line.state)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(color(for: line.role))
+            }
+
+            if let detail = line.detail {
+                Text(detail)
+                    .font(.system(size: 13))
+                    .lineSpacing(3)
+                    .foregroundStyle(Theme.dim)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func credentialRow(
+        label: String,
+        value: String,
+        isSet: Bool,
+        note: String? = nil,
+        focus: ConnectView.Credential
+    ) -> some View {
+        HStack(alignment: .firstTextBaseline) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label)
+                    .font(.system(size: 16))
+                    .foregroundStyle(Theme.text)
+
+                Text(value)
+                    .font(.system(size: 13, design: isSet ? .monospaced : .default))
+                    .foregroundStyle(Theme.dim)
+
+                if let note {
+                    Text(note)
+                        .font(.system(size: 13))
+                        .foregroundStyle(Theme.dim)
+                }
+            }
+
+            Spacer(minLength: 12)
+
+            Button(isSet ? "Replace" : "Add") {
+                editRequest = EditRequest(focus: focus)
+            }
+            .font(.system(size: 15, weight: .semibold))
+            .foregroundStyle(Theme.text)
+        }
+        .padding(.vertical, 12)
+    }
+
+    private func color(for role: ConnectionStatus.Role) -> Color {
+        switch role {
+        case .positive: Theme.positive
+        case .negative: Theme.negative
+        case .dim: Theme.dim
+        }
+    }
+
+    // MARK: - Widget portfolio
 
     private var portfolioCard: some View {
         Card(padding: .cardRows) {
@@ -105,6 +248,8 @@ struct SettingsView: View {
         .contentShape(Rectangle())
         .padding(.vertical, 12)
     }
+
+    // MARK: - Preferences
 
     private var preferencesCard: some View {
         Card(padding: .cardRows) {
@@ -165,72 +310,7 @@ struct SettingsView: View {
         .padding(.vertical, 12)
     }
 
-    private var mcpTokenCard: some View {
-        Card {
-            VStack(alignment: .leading, spacing: 12) {
-                if store.credentials?.mcpToken != nil {
-                    Text("MCP token connected — growth numbers (1 day, YTD, CAGR) come from Kubera's history API.")
-                        .font(.system(size: 14))
-                        .lineSpacing(4)
-                        .foregroundStyle(Theme.positive)
-                } else {
-                    Text(
-                        """
-                        Growth numbers (1 day, YTD, CAGR) need Kubera's history API, which \
-                        uses its own token. Create an MCP Token in Kubera web → Settings → \
-                        API and paste it here.
-                        """
-                    )
-                    .font(.system(size: 14))
-                    .lineSpacing(4)
-                    .foregroundStyle(Theme.dim)
-                }
-
-                SecureField("Paste your Kubera MCP token", text: $mcpToken)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                    .font(.system(size: 16))
-                    .foregroundStyle(Theme.text)
-                    .padding(.horizontal, 12)
-                    .frame(minHeight: 48)
-                    .background(Theme.background)
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .strokeBorder(Theme.border, lineWidth: 0.5)
-                    )
-
-                ActionButton(
-                    title: "Save token",
-                    isLoading: savingToken,
-                    isDisabled: mcpToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                ) {
-                    savingToken = true
-                    tokenStatus = nil
-                    Task {
-                        await store.saveMCPToken(mcpToken)
-                        savingToken = false
-                        mcpToken = ""
-                        tokenStatus = SharedStore.cachedTrends()?.ytd != nil
-                            ? "Connected — growth numbers are live."
-                            : "Saved. If growth numbers stay empty, double-check the token."
-                    }
-                }
-
-                if let tokenStatus {
-                    Text(tokenStatus)
-                        .font(.system(size: 13))
-                        .foregroundStyle(Theme.dim)
-                }
-
-                if let fetchStatus = SharedStore.historyStatus() {
-                    Text(fetchStatus)
-                        .font(.system(size: 13))
-                        .foregroundStyle(fetchStatus.hasPrefix("History:") ? Theme.positive : Theme.negative)
-                }
-            }
-        }
-    }
+    // MARK: - Data & privacy
 
     private var privacyCard: some View {
         Card {
@@ -246,10 +326,5 @@ struct SettingsView: View {
             .lineSpacing(4)
             .foregroundStyle(Theme.dim)
         }
-    }
-
-    private func maskKey(_ key: String) -> String {
-        guard key.count > 8 else { return "••••" }
-        return "\(key.prefix(4))••••\(key.suffix(4))"
     }
 }

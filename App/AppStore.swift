@@ -8,14 +8,12 @@ import WidgetKit
 @MainActor
 @Observable
 final class AppStore {
-    enum StoreError: LocalizedError {
-        case noPortfolios
+    /// A validation failure, carrying the field it belongs to so the connect
+    /// screen can attach the message to the credential that caused it.
+    struct CredentialError: LocalizedError {
+        let feedback: CredentialFeedback
 
-        var errorDescription: String? {
-            switch self {
-            case .noPortfolios: "No portfolios found on this Kubera account."
-            }
-        }
+        var errorDescription: String? { feedback.text }
     }
 
     private(set) var credentials: KuberaCredentials?
@@ -24,6 +22,9 @@ final class AppStore {
     private(set) var snapshot: PortfolioSnapshot?
     private(set) var settings: WidgetSettings
     private(set) var refreshing = false
+    /// Per-surface health of the Kubera connection. REST (balances) and history
+    /// (growth) fail independently, so Settings can say which one is broken.
+    private(set) var connection: ConnectionStatus
     /// Observable mirrors of the widget data caches, so the in-app previews
     /// re-render the moment a refresh lands — they show exactly what the
     /// Home Screen widgets would show.
@@ -36,36 +37,108 @@ final class AppStore {
 
     init() {
         SharedStore.migrateLegacyCredentialsIfNeeded()
-        credentials = SharedStore.credentials()
+        let storedCredentials = SharedStore.credentials()
+        let cachedSnapshot = SharedStore.cachedSnapshot()
+
+        credentials = storedCredentials
         selectedPortfolioId = SharedStore.selectedPortfolioId()
-        snapshot = SharedStore.cachedSnapshot()
+        snapshot = cachedSnapshot
         settings = SharedStore.settings()
         trends = SharedStore.cachedTrends()
         comps = SharedStore.cachedMarketComps()
+
+        // Seed the status from what is on disk, so Settings has something true
+        // to show before the first refresh lands: a cached snapshot means REST
+        // worked when it was written, and the history line comes from the
+        // outcome KuberaMCP recorded on its last attempt.
+        connection = ConnectionStatus(
+            rest: cachedSnapshot.map { .connected(at: Date(timeIntervalSince1970: $0.updatedAt)) } ?? .unknown,
+            history: ConnectionStatus.history(
+                fromStatusLine: SharedStore.historyStatus(),
+                hasToken: storedCredentials?.mcpToken != nil
+            )
+        )
     }
 
     // MARK: - Session
 
-    func signIn(apiKey: String, secret: String, mcpToken: String = "") async throws {
-        let trimmedToken = mcpToken.trimmingCharacters(in: .whitespacesAndNewlines)
-        let creds = KuberaCredentials(
-            apiKey: apiKey.trimmingCharacters(in: .whitespacesAndNewlines),
-            secret: secret.trimmingCharacters(in: .whitespacesAndNewlines),
-            mcpToken: trimmedToken.isEmpty ? nil : trimmedToken
+    /// First-run connect. Validates and stores all three credentials; returns
+    /// non-nil when the optional MCP token was rejected, which degrades growth
+    /// history but is not a reason to refuse the connection.
+    @discardableResult
+    func signIn(apiKey: String, secret: String, mcpToken: String = "") async throws -> CredentialFeedback? {
+        try await updateCredentials(
+            apiKey: .set(apiKey),
+            secret: .set(secret),
+            mcpToken: CredentialInput.trimmed(mcpToken).isEmpty ? .cleared : .set(mcpToken)
         )
+    }
 
-        // Doubles as credential validation — throws on bad keys.
-        let found = try await KuberaAPI.listPortfolios(creds: creds)
-        guard let first = found.first else { throw StoreError.noPortfolios }
+    /// Replaces one or more credentials in place. Untouched fields keep their
+    /// stored value, and **no cache is cleared** — the snapshot, trends, market
+    /// comps, on-device history log and the selected portfolio all survive, so
+    /// fixing a typo in a key does not cost months of recorded history.
+    ///
+    /// Throws `CredentialError` if the key and secret don't validate; the stored
+    /// pair is left alone in that case. A rejected MCP token is still saved and
+    /// reported through the return value, since the user typed it deliberately
+    /// and the History status line explains what happened.
+    @discardableResult
+    func updateCredentials(
+        apiKey: CredentialEdit = .unchanged,
+        secret: CredentialEdit = .unchanged,
+        mcpToken: CredentialEdit = .unchanged
+    ) async throws -> CredentialFeedback? {
+        guard let merged = KuberaCredentials.merged(
+            into: credentials,
+            apiKey: apiKey,
+            secret: secret,
+            mcpToken: mcpToken
+        ) else {
+            throw CredentialError(feedback: .missingRequired)
+        }
 
-        credentials = creds
+        let isFirstConnect = credentials == nil
+
+        // Validating before storing is what keeps a bad paste from replacing a
+        // working key.
+        let found: [PortfolioListItem]
+        do {
+            found = try await KuberaAPI.listPortfolios(creds: merged)
+        } catch {
+            connection.rest = ConnectionStatus.rest(from: error)
+            throw CredentialError(feedback: .forRestError(error))
+        }
+        if isFirstConnect, found.isEmpty {
+            throw CredentialError(feedback: .noPortfolios)
+        }
+        connection.rest = .connected(at: Date())
+
+        credentials = merged
         portfolios = found
-        SharedStore.saveCredentials(creds)
+        SharedStore.saveCredentials(merged)
 
-        selectedPortfolioId = first.id
-        SharedStore.setSelectedPortfolioId(first.id)
+        // Only move the widget's portfolio if the stored one is gone — e.g. the
+        // key now points at a different account.
+        let selectionStillExists = selectedPortfolioId.map { id in found.contains { $0.id == id } } ?? false
+        if !selectionStillExists, let first = found.first {
+            selectedPortfolioId = first.id
+            SharedStore.setSelectedPortfolioId(first.id)
+        }
 
-        try await loadSnapshot(creds: creds, portfolioId: first.id)
+        if mcpToken != .unchanged {
+            await validateHistory(creds: merged)
+        }
+
+        // Pull fresh balances under the new credentials. They are already
+        // validated, so a failure here leaves the cached snapshot on screen
+        // rather than failing the save.
+        if let portfolioId = selectedPortfolioId {
+            try? await loadSnapshot(creds: merged, portfolioId: portfolioId)
+        }
+        reloadWidgets()
+
+        return CredentialFeedback.forHistory(connection.history)
     }
 
     func signOut() {
@@ -77,11 +150,13 @@ final class AppStore {
         snapshot = nil
         trends = nil
         comps = nil
+        connection = ConnectionStatus()
         SharedStore.clearCredentials()
         SharedStore.setSelectedPortfolioId(nil)
         SharedStore.clearSnapshot()
         SharedStore.clearTrends()
         SharedStore.clearLocalHistory()
+        SharedStore.clearHistoryStatus()
         reloadWidgets()
     }
 
@@ -97,6 +172,28 @@ final class AppStore {
         try await task.value
     }
 
+    /// Re-checks both surfaces against the stored credentials without changing
+    /// them, for the status header in Settings.
+    func checkConnection() async {
+        guard let creds = credentials else {
+            connection = ConnectionStatus()
+            return
+        }
+        do {
+            if let portfolioId = selectedPortfolioId {
+                // Loading a snapshot also refreshes trends, which is what
+                // updates the history line.
+                try await loadSnapshot(creds: creds, portfolioId: portfolioId)
+            } else {
+                portfolios = try await KuberaAPI.listPortfolios(creds: creds)
+                connection.rest = .connected(at: Date())
+                await validateHistory(creds: creds)
+            }
+        } catch {
+            connection.rest = ConnectionStatus.rest(from: error)
+        }
+    }
+
     func selectPortfolio(_ id: String) async {
         selectedPortfolioId = id
         SharedStore.setSelectedPortfolioId(id)
@@ -110,18 +207,10 @@ final class AppStore {
     }
 
     /// Saves the Kubera MCP token (Settings → API → MCP Token) onto the stored
-    /// credentials and refreshes trends right away, so growth history from the
-    /// API lights up without a re-sign-in.
+    /// credentials. Kept as a thin wrapper over `updateCredentials`.
     func saveMCPToken(_ token: String) async {
-        guard var creds = credentials else { return }
-        let trimmed = token.trimmingCharacters(in: .whitespacesAndNewlines)
-        creds.mcpToken = trimmed.isEmpty ? nil : trimmed
-        credentials = creds
-        SharedStore.saveCredentials(creds)
-        if let snapshot {
-            await refreshTrends(creds: creds, snapshot: snapshot)
-        }
-        reloadWidgets()
+        let edit: CredentialEdit = CredentialInput.trimmed(token).isEmpty ? .cleared : .set(token)
+        _ = try? await updateCredentials(mcpToken: edit)
     }
 
     func updateSettings(_ mutate: (inout WidgetSettings) -> Void) {
@@ -139,15 +228,21 @@ final class AppStore {
         refreshing = true
         defer { refreshing = false }
 
-        if portfolios.isEmpty {
-            portfolios = try await KuberaAPI.listPortfolios(creds: creds)
+        do {
+            if portfolios.isEmpty {
+                portfolios = try await KuberaAPI.listPortfolios(creds: creds)
+            }
+            try await loadSnapshot(creds: creds, portfolioId: portfolioId)
+        } catch {
+            connection.rest = ConnectionStatus.rest(from: error)
+            throw error
         }
-        try await loadSnapshot(creds: creds, portfolioId: portfolioId)
     }
 
     private func loadSnapshot(creds: KuberaCredentials, portfolioId: String) async throws {
         let fetched = try await KuberaAPI.fetchSnapshot(creds: creds, portfolioId: portfolioId)
         snapshot = fetched
+        connection.rest = .connected(at: Date(timeIntervalSince1970: fetched.updatedAt))
         SharedStore.cache(snapshot: fetched)
         reloadWidgets()
         await refreshTrends(creds: creds, snapshot: fetched)
@@ -160,9 +255,35 @@ final class AppStore {
     private func refreshTrends(creds: KuberaCredentials, snapshot: PortfolioSnapshot) async {
         let refreshed = await TrendsCalculator.refresh(creds: creds, snapshot: snapshot)
         comps = await MarketCompsFetcher.cachedOrFresh()
+        connection.history = ConnectionStatus.history(
+            fromStatusLine: SharedStore.historyStatus(),
+            hasToken: creds.mcpToken != nil
+        )
         guard let refreshed else { return }
         trends = refreshed
         reloadWidgets()
+    }
+
+    /// Validates the MCP token by actually asking Kubera for history — the only
+    /// honest check, since a well-formed token can still be rejected.
+    /// `KuberaMCP` records every outcome in shared defaults; this reads that
+    /// back as a typed status.
+    private func validateHistory(creds: KuberaCredentials) async {
+        guard creds.mcpToken != nil else {
+            // Stale outcomes belong to the token that just went away.
+            SharedStore.clearHistoryStatus()
+            connection.history = .localLogOnly
+            return
+        }
+        guard let portfolioId = selectedPortfolioId ?? portfolios.first?.id ?? snapshot?.portfolioId else {
+            connection.history = .unknown
+            return
+        }
+        _ = await KuberaMCP.fetchHistory(creds: creds, portfolioId: portfolioId)
+        connection.history = ConnectionStatus.history(
+            fromStatusLine: SharedStore.historyStatus(),
+            hasToken: true
+        )
     }
 
     private func reloadWidgets() {
