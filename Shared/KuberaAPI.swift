@@ -204,7 +204,7 @@ enum KuberaAPI {
             "/api/v1/auth/portfolio/\(portfolioId)/chartAndCAGR",
         ]
 
-        let log = Logger(subsystem: "com.auchenberg.kuberawidgets", category: "api")
+        let log = Logger(subsystem: "com.kubera.mobile", category: "api")
         var unauthorizedCount = 0
         for path in candidates {
             do {

@@ -38,6 +38,7 @@
 		6805D36BB9A254F3FA9B17C0 /* OverviewChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1F528E4F97345D14797D24 /* OverviewChart.swift */; };
 		68A8B119ED47B9302F4D530D /* WidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0FE4588E4F2B50BCAF5D07C /* WidgetViews.swift */; };
 		694114A7003564FD23B10F95 /* OverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20831D90F00E4E2BE574348 /* OverviewView.swift */; };
+		6BD6DD3A1A0F748330B3E720 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00D3D912D22FF1B18310C7A /* WelcomeView.swift */; };
 		6FC006A7F9E754A6581A2C43 /* WidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0FE4588E4F2B50BCAF5D07C /* WidgetViews.swift */; };
 		769DA985FA9561C1DA6DCAD4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AD646033EE213E9BEB91AA1F /* Assets.xcassets */; };
 		77004F7200E4EF995FA6F6A6 /* KuberaMCP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11CA0A2A01D023A0C4AD8868 /* KuberaMCP.swift */; };
@@ -131,6 +132,7 @@
 		E18F6B40C45D315665F965D7 /* ConnectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectView.swift; sourceTree = "<group>"; };
 		E27DDC6A1F8DF606E133ECF4 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		EA30617BDA10A8EF811570AA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		F00D3D912D22FF1B18310C7A /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		F07F95C4DA4A84D131FBFC77 /* KuberaWidgetsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KuberaWidgetsApp.swift; sourceTree = "<group>"; };
 		F556FFDA0446226654B19672 /* KuberaWidgetsExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KuberaWidgetsExtension.entitlements; sourceTree = "<group>"; };
 		F8FBB4A87D4CE5EAFFE3B281 /* ConnectionStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStatus.swift; sourceTree = "<group>"; };
@@ -145,6 +147,7 @@
 				D20831D90F00E4E2BE574348 /* OverviewView.swift */,
 				2C7FC81B04B45E9E21399EDD /* SettingsView.swift */,
 				31A59EC15E73DD763C4AA63B /* SignInView.swift */,
+				F00D3D912D22FF1B18310C7A /* WelcomeView.swift */,
 				727E9942F71EDA5B3F097218 /* WidgetsView.swift */,
 			);
 			path = Views;
@@ -302,15 +305,15 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					36B183EC0E3B27ADA658507F = {
-						DevelopmentTeam = LFWWP8X7WA;
+						DevelopmentTeam = TP8BN7C8C6;
 						ProvisioningStyle = Automatic;
 					};
 					708D6C5883C3125E362E7BA0 = {
-						DevelopmentTeam = LFWWP8X7WA;
+						DevelopmentTeam = TP8BN7C8C6;
 						ProvisioningStyle = Automatic;
 					};
 					7CC30791E7B18D5CE6F97FC5 = {
-						DevelopmentTeam = LFWWP8X7WA;
+						DevelopmentTeam = TP8BN7C8C6;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -404,6 +407,7 @@
 				0A53A7D8E03F08BB64A839EF /* SignInView.swift in Sources */,
 				BF0974E23410272080391B59 /* Theme.swift in Sources */,
 				36CFCED6F2452AF340792C11 /* Trends.swift in Sources */,
+				6BD6DD3A1A0F748330B3E720 /* WelcomeView.swift in Sources */,
 				6FC006A7F9E754A6581A2C43 /* WidgetViews.swift in Sources */,
 				B09A2752E3B7FED7FAC07779 /* WidgetsView.swift in Sources */,
 			);
@@ -496,7 +500,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = LFWWP8X7WA;
+				DEVELOPMENT_TEAM = TP8BN7C8C6;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -618,7 +622,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = LFWWP8X7WA;
+				DEVELOPMENT_TEAM = TP8BN7C8C6;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;

@@ -25,7 +25,7 @@
 			<string>com.kubera.mobile</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>kuberawidgets</string>
+				<string>kubera</string>
 			</array>
 		</dict>
 	</array>

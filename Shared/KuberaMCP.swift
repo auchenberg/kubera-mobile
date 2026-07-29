@@ -9,7 +9,7 @@ import os
 /// tool results come back as a JSON string inside `result.content[0].text`.
 enum KuberaMCP {
     private static let endpoint = "https://api.kubera.com/api/v2/mcp"
-    private static let log = Logger(subsystem: "com.auchenberg.kuberawidgets", category: "api")
+    private static let log = Logger(subsystem: "com.kubera.mobile", category: "api")
 
     /// Fetches the portfolio's value history via the `get_portfolio_history`
     /// MCP tool. Requires the dedicated MCP token — the endpoint rejects the

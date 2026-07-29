@@ -27,7 +27,7 @@ struct AssetsDebtsView: View {
                 settings: entry.settings,
                 family: family
             )
-            .widgetURL(URL(string: "kuberawidgets://"))
+            .widgetURL(URL(string: "kubera://"))
         }
     }
 }

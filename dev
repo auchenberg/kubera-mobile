@@ -3,10 +3,13 @@
 #
 #   ./dev              build, install, launch, stream logs
 #   SIM_NAME="iPhone 15" ./dev   use a different simulator
+#
+# Prefers a recent iOS: the tab bar and other chrome only render in Apple's
+# current (Liquid Glass) style on iOS 26+, so an old runtime misrepresents the UI.
 set -euo pipefail
 cd "$(dirname "$0")"
 
-SIM_NAME="${SIM_NAME:-iPhone 15 Pro}"
+SIM_NAME="${SIM_NAME:-iPhone 17 Pro}"
 BUNDLE_ID="com.kubera.mobile"
 
 # Always regenerate: sources are globbed, so adding/removing files changes the
