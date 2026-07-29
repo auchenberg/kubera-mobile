@@ -1,0 +1,74 @@
+App/Views/SettingsView.swift
+  s_3b694bad7ccc14::t_c09c7e361f3ca0 1-119
+App/AppStore.swift
+  s_3b694bad7ccc14::t_b58e1f4d992857 1-130
+Widgets/Assets.xcassets/Contents.json
+  s_3b694bad7ccc14::t_43e892c37c0059 1-6
+App/KuberaWidgets.entitlements
+  s_3b694bad7ccc14::t_fa1755b1057798 1-14
+Widgets/Assets.xcassets/WidgetBackground.colorset/Contents.json
+  s_3b694bad7ccc14::t_5d4565ccc87d30 2-20
+App/Views/Components.swift
+  s_3b694bad7ccc14::t_cf9b8076fc8c92 1-107
+App/Views/WidgetsView.swift
+  s_3b694bad7ccc14::t_b3620eff2f3ac7 44
+  s_3b694bad7ccc14::t_5920c39d95480c 225,229,290,292,315,324-326
+  s_3b694bad7ccc14::t_3219f130218dcf 1-43,45-224,242-264,266-289,291,293-295,297-314,316-319,321-323,327-330
+  s_3b694bad7ccc14::t_dcac27e10dc148 226-228,230-241,265,296,320
+README.md
+  s_3b694bad7ccc14::t_38b1b60de3f283 3-4,28,39,43-51,61-67,72,74-77,80,89-91
+.gitignore
+  s_3b694bad7ccc14::t_8d5222de518e51 1-6,8-9,11
+App/Views/DashboardView.swift
+  s_3b694bad7ccc14::t_ca45d358a24cc1 1-234
+App/Info.plist
+  s_3b694bad7ccc14::t_0f357b96975bf5 1-43
+Shared/KuberaAPI.swift
+  s_3b694bad7ccc14::t_900bd7fe3cf546 4-110,120,135,150
+  s_3b694bad7ccc14::t_25a14b988bf098 111
+App/Theme.swift
+  s_3b694bad7ccc14::t_6d02b456d77bf2 1-33
+App/Assets.xcassets/Contents.json
+  s_3b694bad7ccc14::t_5c92835010d3aa 1-6
+Widgets/KuberaWidgetsExtension.entitlements
+  s_3b694bad7ccc14::t_fa1755b1057798 1-14
+App/Assets.xcassets/AppIcon.appiconset/Contents.json
+  s_3b694bad7ccc14::t_9f37d41c38f9d9 1-14
+Widgets/Assets.xcassets/AccentColor.colorset/Contents.json
+  s_3b694bad7ccc14::t_38006a0a9fa01e 2-10,12-13,15-18
+  s_3b694bad7ccc14::t_d50784a5c28f90 20
+Shared/Format.swift
+  s_3b694bad7ccc14::t_879850f46131a5 8-55,67,74
+  s_3b694bad7ccc14::t_4ae493fb016f1a 56
+project.yml
+  s_3b694bad7ccc14::t_e514d0d8bba350 1-63
+App/KuberaWidgetsApp.swift
+  s_3b694bad7ccc14::t_932be1cec34e62 28-31,33,36,39,41,45,47,51,53,59-62
+  s_3b694bad7ccc14::t_31485b0d8dd083 1-27,32,34-35,37-38,40,42-44,46,48-50,52,54-58,63-64
+App/Views/SignInView.swift
+  s_3b694bad7ccc14::t_dfee4ff7ccb54c 1-137
+KuberaWidgets.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+  s_3b694bad7ccc14::t_0f357b96975bf5 1-7
+Widgets/Info.plist
+  s_3b694bad7ccc14::t_0f357b96975bf5 1-29
+Shared/Shared.swift
+  s_3b694bad7ccc14::t_7a80980bf39f95 4-211,232
+KuberaWidgets.xcodeproj/project.pbxproj
+  s_3b694bad7ccc14::t_0f357b96975bf5 1-534
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "85b3ff9d534a89bb2625c5a793654bdb65415af0",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
