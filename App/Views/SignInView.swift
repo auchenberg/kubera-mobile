@@ -17,7 +17,7 @@ struct SignInView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                Text("Kubera Widgets")
+                Text("Kubera Mobile")
                     .font(.system(size: 32, weight: .bold))
                     .kerning(-0.5)
                     .foregroundStyle(Theme.text)
