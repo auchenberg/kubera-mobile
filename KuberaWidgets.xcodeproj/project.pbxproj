@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		04EBE3D67B146D697CE3F748 /* DemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 909B3DD9DAF55A8B7A6F494A /* DemoData.swift */; };
 		052EDB986B1315EC9B521592 /* HistoryLogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C510DCF29FB5B24CDFE7ACE1 /* HistoryLogTests.swift */; };
 		0609BC891ADB5C9C16179140 /* Trends.swift in Sources */ = {isa = PBXBuildFile; fileRef = B164426F8A28DCA7E164502F /* Trends.swift */; };
 		0A53A7D8E03F08BB64A839EF /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31A59EC15E73DD763C4AA63B /* SignInView.swift */; };
@@ -35,6 +36,7 @@
 		58626C994623E47D30AADA05 /* WidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE44097CFFC63BBF4A009D48 /* WidgetBundle.swift */; };
 		60EED302173F651DF49D64FF /* MarketComps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F7DC35EB674511FBC80DC0F /* MarketComps.swift */; };
 		63779CF22F914FCC28C8D880 /* Trends.swift in Sources */ = {isa = PBXBuildFile; fileRef = B164426F8A28DCA7E164502F /* Trends.swift */; };
+		63FE2DF1BB438AF1B3810043 /* DemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 909B3DD9DAF55A8B7A6F494A /* DemoData.swift */; };
 		6805D36BB9A254F3FA9B17C0 /* OverviewChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1F528E4F97345D14797D24 /* OverviewChart.swift */; };
 		68A8B119ED47B9302F4D530D /* WidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0FE4588E4F2B50BCAF5D07C /* WidgetViews.swift */; };
 		694114A7003564FD23B10F95 /* OverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20831D90F00E4E2BE574348 /* OverviewView.swift */; };
@@ -45,6 +47,7 @@
 		78C99B834C16ED5A896E49F1 /* KuberaMCPParseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6F7CD7CD15F268116BB6FA /* KuberaMCPParseTests.swift */; };
 		7DA97210C0DBAA118E56F0D6 /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A4A7750A5BF9C89679AB7E /* Shared.swift */; };
 		857B43547465C5C8DE54D993 /* AppLockPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2585A7CD882C305912A5503 /* AppLockPolicy.swift */; };
+		85F086DA5F9DA80041A285A6 /* DemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 909B3DD9DAF55A8B7A6F494A /* DemoData.swift */; };
 		8B09338DE34B5C6E0F8289C1 /* KuberaAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAA9E327AB598AEBAE9FF7EE /* KuberaAPI.swift */; };
 		93717F105DC75B279D907AA4 /* AssetsDebtsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 682040294EFBDA1D5674C15D /* AssetsDebtsWidget.swift */; };
 		937F456F5CE8085CAB125C4F /* KuberaAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAA9E327AB598AEBAE9FF7EE /* KuberaAPI.swift */; };
@@ -63,6 +66,7 @@
 		DB4D0646D10CE8C82AD5A785 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76AA4B39B978791FB9135EFF /* AppStore.swift */; };
 		DBA5E9D487CE763E91071361 /* AppLockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3A3A6AEC43DADD5B1BE2D2 /* AppLockTests.swift */; };
 		DE6950A0418D06B94745A481 /* ConnectionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FBB4A87D4CE5EAFFE3B281 /* ConnectionStatus.swift */; };
+		DEAAB82594D51FD55E5DBE90 /* DemoDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03A5B99026F8255F7A7BA5B /* DemoDataTests.swift */; };
 		E4D86051F8E1800E563C66B9 /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A4A7750A5BF9C89679AB7E /* Shared.swift */; };
 		F721A25C8D91CDB35B4B5C50 /* OverviewChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1F528E4F97345D14797D24 /* OverviewChart.swift */; };
 /* End PBXBuildFile section */
@@ -110,6 +114,7 @@
 		8A6F7CD7CD15F268116BB6FA /* KuberaMCPParseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KuberaMCPParseTests.swift; sourceTree = "<group>"; };
 		8BD091BF55305CCB69FF8B4D /* TrendsCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendsCalculatorTests.swift; sourceTree = "<group>"; };
 		8C29C77062D6008E96EC877C /* HistoryParseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryParseTests.swift; sourceTree = "<group>"; };
+		909B3DD9DAF55A8B7A6F494A /* DemoData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoData.swift; sourceTree = "<group>"; };
 		95ADD8DF38329B1E44696179 /* MarketCompsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketCompsTests.swift; sourceTree = "<group>"; };
 		A0FE4588E4F2B50BCAF5D07C /* WidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetViews.swift; sourceTree = "<group>"; };
 		A3D2ABC8243C0397E404BD83 /* Format.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Format.swift; sourceTree = "<group>"; };
@@ -125,6 +130,7 @@
 		CAA9E327AB598AEBAE9FF7EE /* KuberaAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KuberaAPI.swift; sourceTree = "<group>"; };
 		CB1F528E4F97345D14797D24 /* OverviewChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewChart.swift; sourceTree = "<group>"; };
 		CE44097CFFC63BBF4A009D48 /* WidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBundle.swift; sourceTree = "<group>"; };
+		D03A5B99026F8255F7A7BA5B /* DemoDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoDataTests.swift; sourceTree = "<group>"; };
 		D20831D90F00E4E2BE574348 /* OverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewView.swift; sourceTree = "<group>"; };
 		D6C04C0469416EC6F34D44CA /* Provider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Provider.swift; sourceTree = "<group>"; };
 		DE0C484365A5A23DB97204DB /* OverviewChartTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewChartTests.swift; sourceTree = "<group>"; };
@@ -209,6 +215,7 @@
 			children = (
 				3C3A3A6AEC43DADD5B1BE2D2 /* AppLockTests.swift */,
 				06893C8D6C08A629B18955C4 /* ConnectionStatusTests.swift */,
+				D03A5B99026F8255F7A7BA5B /* DemoDataTests.swift */,
 				69C5B31142C17CA48CB7DE83 /* FormatTests.swift */,
 				C510DCF29FB5B24CDFE7ACE1 /* HistoryLogTests.swift */,
 				8C29C77062D6008E96EC877C /* HistoryParseTests.swift */,
@@ -225,6 +232,7 @@
 			children = (
 				B2585A7CD882C305912A5503 /* AppLockPolicy.swift */,
 				F8FBB4A87D4CE5EAFFE3B281 /* ConnectionStatus.swift */,
+				909B3DD9DAF55A8B7A6F494A /* DemoData.swift */,
 				A3D2ABC8243C0397E404BD83 /* Format.swift */,
 				CAA9E327AB598AEBAE9FF7EE /* KuberaAPI.swift */,
 				11CA0A2A01D023A0C4AD8868 /* KuberaMCP.swift */,
@@ -367,6 +375,8 @@
 				DBA5E9D487CE763E91071361 /* AppLockTests.swift in Sources */,
 				0E3626D483B4CBCEB24A67A4 /* ConnectionStatus.swift in Sources */,
 				0A703EECC0041FCDE13306B2 /* ConnectionStatusTests.swift in Sources */,
+				85F086DA5F9DA80041A285A6 /* DemoData.swift in Sources */,
+				DEAAB82594D51FD55E5DBE90 /* DemoDataTests.swift in Sources */,
 				D783C1F10CE927C1F8EA8FB4 /* Format.swift in Sources */,
 				4806385C975F04CA7CDABF9D /* FormatTests.swift in Sources */,
 				052EDB986B1315EC9B521592 /* HistoryLogTests.swift in Sources */,
@@ -395,6 +405,7 @@
 				4D5F5C24A53315F93E5268C3 /* Components.swift in Sources */,
 				484E65B3E7E147DC723F9220 /* ConnectView.swift in Sources */,
 				1FCBE83CBA7190D9C4A4F394 /* ConnectionStatus.swift in Sources */,
+				63FE2DF1BB438AF1B3810043 /* DemoData.swift in Sources */,
 				B0A54DB720175BDB04B9069A /* Format.swift in Sources */,
 				8B09338DE34B5C6E0F8289C1 /* KuberaAPI.swift in Sources */,
 				A320FC5CA3D06725638C0227 /* KuberaMCP.swift in Sources */,
@@ -421,6 +432,7 @@
 				93717F105DC75B279D907AA4 /* AssetsDebtsWidget.swift in Sources */,
 				200AF33ABBFD08CE8ADC6D5C /* CagrWidget.swift in Sources */,
 				DE6950A0418D06B94745A481 /* ConnectionStatus.swift in Sources */,
+				04EBE3D67B146D697CE3F748 /* DemoData.swift in Sources */,
 				225DC964589416FEC630D4A3 /* Format.swift in Sources */,
 				C2FE7097AA38171C9E1626E9 /* KuberaAPI.swift in Sources */,
 				77004F7200E4EF995FA6F6A6 /* KuberaMCP.swift in Sources */,
