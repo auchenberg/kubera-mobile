@@ -1,0 +1,29 @@
+Tests/AppLockTests.swift
+  s_3b694bad7ccc14::t_fa5a41caa5a19a 1-42
+Shared/AppLockPolicy.swift
+  s_3b694bad7ccc14::t_5c9571ed28a136 1-16
+Shared/Shared.swift
+  s_3b694bad7ccc14::t_dac477e0d724ee 67-69,78
+App/AppLock.swift
+  s_3b694bad7ccc14::t_3fa02421939a69 22-25,28
+  s_3b694bad7ccc14::t_7834a1c922799c 1-5,7-21,26-27,29-58
+  s_3b694bad7ccc14::t_62ed20fe0b82df 6
+App/KuberaWidgetsApp.swift
+  s_3b694bad7ccc14::t_6a9e5db82bc6f9 6-13,19-29,36,39-79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "dc23698e09fd6fa622ebed82b6b4dbd5c20f0675",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
