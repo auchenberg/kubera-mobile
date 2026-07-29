@@ -1,0 +1,27 @@
+App/KuberaWidgetsApp.swift
+  s_3b694bad7ccc14::t_a83633d8c7c968 94,96
+Shared/OverviewChart.swift
+  s_3b694bad7ccc14::t_6e8e808d8177ff 223-229,231-235,237,239-247
+  s_3b694bad7ccc14::t_63e3071fa9b4e6 1-222,230,236,238,248-251
+Tests/OverviewChartTests.swift
+  s_3b694bad7ccc14::t_433f5c6215ada4 1-333
+App/Views/OverviewView.swift
+  s_3b694bad7ccc14::t_b59e88e3518825 289-290
+  s_3b694bad7ccc14::t_4cba79f06c6a8d 1-288,291-503
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "9fcd7339333c32842587279cd5515f0500f4f4be",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
