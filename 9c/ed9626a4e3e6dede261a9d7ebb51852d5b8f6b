@@ -1,0 +1,27 @@
+Tests/KuberaMCPParseTests.swift
+  s_3b694bad7ccc14::t_be76dee8aed9b0 46
+  s_3b694bad7ccc14::t_27a2b9c17a2ff9 1-45,47-54
+KuberaWidgets.xcodeproj/project.pbxproj
+  s_3b694bad7ccc14::t_3a31dfbdff2e55 31-32,35,48,94,98,186,202,339,345,366,386
+Shared/KuberaMCP.swift
+  s_3b694bad7ccc14::t_daa910f6ddab2c 72-76,102,104-122,126,131-132,173
+  s_3b694bad7ccc14::t_af4aee00d04be6 71,84-101
+  s_3b694bad7ccc14::t_ff038fa68cbbb7 144,151-172
+  s_3b694bad7ccc14::t_e05b5380bdc7ee 103
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "9ced9626a4e3e6dede261a9d7ebb51852d5b8f6b",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
