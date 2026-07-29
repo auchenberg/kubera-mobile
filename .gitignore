@@ -1,5 +1,6 @@
 # Xcode
 build/
+build26/
 DerivedData/
 xcuserdata/
 *.xcuserstate
