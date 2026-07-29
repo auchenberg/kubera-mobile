@@ -1,0 +1,29 @@
+Widgets/WidgetBundle.swift
+  s_3b694bad7ccc14::t_9e97c72c8825b6 20,24,31
+project.yml
+  s_3b694bad7ccc14::t_9e97c72c8825b6 28,31,67
+App/Info.plist
+  s_3b694bad7ccc14::t_8afe5dc707ab57 8,36-37
+Widgets/Info.plist
+  s_3b694bad7ccc14::t_8afe5dc707ab57 8
+App/Views/SignInView.swift
+  s_3b694bad7ccc14::t_9e97c72c8825b6 20
+KuberaWidgets.xcodeproj/project.pbxproj
+  s_3b694bad7ccc14::t_8afe5dc707ab57 13,16,39,51,56,91,106,111,177,192,206,344-345,366-367,390
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "f54a8ccfb61c50b87cf10f8dd8c98ae3428b496b",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
