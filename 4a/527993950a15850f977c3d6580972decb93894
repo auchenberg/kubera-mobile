@@ -1,0 +1,25 @@
+App/Info.plist
+  s_3b694bad7ccc14::t_061178a7d7e9b1 38-39
+project.yml
+  s_3b694bad7ccc14::t_ed85edf98da76d 32
+ExportOptions.plist
+  s_3b694bad7ccc14::t_e301c73d01565a 1-16
+release
+  s_3b694bad7ccc14::t_a978302b127289 1-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "4a527993950a15850f977c3d6580972decb93894",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
