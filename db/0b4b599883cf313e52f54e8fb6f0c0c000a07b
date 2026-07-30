@@ -1,0 +1,33 @@
+App/KuberaMobileApp.swift
+  s_3b694bad7ccc14::t_d82e33b2c4f47b 1-193
+project.yml
+  s_3b694bad7ccc14::t_5dd08dc75a7288 1,16,23,43,47,58,74
+dev
+  s_3b694bad7ccc14::t_ebf3afb0267649 35-36,41
+KuberaMobile.xcodeproj/project.pbxproj
+  s_3b694bad7ccc14::t_649d2ee62ffc36 1-792
+release
+  s_3b694bad7ccc14::t_ebf3afb0267649 8,15-16
+KuberaMobile.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+  s_3b694bad7ccc14::t_649d2ee62ffc36 1-7
+README.md
+  s_3b694bad7ccc14::t_71898e97272117 1-2,5-6
+  s_3b694bad7ccc14::t_d82e33b2c4f47b 157,251
+  s_3b694bad7ccc14::t_f3201d2e02eda2 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.17",
+  "base_commit_sha": "db0b4b599883cf313e52f54e8fb6f0c0c000a07b",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
