@@ -16,6 +16,15 @@ struct WelcomeView: View {
     let onContinue: () -> Void
 
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// The hero keeps a point size rather than a text style because its currency
+    /// symbol is set at 55% of it and lifted by 30% of it, and a text style hands
+    /// back no number to take a fraction of. Same treatment as `OverviewView`,
+    /// since this screen is a preview of that one.
+    @ScaledMetric(relativeTo: .largeTitle) private var heroSize: CGFloat = 40
+    @ScaledMetric(relativeTo: .caption) private var pillVerticalPadding: CGFloat = 7
 
     /// 1Y by default: the widest window that is dense enough to read, and the
     /// one that shows the demo's growth. The pills are live — the range control
@@ -61,6 +70,7 @@ struct WelcomeView: View {
             .padding(.top, 44)
         }
         .background(Theme.background)
+        .softTopScrollEdge()
     }
 
     // MARK: - Header
@@ -68,12 +78,12 @@ struct WelcomeView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Kubera Mobile")
-                .font(.system(size: 32, weight: .bold))
+                .font(.system(.largeTitle, weight: .bold))
                 .kerning(-0.5)
                 .foregroundStyle(Theme.text)
 
             Text("Your net worth, on your Home Screen.")
-                .font(.system(size: 16))
+                .font(.body)
                 .foregroundStyle(Theme.dim)
         }
     }
@@ -88,23 +98,20 @@ struct WelcomeView: View {
     private var heroCard: some View {
         Card(padding: EdgeInsets(top: 16, leading: 16, bottom: 12, trailing: 16)) {
             VStack(alignment: .leading, spacing: 0) {
-                HStack(alignment: .firstTextBaseline) {
-                    Text("NET WORTH")
-                        .font(.system(size: 12, weight: .semibold))
-                        .kerning(1)
-                        .foregroundStyle(Theme.dim)
-                    Spacer(minLength: 8)
-                    samplePill
+                heroHeader
+
+                VStack(alignment: .leading, spacing: 4) {
+                    heroValue
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                        .foregroundStyle(Theme.text)
+
+                    heroDelta
                 }
-
-                heroValue
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-                    .foregroundStyle(Theme.text)
-                    .padding(.top, 2)
-
-                heroDelta
-                    .padding(.top, 4)
+                .padding(.top, 2)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Sample net worth")
+                .accessibilityValue(heroReadout)
 
                 chart(visiblePoints)
                     .padding(.top, 14)
@@ -116,11 +123,34 @@ struct WelcomeView: View {
         }
     }
 
+    /// The card's own heading, with the sample marker beside it until the two
+    /// stop fitting on one line.
+    @ViewBuilder
+    private var heroHeader: some View {
+        let label = Text("NET WORTH")
+            .font(.caption.weight(.semibold))
+            .kerning(1)
+            .foregroundStyle(Theme.dim)
+
+        if typeSize.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: 6) {
+                label
+                samplePill
+            }
+        } else {
+            HStack(alignment: .firstTextBaseline) {
+                label
+                Spacer(minLength: 8)
+                samplePill
+            }
+        }
+    }
+
     /// Small, quiet and always visible: enough that nobody reads the demo as
     /// their own portfolio, not so loud that it fights the numbers.
     private var samplePill: some View {
         Text("SAMPLE DATA")
-            .font(.system(size: 10, weight: .semibold))
+            .font(.caption2.weight(.semibold))
             .kerning(0.8)
             .foregroundStyle(Theme.dim)
             .padding(.horizontal, 8)
@@ -132,40 +162,83 @@ struct WelcomeView: View {
 
     /// "$1.240 Million" with the currency symbol shrunk and raised, the way the
     /// Kubera dashboard and the Net Worth widget set it.
+    ///
+    /// At accessibility sizes it switches to compact notation ("$1.24M"), with
+    /// the unabbreviated number in `accessibilityValue` — the same bargain
+    /// `OverviewView` strikes, so the demo shows what the real screen does.
     private var heroValue: Text {
-        let size: CGFloat = 40
-        let text = Format.millions(snapshot.netWorth, currency: currency, masked: false)
+        let text = typeSize.isAccessibilitySize
+            ? Format.money(snapshot.netWorth, currency: currency, masked: false, compact: true)
+            : Format.millions(snapshot.netWorth, currency: currency, masked: false)
+        let figure = Font.system(size: heroSize, weight: .bold).monospacedDigit()
         guard let split = currencySymbolSplit(text) else {
-            return Text(text).font(.system(size: size, weight: .bold)).kerning(-1)
+            return Text(text).font(figure).kerning(-1)
         }
         return Text(split.symbol)
-            .font(.system(size: size * 0.55, weight: .bold))
-            .baselineOffset(size * 0.3)
+            .font(.system(size: heroSize * 0.55, weight: .bold))
+            .baselineOffset(heroSize * 0.3)
             + Text(split.rest)
-            .font(.system(size: size, weight: .bold))
+            .font(figure)
             .kerning(-1)
+    }
+
+    /// The sentence VoiceOver reads for the hero and its delta together, with the
+    /// amount unabbreviated whatever the type size does to the figure on screen.
+    private var heroReadout: String {
+        let amount = Format.money(snapshot.netWorth, currency: currency, masked: false, compact: false)
+        guard let change = OverviewChart.change(in: visiblePoints) else { return amount }
+        guard change.amount != 0 else { return "\(amount), unchanged \(range.deltaLabel)" }
+        let direction = change.amount > 0 ? "up" : "down"
+        let moved = Format.money(abs(change.amount), currency: currency, masked: false, compact: false)
+        return "\(amount), \(direction) \(moved), \(Format.percent(abs(change.percent), signed: false)), \(range.deltaLabel)"
     }
 
     @ViewBuilder
     private var heroDelta: some View {
         if let change = OverviewChart.change(in: visiblePoints) {
             let favorable = OverviewChart.isFavorable(change.amount, metric: .asset)
-            HStack(spacing: 6) {
-                Text(change.amount < 0 ? "▼" : "▲")
-                    .font(.system(size: 11, weight: .bold))
-                Text(Format.money(change.amount, currency: currency, masked: false, compact: false, signed: true))
-                    .font(.system(size: 15, weight: .semibold))
-                    .monospacedDigit()
-                Text(Format.percent(change.percent))
-                    .font(.system(size: 15, weight: .semibold))
-                    .monospacedDigit()
-                Text(range.deltaLabel)
-                    .font(.system(size: 13))
-                    .foregroundStyle(Theme.dim)
+            let amount = Text(Format.money(change.amount, currency: currency, masked: false, compact: false, signed: true))
+                .font(.subheadline.weight(.semibold))
+                .monospacedDigit()
+            let percent = Text(Format.percent(change.percent))
+                .font(.subheadline.weight(.semibold))
+                .monospacedDigit()
+            let tail = Text(range.deltaLabel)
+                .font(.footnote)
+                .foregroundStyle(Theme.dim)
+
+            Group {
+                if typeSize.isAccessibilitySize {
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(spacing: 6) {
+                            deltaGlyph(change.amount)
+                            amount
+                        }
+                        percent
+                        tail
+                    }
+                } else {
+                    HStack(spacing: 6) {
+                        deltaGlyph(change.amount)
+                        amount
+                        percent
+                        tail
+                    }
+                }
             }
+            // Exactly zero reads neutral. Green there would assert a gain that
+            // did not happen.
             .foregroundStyle(change.amount == 0 ? Theme.dim : (favorable ? Theme.positive : Theme.negative))
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
+        }
+    }
+
+    /// Direction as a glyph, so colour is never the only carrier. Absent at
+    /// exactly zero: an arrow there claims a direction the figures do not show.
+    @ViewBuilder
+    private func deltaGlyph(_ amount: Double) -> some View {
+        if amount != 0 {
+            Text(amount < 0 ? "▼" : "▲")
+                .font(.caption2.weight(.bold))
         }
     }
 
@@ -208,7 +281,9 @@ struct WelcomeView: View {
         .chartYAxis(.hidden)
         .chartLegend(.hidden)
         .frame(height: 150)
-        .animation(.easeInOut(duration: 0.3), value: range)
+        // A whole line redrawing across the card is exactly the large-area
+        // movement Reduce Motion exists for; the new range still lands.
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: range)
         .accessibilityLabel("Sample net worth over the \(range.deltaLabel)")
     }
 
@@ -230,39 +305,63 @@ struct WelcomeView: View {
                 Spacer(minLength: 8)
                 Text(shortDate(last.date))
             }
-            .font(.system(size: 11))
+            .font(.caption2)
             .foregroundStyle(Theme.dim)
         }
     }
 
+    /// Six pills do not fit one row at accessibility sizes, so they fall into two
+    /// columns rather than scrolling — a scrolling pill row hides ranges behind
+    /// an edge, and the range control is part of what this screen demonstrates.
+    @ViewBuilder
     private var rangePills: some View {
-        HStack(spacing: 4) {
-            ForEach(ChartRange.allCases) { option in
-                let active = option == range
-                Button {
-                    withAnimation(.snappy(duration: 0.25)) { range = option }
-                } label: {
-                    Text(option.label)
-                        .font(.system(size: 12, weight: .semibold))
-                        .kerning(0.5)
-                        .foregroundStyle(active ? Theme.background : Theme.dim)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 7)
-                        .background(active ? Theme.text : .clear)
-                        .clipShape(Capsule())
-                }
-                .buttonStyle(.plain)
+        if typeSize.isAccessibilitySize {
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 4) {
+                ForEach(ChartRange.allCases) { rangePill($0) }
+            }
+        } else {
+            HStack(spacing: 4) {
+                ForEach(ChartRange.allCases) { rangePill($0) }
             }
         }
+    }
+
+    private func rangePill(_ option: ChartRange) -> some View {
+        let active = option == range
+        return Button {
+            withAnimation(reduceMotion ? nil : .snappy(duration: 0.25)) { range = option }
+        } label: {
+            Text(option.label)
+                .font(.caption.weight(.semibold))
+                .kerning(0.5)
+                .foregroundStyle(active ? Theme.background : Theme.dim)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, pillVerticalPadding)
+                .background(active ? Theme.text : .clear)
+                .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        // "1W" spoken as letters says nothing; the range's own wording does.
+        .accessibilityLabel(option.deltaLabel)
+        .accessibilityAddTraits(active ? [.isSelected] : [])
     }
 
     // MARK: - Assets / debts
 
     private var statPair: some View {
-        HStack(spacing: 12) {
+        pairLayout {
             statCard("ASSETS", value: snapshot.assetTotal, series: DemoData.assetPoints, metric: .asset)
             statCard("DEBTS", value: snapshot.debtTotal, series: DemoData.debtPoints, metric: .debt)
         }
+    }
+
+    /// Two cards abreast, stacked at accessibility sizes: half the screen width
+    /// cannot hold a currency figure there without scaling it back below the size
+    /// the reader asked for.
+    private var pairLayout: AnyLayout {
+        typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(spacing: 12))
+            : AnyLayout(HStackLayout(spacing: 12))
     }
 
     /// The two figures Kubera serves only over MCP. Shown here because the demo
@@ -272,7 +371,7 @@ struct WelcomeView: View {
     private var detailPair: some View {
         let detail = DemoData.detail
         if let cash = detail.cashOnHand, let tax = detail.estimatedTax {
-            HStack(spacing: 12) {
+            pairLayout {
                 plainStatCard("CASH ON HAND", value: cash, note: "6% of net worth")
                 plainStatCard("TAX ESTIMATE", value: tax, note: "on unrealized gains")
             }
@@ -283,22 +382,22 @@ struct WelcomeView: View {
         Card {
             VStack(alignment: .leading, spacing: 4) {
                 Text(label)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.caption.weight(.semibold))
                     .kerning(1)
                     .foregroundStyle(Theme.dim)
 
-                Text(Format.money(value, currency: currency, masked: false, compact: false))
-                    .font(.system(size: 20, weight: .bold))
+                Text(Format.money(value, currency: currency, masked: false, compact: typeSize.isAccessibilitySize))
+                    .font(.title3.weight(.bold))
                     .monospacedDigit()
                     .foregroundStyle(Theme.text)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-
-                Text(note)
-                    .font(.system(size: 12))
-                    .foregroundStyle(Theme.dim)
-                    .lineLimit(1)
                     .minimumScaleFactor(0.7)
+                    .accessibilityValue(Format.money(value, currency: currency, masked: false, compact: false))
+
+                // Wraps rather than shrinking: it is a phrase, not a figure.
+                Text(note)
+                    .font(.caption)
+                    .foregroundStyle(Theme.dim)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }

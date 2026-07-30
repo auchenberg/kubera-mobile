@@ -1,3 +1,4 @@
+import Accessibility
 import Charts
 import SwiftUI
 import UIKit
@@ -24,6 +25,30 @@ struct OverviewView: View {
 
     @Environment(AppStore.self) private var store
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// Geometry that has to grow with the text beside it. `relativeTo:` names
+    /// that text: a width scaled against `.body` next to a `.caption2` label
+    /// drifts away from it as the type size climbs.
+    ///
+    /// The hero keeps a point size rather than a text style because its currency
+    /// symbol is set at 55% of it and lifted by 30% of it, and a text style hands
+    /// back no number to take a fraction of.
+    @ScaledMetric(relativeTo: .largeTitle) private var heroSize: CGFloat = 40
+    @ScaledMetric(relativeTo: .caption2) private var trendLabelWidth: CGFloat = 42
+    @ScaledMetric(relativeTo: .subheadline) private var ytdColumnWidth: CGFloat = 76
+    @ScaledMetric(relativeTo: .subheadline) private var cagrColumnWidth: CGFloat = 64
+    @ScaledMetric(relativeTo: .caption) private var sharePercentWidth: CGFloat = 48
+    @ScaledMetric(relativeTo: .caption) private var rankWidth: CGFloat = 14
+    @ScaledMetric(relativeTo: .caption2) private var legendDotSize: CGFloat = 6
+    @ScaledMetric(relativeTo: .footnote) private var allocationDotSize: CGFloat = 8
+    @ScaledMetric(relativeTo: .caption) private var pillVerticalPadding: CGFloat = 7
+    @ScaledMetric(relativeTo: .footnote) private var allocationBarHeight: CGFloat = 12
+    /// Fixed per type size rather than measured: a bubble that resizes as the
+    /// digits change jitters under the finger, and a constant width means the
+    /// clamp against the plot edges is a constant too.
+    @ScaledMetric(relativeTo: .caption2) private var scrubTooltipWidth: CGFloat = 148
 
     @State private var range: ChartRange = .ytd
     @State private var compositionLevel: OverviewModules.CompositionLevel = .sheet
@@ -104,7 +129,10 @@ struct OverviewView: View {
                         // Anchored .top rather than .center: these are section
                         // headings, and centring one leaves its card half
                         // scrolled past.
-                        withAnimation(.easeInOut(duration: 0.45)) {
+                        // A programmatic scroll across a whole screen is the
+                        // large-area movement Reduce Motion exists for; the jump
+                        // still lands on the anchor.
+                        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.45)) {
                             scroller.scrollTo(new.anchor, anchor: .top)
                         }
                         focus = nil
@@ -123,7 +151,7 @@ struct OverviewView: View {
                     if let errorMessage {
                         Card {
                             Text(errorMessage)
-                                .font(.system(size: 14))
+                                .font(.subheadline)
                                 .foregroundStyle(Theme.negative)
                         }
                         .padding(.bottom, 12)
@@ -167,6 +195,7 @@ struct OverviewView: View {
                 .padding(.bottom, 32)
             }
             .background(Theme.background)
+            .softTopScrollEdge()
             // No nav title: the greeting is this screen's heading, the way
             // Kubera's own dashboard opens. A bar with "Overview" in it would
             // either compete with the greeting or cost 44pt of empty chrome
@@ -209,7 +238,7 @@ struct OverviewView: View {
             )
             .popover(isPresented: $showsGreetingNote) {
                 Text(phrase.note ?? "")
-                    .font(.system(size: 14))
+                    .font(.subheadline)
                     .foregroundStyle(Theme.text)
                     .padding(14)
                     // Without this a popover becomes a sheet on a phone, which
@@ -222,18 +251,19 @@ struct OverviewView: View {
 
     private func greetingText(_ phrase: Greeting.Phrase) -> Text {
         let line = Text(Greeting.line(for: greetingDate, name: greetingName))
-            .font(.system(size: 26, weight: .semibold))
+            .font(.system(.title, weight: .semibold))
             .kerning(-0.3)
             .foregroundColor(Theme.text)
         guard phrase.note != nil else { return line }
         return line
             + Text("  ")
             + Text(Image(systemName: "info.circle"))
-            .font(.system(size: 15, weight: .semibold))
+            .font(.system(.subheadline, weight: .semibold))
             .foregroundColor(Theme.dim)
             // The type engine aligns the symbol to the run's baseline, which
-            // leaves a 15pt glyph sitting low against 26pt caps. Lifted to the
-            // optical centre of the capitals rather than the line box.
+            // leaves a subheadline glyph sitting low against title caps. Lifted
+            // to the optical centre of the capitals rather than the line box.
+            // The 2pt value was chosen by eye and holds across the scale.
             .baselineOffset(2)
     }
 
@@ -262,26 +292,27 @@ struct OverviewView: View {
             trailing: Self.cardInset
         )) {
             VStack(alignment: .leading, spacing: 0) {
-                HStack(alignment: .firstTextBaseline) {
-                    Text("NET WORTH")
-                        .font(.system(size: 12, weight: .semibold))
-                        .kerning(1)
-                        .foregroundStyle(Theme.dim)
-                    Spacer(minLength: 8)
-                    if !investable.isEmpty {
-                        chartLegend
-                    }
+                heroHeader(investable: investable)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    heroValue
+                        // The one place `minimumScaleFactor` is still the right
+                        // answer: the figure is compacted before it is shrunk,
+                        // and this only catches a currency code wide enough to
+                        // overhang after that.
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                        .foregroundStyle(Theme.text)
+                        .contentTransition(.numericText(value: heroAmount))
+
+                    heroDelta(points)
                 }
-
-                heroValue
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-                    .foregroundStyle(Theme.text)
-                    .contentTransition(.numericText(value: heroAmount))
-                    .padding(.top, 2)
-
-                heroDelta(points)
-                    .padding(.top, 4)
+                .padding(.top, 2)
+                // One statement rather than four elements — "Net worth,
+                // $1,240,000, up 3.1 percent, year to date".
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Net worth")
+                .accessibilityValue(heroReadout(points))
 
                 if let investableNow {
                     investableLine(investableNow)
@@ -314,53 +345,136 @@ struct OverviewView: View {
         }
     }
 
+    /// The card's own heading, with the legend beside it until the two stop
+    /// fitting on one line.
+    @ViewBuilder
+    private func heroHeader(investable: [ChartPoint]) -> some View {
+        if typeSize.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: 4) {
+                heroLabel
+                if !investable.isEmpty { chartLegend }
+            }
+        } else {
+            HStack(alignment: .firstTextBaseline) {
+                heroLabel
+                Spacer(minLength: 8)
+                if !investable.isEmpty { chartLegend }
+            }
+        }
+    }
+
+    private var heroLabel: some View {
+        Text("NET WORTH")
+            .font(.caption.weight(.semibold))
+            .kerning(1)
+            .foregroundStyle(Theme.dim)
+    }
+
     /// The figure the hero prints: the scrubbed day while a finger is on the
     /// chart, otherwise today's net worth.
     private var heroAmount: Double { scrubbed?.value ?? snapshot.netWorth }
 
     /// "$1.240 Million" with the currency symbol shrunk and raised, the way the
     /// Kubera dashboard and the Net Worth widget set it.
+    ///
+    /// At accessibility sizes it switches to compact notation ("$1.24M"). The
+    /// long form there either wraps mid-figure or gets scaled back below the
+    /// size the reader asked for; the unabbreviated number stays in
+    /// `accessibilityValue`, so this abbreviates rather than withholds.
     private var heroValue: Text {
-        let size: CGFloat = 40
-        let text = Format.millions(heroAmount, currency: currency, masked: masked)
+        let text = typeSize.isAccessibilitySize
+            ? Format.money(heroAmount, currency: currency, masked: masked, compact: true)
+            : Format.millions(heroAmount, currency: currency, masked: masked)
+        // Monospaced digits on the figure itself: a proportional set jitters the
+        // whole card's width as a scrub moves through the series.
+        let figure = Font.system(size: heroSize, weight: .bold).monospacedDigit()
         guard let split = currencySymbolSplit(text) else {
-            return Text(text).font(.system(size: size, weight: .bold)).kerning(-1)
+            return Text(text).font(figure).kerning(-1)
         }
         return Text(split.symbol)
-            .font(.system(size: size * 0.55, weight: .bold))
-            .baselineOffset(size * 0.3)
+            .font(.system(size: heroSize * 0.55, weight: .bold))
+            .baselineOffset(heroSize * 0.3)
             + Text(split.rest)
-            .font(.system(size: size, weight: .bold))
+            .font(figure)
             .kerning(-1)
+    }
+
+    /// The sentence VoiceOver reads for the hero and its delta together. The
+    /// amount is unabbreviated even when the figure on screen is compacted for a
+    /// large type size — the compaction is a layout concession, not the number.
+    private func heroReadout(_ points: [ChartPoint]) -> String {
+        let amount = Format.money(heroAmount, currency: currency, masked: masked, compact: false)
+        guard let change = heroChange(in: points) else {
+            return "\(amount), updated \(Format.updatedAt(snapshot.updatedAt))"
+        }
+        guard change.amount != 0 else { return "\(amount), unchanged \(heroDeltaLabel)" }
+        let direction = change.amount > 0 ? "up" : "down"
+        let moved = Format.money(abs(change.amount), currency: currency, masked: masked, compact: false)
+        return "\(amount), \(direction) \(moved), \(Format.percent(abs(change.percent), signed: false)), \(heroDeltaLabel)"
     }
 
     @ViewBuilder
     private func heroDelta(_ points: [ChartPoint]) -> some View {
         if let change = heroChange(in: points) {
             let favorable = OverviewChart.isFavorable(change.amount, metric: .asset)
-            HStack(spacing: 6) {
-                Text(change.amount < 0 ? "▼" : "▲")
-                    .font(.system(size: 11, weight: .bold))
-                Text(Format.money(change.amount, currency: currency, masked: masked, compact: false, signed: true))
-                    .font(.system(size: 15, weight: .semibold))
-                    .monospacedDigit()
-                    .contentTransition(.numericText(value: change.amount))
-                Text(Format.percent(change.percent))
-                    .font(.system(size: 15, weight: .semibold))
-                    .monospacedDigit()
-                    .contentTransition(.numericText(value: change.percent))
-                Text(heroDeltaLabel)
-                    .font(.system(size: 13))
-                    .foregroundStyle(Theme.dim)
+            let tail = Text(heroDeltaLabel)
+                .font(.footnote)
+                .foregroundStyle(Theme.dim)
+
+            Group {
+                if typeSize.isAccessibilitySize {
+                    // One figure per line: at these sizes the row cannot hold a
+                    // signed amount, a percent and the range's wording without
+                    // scaling all three back down again.
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(spacing: 6) {
+                            deltaGlyph(change.amount)
+                            deltaAmount(change.amount)
+                        }
+                        deltaPercent(change.percent)
+                        tail
+                    }
+                } else {
+                    HStack(spacing: 6) {
+                        deltaGlyph(change.amount)
+                        deltaAmount(change.amount)
+                        deltaPercent(change.percent)
+                        tail
+                    }
+                }
             }
+            // Exactly zero reads neutral. Green there would assert a gain that
+            // did not happen.
             .foregroundStyle(change.amount == 0 ? Theme.dim : (favorable ? Theme.positive : Theme.negative))
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
         } else {
             Text("Updated \(Format.updatedAt(snapshot.updatedAt))")
-                .font(.system(size: 13))
+                .font(.footnote)
                 .foregroundStyle(Theme.dim)
         }
+    }
+
+    /// Direction as a glyph, so colour is never the only carrier. Absent at
+    /// exactly zero: an arrow there claims a direction the figures do not show.
+    @ViewBuilder
+    private func deltaGlyph(_ amount: Double) -> some View {
+        if amount != 0 {
+            Text(amount < 0 ? "▼" : "▲")
+                .font(.caption2.weight(.bold))
+        }
+    }
+
+    private func deltaAmount(_ amount: Double) -> some View {
+        Text(Format.money(amount, currency: currency, masked: masked, compact: false, signed: true))
+            .font(.subheadline.weight(.semibold))
+            .monospacedDigit()
+            .contentTransition(.numericText(value: amount))
+    }
+
+    private func deltaPercent(_ percent: Double) -> some View {
+        Text(Format.percent(percent))
+            .font(.subheadline.weight(.semibold))
+            .monospacedDigit()
+            .contentTransition(.numericText(value: percent))
     }
 
     /// Both states measure from the **window's first** point, so touching the
@@ -381,20 +495,34 @@ struct OverviewView: View {
 
     /// Investable as the hero's second figure, the way Kubera's dashboard card
     /// carries it — a step down in type, not a card of its own.
+    @ViewBuilder
     private func investableLine(_ amount: Double) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: 8) {
-            Text("INVESTABLE")
-                .font(.system(size: 11, weight: .semibold))
-                .kerning(1)
-                .foregroundStyle(Theme.dim)
-            Text(Format.money(amount, currency: currency, masked: masked, compact: false))
-                .font(.system(size: 18, weight: .semibold))
-                .monospacedDigit()
-                .foregroundStyle(Theme.text.opacity(0.85))
-                .contentTransition(.numericText(value: amount))
+        let label = Text("INVESTABLE")
+            .font(.caption2.weight(.semibold))
+            .kerning(1)
+            .foregroundStyle(Theme.dim)
+        let figure = Text(Format.money(amount, currency: currency, masked: masked, compact: typeSize.isAccessibilitySize))
+            .font(.headline)
+            .monospacedDigit()
+            .foregroundStyle(Theme.text.opacity(0.85))
+
+        Group {
+            if typeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 2) {
+                    label
+                    figure
+                }
+            } else {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    label
+                    figure
+                }
+            }
         }
-        .lineLimit(1)
-        .minimumScaleFactor(0.6)
+        .contentTransition(.numericText(value: amount))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Investable")
+        .accessibilityValue(Format.money(amount, currency: currency, masked: masked, compact: false))
     }
 
     /// Two dots and two words: the only way to tell the curves apart, and
@@ -410,9 +538,9 @@ struct OverviewView: View {
         HStack(spacing: 4) {
             Circle()
                 .fill(Theme.text.opacity(opacity))
-                .frame(width: 6, height: 6)
+                .frame(width: legendDotSize, height: legendDotSize)
             Text(name)
-                .font(.system(size: 10))
+                .font(.caption2)
                 .foregroundStyle(Theme.dim)
         }
     }
@@ -424,57 +552,19 @@ struct OverviewView: View {
         let runs = OverviewChart.segments(points)
         let investableRuns = OverviewChart.segments(investable)
 
+        // Each series is its own `@ChartContentBuilder` function rather than
+        // being inlined here. Marks are deeply generic and the builder nests
+        // their types, so four sibling series in one body put the type checker
+        // past its time limit outright. An opaque `some ChartContent` return
+        // resolves each one once, and the caller never reconsiders it.
+        //
+        // Order is the z-order: investable draws first so the net worth curve
+        // stays the dominant line.
         return Chart {
-            // Investable first, so the net worth curve draws over it and stays
-            // the dominant line.
-            ForEach(Array(investableRuns.enumerated()), id: \.offset) { index, run in
-                ForEach(run) { point in
-                    AreaMark(
-                        x: .value("Date", point.date),
-                        y: .value("Investable", point.value),
-                        series: .value("Series", "investable-\(index)"),
-                        stacking: .unstacked
-                    )
-                    .foregroundStyle(fillGradient(ceiling: investableFillCeiling))
-                    .interpolationMethod(.monotone)
-                }
-            }
-            ForEach(Array(investableRuns.enumerated()), id: \.offset) { index, run in
-                ForEach(run) { point in
-                    LineMark(
-                        x: .value("Date", point.date),
-                        y: .value("Investable", point.value),
-                        series: .value("Series", "investable-line-\(index)")
-                    )
-                    .foregroundStyle(Theme.text.opacity(investableLineOpacity))
-                    .lineStyle(StrokeStyle(lineWidth: 1.5, lineCap: .round))
-                    .interpolationMethod(.monotone)
-                }
-            }
-            ForEach(Array(runs.enumerated()), id: \.offset) { index, run in
-                ForEach(run) { point in
-                    AreaMark(
-                        x: .value("Date", point.date),
-                        y: .value("Net worth", point.value),
-                        series: .value("Series", "networth-\(index)"),
-                        stacking: .unstacked
-                    )
-                    .foregroundStyle(fillGradient(ceiling: netWorthFillCeiling))
-                    .interpolationMethod(.monotone)
-                }
-            }
-            ForEach(Array(runs.enumerated()), id: \.offset) { index, run in
-                ForEach(run) { point in
-                    LineMark(
-                        x: .value("Date", point.date),
-                        y: .value("Net worth", point.value),
-                        series: .value("Series", "networth-line-\(index)")
-                    )
-                    .foregroundStyle(Theme.text)
-                    .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round))
-                    .interpolationMethod(.monotone)
-                }
-            }
+            investableFill(investableRuns)
+            investableLine(investableRuns)
+            netWorthFill(runs)
+            netWorthLine(runs)
         }
         // Monotone, not Catmull-Rom: Catmull-Rom overshoots and can draw a dip
         // below a low the portfolio never actually hit.
@@ -491,7 +581,99 @@ struct OverviewView: View {
             }
         }
         .frame(height: 170)
-        .animation(.easeInOut(duration: 0.3), value: range)
+        // A whole line redrawing across the card is exactly the large-area
+        // movement Reduce Motion exists for; the new range still lands.
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: range)
+        .accessibilityLabel("Net worth over the \(range.deltaLabel)")
+        .accessibilityChartDescriptor(NetWorthChartDescriptor(
+            points: points,
+            currency: currency,
+            masked: masked,
+            rangeLabel: range.deltaLabel
+        ))
+    }
+
+    // MARK: - Chart series
+    //
+    // `series:` interpolates the run index because Swift Charts groups marks
+    // into a line by that value: without it, the last point of one run would
+    // connect to the first point of the next and draw a slope straight across a
+    // gap in the history.
+    //
+    // Only the net worth line carries per-point accessibility labels. The fills
+    // and the investable curve are hidden, so a VoiceOver swipe walks one curve
+    // instead of crossing four overlapping series — the descriptor on the chart
+    // covers the overall shape.
+
+    @ChartContentBuilder
+    private func investableFill(_ runs: [[ChartPoint]]) -> some ChartContent {
+        ForEach(Array(runs.enumerated()), id: \.offset) { index, run in
+            ForEach(run) { point in
+                AreaMark(
+                    x: .value("Date", point.date),
+                    y: .value("Investable", point.value),
+                    series: .value("Series", "investable-\(index)"),
+                    stacking: .unstacked
+                )
+                .foregroundStyle(fillGradient(ceiling: investableFillCeiling))
+                .interpolationMethod(.monotone)
+                .accessibilityHidden(true)
+            }
+        }
+    }
+
+    @ChartContentBuilder
+    private func investableLine(_ runs: [[ChartPoint]]) -> some ChartContent {
+        ForEach(Array(runs.enumerated()), id: \.offset) { index, run in
+            ForEach(run) { point in
+                LineMark(
+                    x: .value("Date", point.date),
+                    y: .value("Investable", point.value),
+                    series: .value("Series", "investable-line-\(index)")
+                )
+                .foregroundStyle(Theme.text.opacity(investableLineOpacity))
+                .lineStyle(StrokeStyle(lineWidth: 1.5, lineCap: .round))
+                .interpolationMethod(.monotone)
+                .accessibilityHidden(true)
+            }
+        }
+    }
+
+    @ChartContentBuilder
+    private func netWorthFill(_ runs: [[ChartPoint]]) -> some ChartContent {
+        ForEach(Array(runs.enumerated()), id: \.offset) { index, run in
+            ForEach(run) { point in
+                AreaMark(
+                    x: .value("Date", point.date),
+                    y: .value("Net worth", point.value),
+                    series: .value("Series", "networth-\(index)"),
+                    stacking: .unstacked
+                )
+                .foregroundStyle(fillGradient(ceiling: netWorthFillCeiling))
+                .interpolationMethod(.monotone)
+                .accessibilityHidden(true)
+            }
+        }
+    }
+
+    @ChartContentBuilder
+    private func netWorthLine(_ runs: [[ChartPoint]]) -> some ChartContent {
+        ForEach(Array(runs.enumerated()), id: \.offset) { index, run in
+            ForEach(run) { point in
+                LineMark(
+                    x: .value("Date", point.date),
+                    y: .value("Net worth", point.value),
+                    series: .value("Series", "networth-line-\(index)")
+                )
+                .foregroundStyle(Theme.text)
+                .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round))
+                .interpolationMethod(.monotone)
+                .accessibilityLabel(Self.endpointDateFormatter.string(from: point.date))
+                .accessibilityValue(
+                    Format.money(point.value, currency: currency, masked: masked, compact: false)
+                )
+            }
+        }
     }
 
     /// Monochrome by design — this app has no brand hue, so the second series is
@@ -517,7 +699,7 @@ struct OverviewView: View {
             Spacer(minLength: 8)
             Text(Self.endpointDateFormatter.string(from: points[points.count - 1].date))
         }
-        .font(.system(size: 11))
+        .font(.caption2)
         .foregroundStyle(Theme.dim)
     }
 
@@ -531,7 +713,7 @@ struct OverviewView: View {
                 ? "No history in this window yet. Try a longer range."
                 : "Not enough history yet. Growth fills in as Kubera's history loads."
         )
-        .font(.system(size: 13))
+        .font(.footnote)
         .foregroundStyle(Theme.dim)
         .fixedSize(horizontal: false, vertical: true)
     }
@@ -540,42 +722,55 @@ struct OverviewView: View {
     /// a single sampling surface can't produce glass-on-glass, and the selected
     /// pill stays a solid `Theme.text` capsule so the selection reads without
     /// depending on translucency in either appearance.
+    ///
+    /// Six pills do not fit one row at accessibility sizes, so they fall into two
+    /// columns rather than scrolling — a scrolling pill row hides ranges behind
+    /// an edge, and the range control is how this screen is read.
+    @ViewBuilder
     private var rangePills: some View {
-        HStack(spacing: 4) {
-            ForEach(ChartRange.allCases) { option in
-                let active = option == range
-                Button {
-                    selectionHaptics.selectionChanged()
-                    withAnimation(.snappy(duration: 0.25)) {
-                        range = option
-                        // A held readout from the old window would be a date the
-                        // new one may not contain.
-                        scrubbed = nil
-                    }
-                } label: {
-                    Text(option.label)
-                        .font(.system(size: 12, weight: .semibold))
-                        .kerning(0.5)
-                        .foregroundStyle(active ? Theme.background : Theme.dim)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 7)
-                        .background(active ? Theme.text : .clear)
-                        .clipShape(Capsule())
-                        .contentShape(Capsule())
-                }
-                .buttonStyle(.plain)
+        if typeSize.isAccessibilitySize {
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 4) {
+                ForEach(ChartRange.allCases) { rangePill($0) }
             }
+            .padding(3)
+            .controlGlass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        } else {
+            HStack(spacing: 4) {
+                ForEach(ChartRange.allCases) { rangePill($0) }
+            }
+            .padding(3)
+            .controlGlass(in: Capsule())
         }
-        .padding(3)
-        .controlGlass(in: Capsule())
+    }
+
+    private func rangePill(_ option: ChartRange) -> some View {
+        let active = option == range
+        return Button {
+            selectionHaptics.selectionChanged()
+            withAnimation(reduceMotion ? nil : .snappy(duration: 0.25)) {
+                range = option
+                // A held readout from the old window would be a date the new one
+                // may not contain.
+                scrubbed = nil
+            }
+        } label: {
+            Text(option.label)
+                .font(.caption.weight(.semibold))
+                .kerning(0.5)
+                .foregroundStyle(active ? Theme.background : Theme.dim)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, pillVerticalPadding)
+                .background(active ? Theme.text : .clear)
+                .clipShape(Capsule())
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        // "1W" spoken as letters says nothing; the range's own wording does.
+        .accessibilityLabel(option.deltaLabel)
+        .accessibilityAddTraits(active ? [.isSelected] : [])
     }
 
     // MARK: - Scrubbing
-
-    /// Fixed rather than measured: a bubble that resizes as the digits change
-    /// jitters under the finger, and a constant width means the clamp against
-    /// the plot edges is a constant too.
-    private static let scrubTooltipWidth: CGFloat = 148
 
     /// The scrub's whole surface: an invisible hit area over the plot, the rule
     /// and dot marking the held point, and the tooltip.
@@ -608,7 +803,7 @@ struct OverviewView: View {
                     .position(
                         x: plot.minX + OverviewChart.tooltipCenter(
                             near: offsetX,
-                            tooltipWidth: Self.scrubTooltipWidth,
+                            tooltipWidth: scrubTooltipWidth,
                             plotWidth: plot.width
                         ),
                         y: plot.minY + 14
@@ -653,12 +848,12 @@ struct OverviewView: View {
                 .monospacedDigit()
                 .foregroundStyle(Theme.text)
         }
-        .font(.system(size: 11, weight: .semibold))
+        .font(.caption2.weight(.semibold))
         .lineLimit(1)
         .minimumScaleFactor(0.7)
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .frame(width: Self.scrubTooltipWidth)
+        .frame(width: scrubTooltipWidth)
         // Tinted, unlike the pill row: this one floats over the curve and its
         // gradient fill, and bare glass over that is unreadable.
         .controlGlass(in: Capsule(), tint: Theme.card)
@@ -727,16 +922,25 @@ struct OverviewView: View {
         // Animated on release but not during the drag: the hero has to track
         // the finger exactly while it moves, and only the spring back to today's
         // figure should read as motion.
-        withAnimation(.snappy(duration: 0.25)) { scrubbed = nil }
+        withAnimation(reduceMotion ? nil : .snappy(duration: 0.25)) { scrubbed = nil }
     }
 
     // MARK: - Assets / debts
 
     private var statPair: some View {
-        HStack(spacing: 12) {
+        pairLayout {
             statCard("ASSETS", value: snapshot.assetTotal, series: assetSeries, metric: .asset)
             statCard("DEBTS", value: snapshot.debtTotal, series: debtSeries, metric: .debt)
         }
+    }
+
+    /// Two cards abreast, stacked at accessibility sizes: half the screen width
+    /// cannot hold a currency figure there without scaling it back below the size
+    /// the reader asked for.
+    private var pairLayout: AnyLayout {
+        typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(spacing: 12))
+            : AnyLayout(HStackLayout(spacing: 12))
     }
 
     /// The 1 DAY and 1 YEAR lines are fixed windows, like Kubera's dashboard —
@@ -753,17 +957,18 @@ struct OverviewView: View {
         return Card {
             VStack(alignment: .leading, spacing: 4) {
                 Text(label)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.caption.weight(.semibold))
                     .kerning(1)
                     .foregroundStyle(Theme.dim)
 
-                Text(Format.money(value, currency: currency, masked: masked, compact: false))
-                    .font(.system(size: 20, weight: .bold))
+                Text(Format.money(value, currency: currency, masked: masked, compact: typeSize.isAccessibilitySize))
+                    .font(.title3.weight(.bold))
                     .monospacedDigit()
                     .foregroundStyle(Theme.text)
                     .contentTransition(.numericText(value: value))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.5)
+                    .minimumScaleFactor(0.7)
+                    .accessibilityValue(Format.money(value, currency: currency, masked: masked, compact: false))
 
                 VStack(alignment: .leading, spacing: 2) {
                     trendRow("1 DAY", trend.day, metric: metric)
@@ -774,51 +979,101 @@ struct OverviewView: View {
         }
     }
 
-    /// One "1 DAY ▲ $19,100 (+1.5%)" line. An unknown change prints an em dash
+    /// One "1 DAY ▲ +$19,100 (+1.5%)" line. An unknown change prints an em dash
     /// rather than a zero: a log that doesn't reach back a year has no answer,
     /// and "0%" would claim the portfolio stood still.
+    @ViewBuilder
     private func trendRow(
         _ label: String,
         _ change: OverviewModules.Change?,
         metric: OverviewChart.Metric
     ) -> some View {
-        HStack(spacing: 4) {
-            Text(label)
-                .font(.system(size: 10, weight: .semibold))
-                .kerning(0.5)
-                .foregroundStyle(Theme.dim)
-                .frame(width: 42, alignment: .leading)
+        let title = Text(label)
+            .font(.caption2.weight(.semibold))
+            .kerning(0.5)
+            .foregroundStyle(Theme.dim)
 
-            if let change {
-                // Favorability, not sign: a shrinking debt is good news and
-                // renders green.
-                let favorable = OverviewChart.isFavorable(change.amount, metric: metric)
-                let color = change.amount == 0 ? Theme.dim : (favorable ? Theme.positive : Theme.negative)
-                Text(change.amount < 0 ? "▼" : "▲")
-                    .font(.system(size: 9, weight: .bold))
-                    .foregroundStyle(color)
-                Text(Format.money(abs(change.amount), currency: currency, masked: masked, compact: true))
-                    .font(.system(size: 11, weight: .semibold))
-                    .monospacedDigit()
-                    .foregroundStyle(color)
-                    .contentTransition(.numericText(value: change.amount))
-                if let percent = change.percent {
-                    Text("(\(Format.percent(percent)))")
-                        .font(.system(size: 11))
-                        .monospacedDigit()
-                        .foregroundStyle(color)
-                        .contentTransition(.numericText(value: percent))
+        Group {
+            if typeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 2) {
+                    title
+                    trendFigures(change, metric: metric)
                 }
             } else {
-                Text("—")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(Theme.dim)
+                HStack(spacing: 4) {
+                    title
+                        .frame(width: trendLabelWidth, alignment: .leading)
+                    trendFigures(change, metric: metric)
+                    Spacer(minLength: 0)
+                }
             }
+        }
+        .accessibilityElement(children: .combine)
+    }
 
-            Spacer(minLength: 0)
+    @ViewBuilder
+    private func trendFigures(
+        _ change: OverviewModules.Change?,
+        metric: OverviewChart.Metric
+    ) -> some View {
+        if let change {
+            // Favorability, not sign: a shrinking debt is good news and renders
+            // green. Exactly zero is neither, so it renders neutral.
+            let favorable = OverviewChart.isFavorable(change.amount, metric: metric)
+            let color = Theme.change(change.amount, isFavorable: favorable)
+
+            // These cards are half the screen wide, so the amount and the
+            // percent together often do not fit on one line. The amount is
+            // `.fixedSize`-d and never wraps: a figure broken across lines reads
+            // as two numbers ("+$1,34" / "8"), which is worse than being tall.
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 4) {
+                    amount(change, color: color)
+                    percent(change, color: color)
+                }
+                VStack(alignment: .leading, spacing: 1) {
+                    amount(change, color: color)
+                    percent(change, color: color)
+                }
+            }
+        } else {
+            Text("—")
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(Theme.dim)
+                .accessibilityLabel("not available")
+        }
+    }
+
+    /// The arrow and the signed amount, which travel together — the arrow is
+    /// reinforcement for a reader who cannot see the colour, so it must not end
+    /// up on a different line from the figure it qualifies.
+    private func amount(_ change: OverviewModules.Change, color: Color) -> some View {
+        HStack(spacing: 4) {
+            if change.amount != 0 {
+                Text(change.amount < 0 ? "▼" : "▲")
+                    .font(.caption2.weight(.bold))
+            }
+            Text(Format.money(change.amount, currency: currency, masked: masked, compact: true, signed: true))
+                .font(.caption2.weight(.semibold))
+                .monospacedDigit()
+                .contentTransition(.numericText(value: change.amount))
         }
         .lineLimit(1)
-        .minimumScaleFactor(0.6)
+        .fixedSize()
+        .foregroundStyle(color)
+    }
+
+    @ViewBuilder
+    private func percent(_ change: OverviewModules.Change, color: Color) -> some View {
+        if let percent = change.percent {
+            Text("(\(Format.percent(percent)))")
+                .font(.caption2)
+                .monospacedDigit()
+                .contentTransition(.numericText(value: percent))
+                .lineLimit(1)
+                .fixedSize()
+                .foregroundStyle(color)
+        }
     }
 
     // MARK: - Cash on hand / tax estimate
@@ -833,7 +1088,7 @@ struct OverviewView: View {
         let tax = detail?.estimatedTax
 
         if cash != nil || tax != nil {
-            HStack(spacing: 12) {
+            pairLayout {
                 if let cash {
                     balanceCard("CASH ON HAND", value: cash, caption: cashCaption(cash))
                 }
@@ -852,23 +1107,24 @@ struct OverviewView: View {
         Card {
             VStack(alignment: .leading, spacing: 4) {
                 Text(label)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.caption.weight(.semibold))
                     .kerning(1)
                     .foregroundStyle(Theme.dim)
 
-                Text(Format.money(value, currency: currency, masked: masked, compact: false))
-                    .font(.system(size: 20, weight: .bold))
+                Text(Format.money(value, currency: currency, masked: masked, compact: typeSize.isAccessibilitySize))
+                    .font(.title3.weight(.bold))
                     .monospacedDigit()
                     .foregroundStyle(Theme.text)
                     .contentTransition(.numericText(value: value))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-
-                Text(caption ?? " ")
-                    .font(.system(size: 11))
-                    .foregroundStyle(Theme.dim)
-                    .lineLimit(1)
                     .minimumScaleFactor(0.7)
+                    .accessibilityValue(Format.money(value, currency: currency, masked: masked, compact: false))
+
+                // The caption wraps rather than shrinking — it is a sentence, and
+                // the blank placeholder only has to hold one line's height.
+                Text(caption ?? " ")
+                    .font(.caption2)
+                    .foregroundStyle(Theme.dim)
             }
         }
     }
@@ -951,18 +1207,23 @@ struct OverviewView: View {
         return Card {
             VStack(alignment: .leading, spacing: 8) {
                 if !rows.isEmpty {
-                    HStack(spacing: 8) {
-                        Spacer(minLength: 0)
-                        Text("YTD")
-                            .frame(width: 76, alignment: .trailing)
-                        if showsCAGR {
-                            Text("CAGR")
-                                .frame(width: 64, alignment: .trailing)
+                    // No column header at accessibility sizes: the rows below
+                    // label each figure inline there, and a header over columns
+                    // that no longer exist would point at nothing.
+                    if !typeSize.isAccessibilitySize {
+                        HStack(spacing: 8) {
+                            Spacer(minLength: 0)
+                            Text("YTD")
+                                .frame(width: ytdColumnWidth, alignment: .trailing)
+                            if showsCAGR {
+                                Text("CAGR")
+                                    .frame(width: cagrColumnWidth, alignment: .trailing)
+                            }
                         }
+                        .font(.caption2.weight(.semibold))
+                        .kerning(0.5)
+                        .foregroundStyle(Theme.dim)
                     }
-                    .font(.system(size: 10, weight: .semibold))
-                    .kerning(0.5)
-                    .foregroundStyle(Theme.dim)
 
                     ForEach(rows) { row in
                         growthRow(row, showsCAGR: showsCAGR)
@@ -982,57 +1243,86 @@ struct OverviewView: View {
         }
     }
 
+    @ViewBuilder
     private func growthRow(_ row: GrowthRow, showsCAGR: Bool) -> some View {
-        HStack(spacing: 8) {
-            Text(row.label)
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(Theme.text)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
+        let name = Text(row.label)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(Theme.text)
+        // YTD is a change, so it carries direction.
+        let ytd = Text(row.ytd.map { Format.percent($0) } ?? "—")
+            .font(.subheadline.weight(.semibold))
+            .monospacedDigit()
+            .foregroundStyle(percentColor(row.ytd))
+        // CAGR stays neutral — it's a rate, not a change.
+        let cagr = Text(row.cagr.map { Format.percent($0, signed: false) } ?? "—")
+            .font(.subheadline)
+            .monospacedDigit()
+            .foregroundStyle(row.cagr == nil ? Theme.dim : Theme.text)
 
-            Spacer(minLength: 0)
-
-            // YTD is a change, so it carries direction.
-            Text(row.ytd.map { Format.percent($0) } ?? "—")
-                .font(.system(size: 15, weight: .semibold))
-                .monospacedDigit()
-                .foregroundStyle(percentColor(row.ytd))
-                .contentTransition(.numericText(value: row.ytd ?? 0))
-                .frame(width: 76, alignment: .trailing)
-
-            if showsCAGR {
-                // CAGR stays neutral — it's a rate, not a change.
-                Text(row.cagr.map { Format.percent($0, signed: false) } ?? "—")
-                    .font(.system(size: 15))
-                    .monospacedDigit()
-                    .foregroundStyle(row.cagr == nil ? Theme.dim : Theme.text)
-                    .contentTransition(.numericText(value: row.cagr ?? 0))
-                    .frame(width: 64, alignment: .trailing)
+        if typeSize.isAccessibilitySize {
+            // The columns become labelled lines. A three-column row at these
+            // sizes leaves each figure a few characters wide.
+            VStack(alignment: .leading, spacing: 2) {
+                name
+                growthFigure("YTD", ytd)
+                    .contentTransition(.numericText(value: row.ytd ?? 0))
+                if showsCAGR {
+                    growthFigure("CAGR", cagr)
+                        .contentTransition(.numericText(value: row.cagr ?? 0))
+                }
             }
+            .accessibilityElement(children: .combine)
+        } else {
+            HStack(spacing: 8) {
+                name
+                Spacer(minLength: 0)
+                ytd
+                    .contentTransition(.numericText(value: row.ytd ?? 0))
+                    .frame(width: ytdColumnWidth, alignment: .trailing)
+                if showsCAGR {
+                    cagr
+                        .contentTransition(.numericText(value: row.cagr ?? 0))
+                        .frame(width: cagrColumnWidth, alignment: .trailing)
+                }
+            }
+            .accessibilityElement(children: .combine)
         }
-        .lineLimit(1)
+    }
+
+    private func growthFigure(_ label: String, _ figure: Text) -> some View {
+        HStack(spacing: 6) {
+            Text(label)
+                .font(.caption2.weight(.semibold))
+                .kerning(0.5)
+                .foregroundStyle(Theme.dim)
+            figure
+        }
     }
 
     /// Benchmarks in dim, smaller type so your own numbers stay dominant.
+    @ViewBuilder
     private var compsRow: some View {
-        HStack(spacing: 8) {
+        // Side by side at normal sizes, one per line at accessibility sizes —
+        // three columns there leaves "S&P 500" three characters wide.
+        let layout = typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 6))
+            : AnyLayout(HStackLayout(alignment: .top, spacing: 8))
+
+        layout {
             ForEach(comps) { comp in
                 VStack(alignment: .leading, spacing: 2) {
                     Text(comp.name)
-                        .font(.system(size: 9, weight: .semibold))
+                        .font(.caption2.weight(.semibold))
                         .kerning(0.5)
                         .foregroundStyle(Theme.dim)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
                     Text(Format.percent(comp.percent))
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.footnote.weight(.semibold))
                         .monospacedDigit()
                         .foregroundStyle(percentColor(comp.percent))
                         .contentTransition(.numericText(value: comp.percent))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityElement(children: .combine)
             }
         }
     }
@@ -1065,11 +1355,18 @@ struct OverviewView: View {
                         }
                     }
                 }
-                .frame(height: 12)
+                .frame(height: allocationBarHeight)
                 .clipShape(Capsule())
+                // The bar restates the legend below it; two elements saying the
+                // same thing is one too many.
+                .accessibilityHidden(true)
 
+                // One column at accessibility sizes: a two-column legend there
+                // gives each class name about six characters.
                 LazyVGrid(
-                    columns: [GridItem(.flexible(), alignment: .leading), GridItem(.flexible(), alignment: .leading)],
+                    columns: typeSize.isAccessibilitySize
+                        ? [GridItem(.flexible(), alignment: .leading)]
+                        : [GridItem(.flexible(), alignment: .leading), GridItem(.flexible(), alignment: .leading)],
                     alignment: .leading,
                     spacing: 8
                 ) {
@@ -1077,18 +1374,16 @@ struct OverviewView: View {
                         HStack(spacing: 6) {
                             Circle()
                                 .fill(rampColor(index))
-                                .frame(width: 8, height: 8)
+                                .frame(width: allocationDotSize, height: allocationDotSize)
                             Text(segment.name)
-                                .font(.system(size: 13))
+                                .font(.footnote)
                                 .foregroundStyle(Theme.text)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.8)
                             Text(Format.percent(segment.percent, signed: false))
-                                .font(.system(size: 13))
+                                .font(.footnote)
                                 .monospacedDigit()
                                 .foregroundStyle(Theme.dim)
-                                .lineLimit(1)
                         }
+                        .accessibilityElement(children: .combine)
                     }
                 }
             }
@@ -1140,43 +1435,56 @@ struct OverviewView: View {
         // scaled to 100% every bar but the first would read as empty.
         let fraction = largest > 0 ? group.value / largest : 0
 
+        let name = Text(group.name)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(Theme.text)
+        let amount = Text(Format.money(group.value, currency: currency, masked: masked, compact: true))
+            .font(.subheadline.weight(.semibold))
+            .monospacedDigit()
+            .foregroundStyle(Theme.text)
+        // Name over value at accessibility sizes rather than label-left,
+        // value-right: the two would otherwise collide mid-row.
+        let heading = typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 2))
+            : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: 8))
+
         return VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text(group.name)
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(Theme.text)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                Spacer(minLength: 8)
-                Text(Format.money(group.value, currency: currency, masked: masked, compact: true))
-                    .font(.system(size: 14, weight: .semibold))
-                    .monospacedDigit()
-                    .foregroundStyle(Theme.text)
+            heading {
+                name
+                if !typeSize.isAccessibilitySize { Spacer(minLength: 8) }
+                amount
                     .contentTransition(.numericText(value: group.value))
-                    .lineLimit(1)
             }
 
             HStack(spacing: 8) {
                 ShareBar(fraction: fraction, color: rampColor(index))
                 Text(Format.percent(group.percent, signed: false))
-                    .font(.system(size: 12))
+                    .font(.caption)
                     .monospacedDigit()
                     .foregroundStyle(Theme.dim)
-                    .frame(width: 48, alignment: .trailing)
+                    .frame(width: sharePercentWidth, alignment: .trailing)
             }
         }
+        .accessibilityElement(children: .combine)
     }
 
     private var levelPills: some View {
-        HStack(spacing: 4) {
+        // Two pills, sized to their labels with the row's slack trailing them.
+        // At accessibility sizes they stack instead, where two content-sized
+        // pills would overrun the card.
+        let layout = typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
+            : AnyLayout(HStackLayout(spacing: 4))
+
+        return layout {
             ForEach(OverviewModules.CompositionLevel.allCases) { option in
                 let active = option == compositionLevel
                 Button {
                     selectionHaptics.selectionChanged()
-                    withAnimation(.snappy(duration: 0.25)) { compositionLevel = option }
+                    withAnimation(reduceMotion ? nil : .snappy(duration: 0.25)) { compositionLevel = option }
                 } label: {
                     Text(option.label)
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.caption.weight(.semibold))
                         .kerning(0.5)
                         .foregroundStyle(active ? Theme.background : Theme.dim)
                         .padding(.horizontal, 12)
@@ -1186,8 +1494,9 @@ struct OverviewView: View {
                         .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
+                .accessibilityAddTraits(active ? [.isSelected] : [])
             }
-            Spacer(minLength: 0)
+            if !typeSize.isAccessibilitySize { Spacer(minLength: 0) }
         }
     }
 
@@ -1213,47 +1522,72 @@ struct OverviewView: View {
         let share = snapshot.netWorth > 0 ? holding.value / snapshot.netWorth * 100 : 0
         let fraction = largest > 0 ? holding.value / largest : 0
 
+        let name = Text(holding.name)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(Theme.text)
+        let sheet = (holding.sheet?.isEmpty == false ? holding.sheet : nil).map {
+            Text($0)
+                .font(.caption2)
+                .foregroundStyle(Theme.dim)
+        }
+        let amount = Text(Format.money(holding.value, currency: currency, masked: masked, compact: typeSize.isAccessibilitySize))
+            .font(.subheadline.weight(.semibold))
+            .monospacedDigit()
+            .foregroundStyle(Theme.text)
+
         return HStack(alignment: .top, spacing: 10) {
             Text("\(index + 1)")
-                .font(.system(size: 12, weight: .semibold))
+                .font(.caption.weight(.semibold))
                 .monospacedDigit()
                 .foregroundStyle(Theme.dim)
-                .frame(width: 14, alignment: .leading)
+                .frame(width: rankWidth, alignment: .leading)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 6) {
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    Text(holding.name)
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(Theme.text)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                    if let sheet = holding.sheet, !sheet.isEmpty {
-                        Text(sheet)
-                            .font(.system(size: 11))
-                            .foregroundStyle(Theme.dim)
-                            .lineLimit(1)
+                if typeSize.isAccessibilitySize {
+                    // Name, sheet and amount each get their own line: three
+                    // items on one row leaves the amount a couple of digits.
+                    VStack(alignment: .leading, spacing: 2) {
+                        name
+                        if let sheet { sheet }
+                        amount
+                            .contentTransition(.numericText(value: holding.value))
                     }
-                    Spacer(minLength: 8)
-                    Text(Format.money(holding.value, currency: currency, masked: masked, compact: false))
-                        .font(.system(size: 15, weight: .semibold))
-                        .monospacedDigit()
-                        .foregroundStyle(Theme.text)
-                        .contentTransition(.numericText(value: holding.value))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
+                } else {
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        name
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                        if let sheet {
+                            sheet.lineLimit(1)
+                        }
+                        Spacer(minLength: 8)
+                        amount
+                            .contentTransition(.numericText(value: holding.value))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    }
                 }
 
                 HStack(spacing: 8) {
                     ShareBar(fraction: fraction)
                     Text(Format.percent(share, signed: false))
-                        .font(.system(size: 12))
+                        .font(.caption)
                         .monospacedDigit()
                         .foregroundStyle(Theme.dim)
-                        .frame(width: 48, alignment: .trailing)
+                        .frame(width: sharePercentWidth, alignment: .trailing)
                 }
             }
         }
         .padding(.vertical, 12)
+        // One statement per holding: rank, name, amount, share. As five elements
+        // it reads as a list of fragments.
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(index + 1). \(holding.name)")
+        .accessibilityValue(
+            "\(Format.money(holding.value, currency: currency, masked: masked, compact: false)), "
+                + "\(Format.percent(share, signed: false)) of net worth"
+        )
     }
 
     // MARK: - Footer
@@ -1262,7 +1596,7 @@ struct OverviewView: View {
         // The history fetch outcome is a diagnostic, not dashboard content — it
         // belongs in Settings, where it can be acted on.
         Text("Updated \(Format.updatedAt(snapshot.updatedAt))")
-            .font(.system(size: 12))
+            .font(.caption)
             .foregroundStyle(Theme.dim)
             .frame(maxWidth: .infinity)
             .padding(.top, 24)
@@ -1284,12 +1618,10 @@ struct OverviewView: View {
     }
 
     private func loadHistory() {
-        // The merged server + on-device series; the same one the trends and the
-        // widgets read, so the chart can't disagree with them.
-        let series = SharedStore.localHistory()
+        let series = store.history
         // Animated so a refresh that moves the figures reads as the numbers
         // changing rather than as the screen being replaced.
-        withAnimation(.snappy(duration: 0.25)) {
+        withAnimation(reduceMotion ? nil : .snappy(duration: 0.25)) {
             netWorthSeries = OverviewChart.points(from: series, calendar: .current)
             assetSeries = OverviewChart.points(from: series, calendar: .current) { $0.assetTotal }
             debtSeries = OverviewChart.points(from: series, calendar: .current) { $0.debtTotal }
@@ -1334,6 +1666,10 @@ private struct ShareBar: View {
     let fraction: Double
     var color: Color = Theme.text.opacity(0.75)
 
+    /// Grows with the percent label beside it: a 6pt hairline next to text at
+    /// AX5 reads as a rule rather than a bar.
+    @ScaledMetric(relativeTo: .caption) private var height: CGFloat = 6
+
     var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: .leading) {
@@ -1343,6 +1679,117 @@ private struct ShareBar: View {
                     .frame(width: proxy.size.width * min(max(fraction, 0), 1))
             }
         }
-        .frame(height: 6)
+        .frame(height: height)
+        // The percent beside it says the same thing in words.
+        .accessibilityHidden(true)
     }
 }
+
+/// Hands VoiceOver the Audio Graph experience over the visible window: the
+/// shape of the curve as tones, and a stepped walk through the points.
+///
+/// Without this the chart is an unlabelled image — the most common
+/// accessibility failure in finance apps. Belongs beside the rest of the chart
+/// arithmetic in `Shared/OverviewChart.swift`; it lives here only because that
+/// file was owned by another change when this landed.
+///
+/// Amounts follow privacy mode like everything else on screen. The tones still
+/// carry the shape, which is what the drawn curve gives a sighted reader under
+/// the same setting.
+private struct NetWorthChartDescriptor: AXChartDescriptorRepresentable {
+    let points: [ChartPoint]
+    let currency: String
+    let masked: Bool
+    let rangeLabel: String
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let dates = points.map(\.date.timeIntervalSince1970)
+        let values = points.map(\.value)
+        // A descriptor with an inverted or empty range is a crash rather than a
+        // degraded experience, so both axes fall back to a unit range.
+        let xRange = (dates.min() ?? 0) ... max(dates.max() ?? 1, (dates.min() ?? 0) + 1)
+        let yRange = (values.min() ?? 0) ... max(values.max() ?? 1, (values.min() ?? 0) + 1)
+
+        let xAxis = AXNumericDataAxisDescriptor(
+            title: "Date",
+            range: xRange,
+            gridlinePositions: []
+        ) { value in
+            Self.dateFormatter.string(from: Date(timeIntervalSince1970: value))
+        }
+
+        let yAxis = AXNumericDataAxisDescriptor(
+            title: "Net worth",
+            range: yRange,
+            gridlinePositions: []
+        ) { value in
+            Format.money(value, currency: currency, masked: masked, compact: false)
+        }
+
+        let series = AXDataSeriesDescriptor(
+            name: "Net worth",
+            isContinuous: true,
+            dataPoints: points.map { point in
+                AXDataPoint(
+                    x: point.date.timeIntervalSince1970,
+                    y: point.value,
+                    additionalValues: [],
+                    label: Self.dateFormatter.string(from: point.date)
+                )
+            }
+        )
+
+        return AXChartDescriptor(
+            title: "Net worth over the \(rangeLabel)",
+            summary: nil,
+            xAxis: xAxis,
+            yAxis: yAxis,
+            additionalAxes: [],
+            series: [series]
+        )
+    }
+
+    func updateChartDescriptor(_ descriptor: AXChartDescriptor) {
+        descriptor.series = makeChartDescriptor().series
+    }
+
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }()
+}
+
+#if DEBUG
+// `AppStore()` reads whatever is cached on the previewing device; with nothing
+// stored, `snapshot` falls back to `.sample`, so the layout is exercised either
+// way and no invented figure is committed here.
+#Preview("Overview") {
+    OverviewView()
+        .environment(AppStore())
+}
+
+#Preview("Overview — dark") {
+    OverviewView()
+        .environment(AppStore())
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Overview — AX5") {
+    OverviewView()
+        .environment(AppStore())
+        .environment(\.dynamicTypeSize, .accessibility5)
+}
+
+// The two underscored keys are read-only in a shipping build and settable only
+// in previews. They stay inside `#if DEBUG` — they are private symbols and must
+// not reach a submitted binary.
+#Preview("Overview — AX5 + increased contrast") {
+    OverviewView()
+        .environment(AppStore())
+        .environment(\.dynamicTypeSize, .accessibility5)
+        .environment(\._colorSchemeContrast, .increased)
+        .environment(\._accessibilityDifferentiateWithoutColor, true)
+}
+#endif
