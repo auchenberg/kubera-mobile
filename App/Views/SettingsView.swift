@@ -35,9 +35,6 @@ struct SettingsView: View {
                     SectionTitle("Preferences")
                     preferencesCard
 
-                    SectionTitle("Growth history")
-                    growthHistoryCard
-
                     SectionTitle("Data & privacy")
                     privacyFooter
                 }
@@ -238,55 +235,6 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - Growth history
-
-    private var growthHistoryCard: some View {
-        Card(padding: .cardRows) {
-            VStack(alignment: .leading, spacing: 0) {
-                CredentialRow(
-                    label: "MCP token",
-                    mask: CredentialMask.secret(store.credentials?.mcpToken),
-                    presence: mcpTokenPresence,
-                    note: mcpTokenNote
-                )
-
-                RowDivider()
-
-                Text(
-                    """
-                    An MCP token lets Kubera serve the real 1 day, YTD and CAGR figures. \
-                    Without one, growth is estimated from the log this device keeps. \
-                    Adding or changing the token means disconnecting and connecting again.
-                    """
-                )
-                .font(.footnote)
-                .lineSpacing(3)
-                .foregroundStyle(Theme.dim)
-                // Explanatory copy has to take the height it needs. Without
-                // this it renders as one truncated line, which is worse than
-                // absent: it looks like the sentence is still loading.
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, 12)
-            }
-        }
-    }
-
-    private var mcpTokenPresence: CredentialRow.Presence {
-        if store.credentials?.mcpToken == nil { return .missing }
-        if case .failed = store.connection.history { return .rejected }
-        return .present
-    }
-
-    /// Only the rejection needs saying here — the header already carries the
-    /// history status, and repeating "connected" would say it twice.
-    private var mcpTokenNote: String? {
-        if case let .failed(reason) = store.connection.history, store.credentials?.mcpToken != nil {
-            return reason
-        }
-        return nil
-    }
-
     // MARK: - Data & privacy
 
     private var privacyFooter: some View {
@@ -347,6 +295,15 @@ private struct IdentityHeader: View {
                     label: "API secret",
                     mask: CredentialMask.secret(credentials?.secret),
                     presence: restPresence
+                )
+
+                RowDivider()
+
+                CredentialRow(
+                    label: "MCP token",
+                    mask: CredentialMask.secret(credentials?.mcpToken),
+                    presence: mcpTokenPresence,
+                    note: mcpTokenNote
                 )
             }
         }
@@ -442,6 +399,23 @@ private struct IdentityHeader: View {
     private var restPresence: CredentialRow.Presence {
         if credentials == nil { return .missing }
         return connection.rest == .authFailed ? .rejected : .present
+    }
+
+    private var mcpTokenPresence: CredentialRow.Presence {
+        if credentials?.mcpToken == nil { return .missing }
+        if case .failed = connection.history { return .rejected }
+        return .present
+    }
+
+    /// Says what this credential buys, because it is the one row on the screen
+    /// whose absence changes the numbers rather than breaking them: the 1 day,
+    /// YTD and CAGR figures silently become a local estimate. Stated in every
+    /// state — a rejection's own reason is already on the History line above.
+    private var mcpTokenNote: String {
+        """
+        Serves the real 1 day, YTD and CAGR figures. Without one, growth is \
+        estimated from the log this device keeps.
+        """
     }
 
     private var displayName: String {
