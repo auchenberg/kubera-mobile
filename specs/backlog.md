@@ -51,48 +51,57 @@ hole in Kubera's history breaks the line rather than inventing a slope.
 
 ---
 
-## In flight
+### 6. Kubera.swift SDK ✅
 
-- **`Shared/Kubera.swift` SDK** — consolidating the REST client, the MCP client,
-  and all response parsing into one documented file with a single generic
-  `MCP.call(tool:arguments:)` entry point. Also finishes `get_profile` (the
-  user's real name) and `get_portfolio` (cash on hand, tax estimate, investable,
-  and the asset list with sheet/section).
-- **Overview parity modules** — cash on hand, tax estimate, investable as a
-  second hero figure, the CAGR • YTD block with market comps, and a composition
-  breakdown grouped by sheet/section.
-- **Widget light mode** — `WidgetTheme` was five hardcoded dark colours; making
-  it adaptive, with proper light/dark colour set appearances.
+All Kubera access lives in one documented file: `Kubera.REST` (HMAC signing,
+portfolios, snapshot, history probing), `Kubera.MCP` (one generic
+`call(tool:arguments:)` entry point), `Kubera.Parse` (every response decoder plus
+the markdown reader), `Kubera.Error`. The old `KuberaAPI` / `KuberaMCP` names
+remain as thin forwards, so the widget target and the existing parser tests kept
+working without a mass rename.
+
+Also finished what REST cannot serve: `get_profile` for the account name, and
+`get_portfolio` for cash on hand, tax estimate, investable, and the asset list
+with its sheet/section hierarchy.
+
+### 7. Overview, phase 2 ✅
+
+Greeting as the screen's heading (replacing the nav title, with a quiet marker
+revealing what an unfamiliar hello means), drag-to-scrub that retargets the hero
+figure and delta to the scrubbed day, Liquid Glass on the controls layer only
+(range pills and scrub tooltip, gated to iOS 26 with a material fallback), and
+the chart bleeding to the card's edges.
+
+Widget light mode landed alongside: `WidgetTheme` resolves per trait collection,
+with the darker green and red in light mode because the bright dark-mode green is
+unreadable on white.
 
 ---
 
 ## Next
 
-### 6. Wire the greeting into the Overview header
+### 8. Redesign the Widgets tab as a gallery
 
-`Shared/Greeting.swift` exists and is tested (18 languages mixed with English
-time-of-day forms, each foreign hello carrying its own translation note). It is
-not yet rendered. Needs: the header line above the hero, the real name from
-`store.profile?.name` once the SDK lands, and a tap or long-press to reveal the
-translation note the way Kubera's web dashboard uses a footnote marker.
+The tab works but reads as a list of labelled previews stacked vertically. The
+welcome screen's original treatment was better: widgets presented as a
+**horizontally scrolling gallery** of cards at true widget size, which shows the
+Home Screen result rather than describing it.
 
-### 7. Overview dashboard, phase 2 — scrubbing and Liquid Glass
+- Group by family — small, medium, Lock Screen — and scroll horizontally within
+  each group, so a medium widget is not squeezed into a phone's width beside a
+  section title.
+- Show every family each widget supports, including the Lock Screen accessories,
+  which the current tab does not preview at all.
+- Keep rendering the real widget content views (`Shared/WidgetViews.swift`) with
+  live data. They must never drift back into mockups — that was the whole point
+  of moving them into the shared layer.
+- Keep "Add widgets" and "Update widget data now", but let the gallery carry the
+  page rather than the section titles.
+- Worth evaluating: page indicators or a peek at the next card so the horizontal
+  affordance is discoverable; and whether the widget options belong back here
+  contextually now that Settings owns them.
 
-From `specs/overview-dashboard.md`:
-
-- **Drag-to-scrub** the chart: the hero number and delta retarget to the
-  scrubbed date, with haptics. `OverviewChart.nearest(to:in:)` already exists and
-  is tested for exactly this.
-- **Liquid Glass on the controls layer only** — range pills, scrub tooltip, nav
-  bar. Cards stay opaque, per Apple's guidance and because glass behind numbers
-  wrecks legibility. Note the app already gets the native glass tab bar free on
-  iOS 26; this is about the app's own controls.
-- `contentTransition(.numericText)` on the changing figures.
-- Portfolio switcher and the privacy toggle into the nav bar.
-- Risk: the simulator misrepresents glass. Budget device time; don't sign off on
-  screenshots.
-
-### 8. OAuth — blocked on Kubera
+### 9. OAuth — blocked on Kubera
 
 Tested live: Kubera's OAuth is real and complete (PKCE S256, public clients,
 refresh tokens) but **closed to unregistered clients**. Despite advertising
@@ -107,14 +116,14 @@ authorization server accepts a **custom-scheme** redirect (Claude registered an
 HTTPS one because it completes the flow server-side). Full evidence in
 `specs/settings-and-auth.md`.
 
-### 9. Dynamic Type
+### 10. Dynamic Type
 
 Every screen uses fixed `.system(size:)` fonts, so text does not grow with the
 system setting. Overflow is guarded with `lineLimit` + `minimumScaleFactor`, so
 nothing breaks — but the app is not accessible to anyone who needs larger text.
 This is an app-wide change, not a one-file fix.
 
-### 10. Ship it properly
+### 11. Ship it properly
 
 - **TestFlight** — `./release` exists and the App Store Connect app record is
   created, but uploading needs either a live Xcode session for the signing team
