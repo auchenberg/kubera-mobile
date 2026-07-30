@@ -22,7 +22,16 @@ net worth on your Home Screen.
 | --- | --- | --- |
 | ![Net worth dashboard](docs/dashboard.png) | ![Widget previews](docs/widgets.png) | ![Settings](docs/settings.png) |
 
-*Screenshots show sample data.*
+*Screenshots show sample data.* You can run the app this way yourself without a
+Kubera account — handy for trying it out or contributing UI changes. It reads
+`Shared/DemoData.swift`, talks to nothing, and stores nothing:
+
+```sh
+xcrun simctl launch booted com.kubera.mobile -KuberaDemoMode
+# optionally open straight onto a tab: -KuberaInitialTab widgets|settings
+```
+
+Debug builds only.
 
 In the app:
 
