@@ -114,6 +114,16 @@ truncating to "Sample portfoli…" in the Settings header.
 Sequenced before the two redesigns, per the research doc, so the new screens were
 built scaling rather than retrofitted twice.
 
+### 13. Minimizing tab bar ✅
+
+`.tabBarMinimizeBehavior(.onScrollDown)`, gated to iOS 26, **confirmed firing on
+device**. It is reported not to work in tabs built on `NavigationStack(path:)`;
+the Overview's stack has no path binding, which is evidently why it works here.
+
+Worth recording because it fails silently: if a future change gives any tab's
+`NavigationStack` a `path:` binding, the tab bar will quietly stop minimizing
+with no error and no test to catch it.
+
 ---
 
 ## Next
@@ -127,11 +137,17 @@ not a document fetch — four different `client_id` values, including one that
 isn't a URL, all return the same `1003 Invalid input`. A registered client
 (Claude's MCP integration) renders the real consent screen; ours errors.
 
-The blocker is a database row at Kubera, not code. A draft email asking them to
-register a client is written; the one detail to confirm is whether their
-authorization server accepts a **custom-scheme** redirect (Claude registered an
-HTTPS one because it completes the flow server-side). Full evidence in
-`specs/settings-and-auth.md`.
+The blocker is a database row at Kubera, not code. **The founder has been
+emailed** — waiting on a reply, so there is nothing to build here until one
+arrives.
+
+The detail to settle in that thread: whether their authorization server accepts
+a **custom-scheme** redirect. Claude's integration registered an HTTPS one
+because it completes the flow server-side; a device-only client has no server,
+so `kubera://` needs to be acceptable — or the app needs a redirect host, which
+would put a server back in a design that deliberately has none.
+
+Full evidence in `specs/settings-and-auth.md`.
 
 ### 12. Ship it properly
 
@@ -153,19 +169,6 @@ HTTPS one because it completes the flow server-side). Full evidence in
   a trademark-derived icon actually gets reviewed by someone.
 - **Tag a release.** `docs/RELEASE-NOTES.md` is written and marked as a draft;
   the version number, date and wording are all still open. Nothing is tagged.
-
-### 13. Confirm the minimizing tab bar actually fires
-
-`.tabBarMinimizeBehavior(.onScrollDown)` is enabled and gated to iOS 26. It is
-reported not to work in tabs built on `NavigationStack(path:)`; the Overview's
-stack has no path binding, so it should — but **it fails silently**, and the
-simulator here could not be driven to scroll (no Accessibility permission for UI
-automation, and `simctl` cannot send touches). So this is unverified.
-
-Worth ten seconds on a device: open the Overview, scroll down, see whether the
-tab bar shrinks. If it doesn't, the screens' bottom padding is still correct —
-they use `.safeAreaPadding(.bottom)` now — so the only cost is a missing
-flourish.
 
 ### 14. Widget preview footprints are hardcoded to one device
 
