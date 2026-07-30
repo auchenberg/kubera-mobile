@@ -54,9 +54,11 @@
 		7B1B37BB8451ACCC5C5DDA05 /* GlassBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C620FD2320C2D00235A1605 /* GlassBackground.swift */; };
 		7B58F851D6856270131F50C9 /* WidgetThemeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA45F6FFCB9BBC9E9C13524C /* WidgetThemeTests.swift */; };
 		7DA97210C0DBAA118E56F0D6 /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A4A7750A5BF9C89679AB7E /* Shared.swift */; };
+		7DFA11B914E8F517D1CC1B4F /* Monogram.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1778FB14D917C01B2F594A72 /* Monogram.swift */; };
 		845C2BE690FE75DB5F95B88E /* OverviewModules.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6294DDA62F36C1346199DF8 /* OverviewModules.swift */; };
 		857B43547465C5C8DE54D993 /* AppLockPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2585A7CD882C305912A5503 /* AppLockPolicy.swift */; };
 		85F086DA5F9DA80041A285A6 /* DemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 909B3DD9DAF55A8B7A6F494A /* DemoData.swift */; };
+		8B35BC4728068D655607877B /* MonogramTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A09D22A45F35FE65857AB75 /* MonogramTests.swift */; };
 		93717F105DC75B279D907AA4 /* AssetsDebtsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 682040294EFBDA1D5674C15D /* AssetsDebtsWidget.swift */; };
 		AC63E5948B036A1E58B013BD /* GreetingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5D91164438A80A86B960E8 /* GreetingTests.swift */; };
 		AC77102FF46CE552C4DCC8C3 /* Kubera.swift in Sources */ = {isa = PBXBuildFile; fileRef = E297312B373827B09E9AFA17 /* Kubera.swift */; };
@@ -71,6 +73,7 @@
 		C51E0576BD7541D63CF07623 /* Kubera.swift in Sources */ = {isa = PBXBuildFile; fileRef = E297312B373827B09E9AFA17 /* Kubera.swift */; };
 		CF2ED8964864B8E3E17AE7CC /* WidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0FE4588E4F2B50BCAF5D07C /* WidgetViews.swift */; };
 		D2B5387FE76662AD133057F3 /* MarketCompsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95ADD8DF38329B1E44696179 /* MarketCompsTests.swift */; };
+		D6C8C10E72B8BC6541FDB32C /* Monogram.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1778FB14D917C01B2F594A72 /* Monogram.swift */; };
 		D783C1F10CE927C1F8EA8FB4 /* Format.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D2ABC8243C0397E404BD83 /* Format.swift */; };
 		DB4D0646D10CE8C82AD5A785 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76AA4B39B978791FB9135EFF /* AppStore.swift */; };
 		DBA5E9D487CE763E91071361 /* AppLockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3A3A6AEC43DADD5B1BE2D2 /* AppLockTests.swift */; };
@@ -79,6 +82,7 @@
 		E234AC9E812F3F79C1EB5482 /* OverviewModules.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6294DDA62F36C1346199DF8 /* OverviewModules.swift */; };
 		E4D86051F8E1800E563C66B9 /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A4A7750A5BF9C89679AB7E /* Shared.swift */; };
 		E6EC6DCB280AF21D0551E605 /* OverviewModules.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6294DDA62F36C1346199DF8 /* OverviewModules.swift */; };
+		EC2BA20B4D4A641A4DFBDF99 /* Monogram.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1778FB14D917C01B2F594A72 /* Monogram.swift */; };
 		EF772A611B5BEF711D6823FC /* Greeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 985E6D5A7BCDD32027218571 /* Greeting.swift */; };
 		F721A25C8D91CDB35B4B5C50 /* OverviewChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1F528E4F97345D14797D24 /* OverviewChart.swift */; };
 /* End PBXBuildFile section */
@@ -109,6 +113,7 @@
 
 /* Begin PBXFileReference section */
 		06893C8D6C08A629B18955C4 /* ConnectionStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStatusTests.swift; sourceTree = "<group>"; };
+		1778FB14D917C01B2F594A72 /* Monogram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Monogram.swift; sourceTree = "<group>"; };
 		1F7DC35EB674511FBC80DC0F /* MarketComps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketComps.swift; sourceTree = "<group>"; };
 		24A4A7750A5BF9C89679AB7E /* Shared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared.swift; sourceTree = "<group>"; };
 		2C7FC81B04B45E9E21399EDD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -121,6 +126,7 @@
 		69C5B31142C17CA48CB7DE83 /* FormatTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatTests.swift; sourceTree = "<group>"; };
 		727E9942F71EDA5B3F097218 /* WidgetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsView.swift; sourceTree = "<group>"; };
 		76AA4B39B978791FB9135EFF /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
+		7A09D22A45F35FE65857AB75 /* MonogramTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonogramTests.swift; sourceTree = "<group>"; };
 		7D6FA33E280ACFC81EF0572A /* KuberaWidgets.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = KuberaWidgets.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E243FB7D38B0CBCF0AB80D2 /* KuberaWidgetsExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = KuberaWidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8A6F7CD7CD15F268116BB6FA /* KuberaMCPParseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KuberaMCPParseTests.swift; sourceTree = "<group>"; };
@@ -245,6 +251,7 @@
 				8A6F7CD7CD15F268116BB6FA /* KuberaMCPParseTests.swift */,
 				546FDF8C77A33CA111D3800A /* KuberaSDKTests.swift */,
 				95ADD8DF38329B1E44696179 /* MarketCompsTests.swift */,
+				7A09D22A45F35FE65857AB75 /* MonogramTests.swift */,
 				DE0C484365A5A23DB97204DB /* OverviewChartTests.swift */,
 				BD902916932FDF124A9633A1 /* OverviewModulesTests.swift */,
 				8BD091BF55305CCB69FF8B4D /* TrendsCalculatorTests.swift */,
@@ -264,6 +271,7 @@
 				985E6D5A7BCDD32027218571 /* Greeting.swift */,
 				E297312B373827B09E9AFA17 /* Kubera.swift */,
 				1F7DC35EB674511FBC80DC0F /* MarketComps.swift */,
+				1778FB14D917C01B2F594A72 /* Monogram.swift */,
 				CB1F528E4F97345D14797D24 /* OverviewChart.swift */,
 				D6294DDA62F36C1346199DF8 /* OverviewModules.swift */,
 				24A4A7750A5BF9C89679AB7E /* Shared.swift */,
@@ -418,6 +426,8 @@
 				4F41B0EBDD8D7B40F30E6C72 /* KuberaSDKTests.swift in Sources */,
 				55DAD1E50C951BDD7857D801 /* MarketComps.swift in Sources */,
 				D2B5387FE76662AD133057F3 /* MarketCompsTests.swift in Sources */,
+				7DFA11B914E8F517D1CC1B4F /* Monogram.swift in Sources */,
+				8B35BC4728068D655607877B /* MonogramTests.swift in Sources */,
 				27DEBF66ACE7B7F1182590C5 /* OverviewChart.swift in Sources */,
 				54919EDE4D10FA19325A6DDD /* OverviewChartTests.swift in Sources */,
 				E6EC6DCB280AF21D0551E605 /* OverviewModules.swift in Sources */,
@@ -448,6 +458,7 @@
 				C51E0576BD7541D63CF07623 /* Kubera.swift in Sources */,
 				B235670D4D128751AB6D2D2B /* KuberaWidgetsApp.swift in Sources */,
 				4B7DCB78FCE81BB3BD65DCD1 /* MarketComps.swift in Sources */,
+				EC2BA20B4D4A641A4DFBDF99 /* Monogram.swift in Sources */,
 				F721A25C8D91CDB35B4B5C50 /* OverviewChart.swift in Sources */,
 				E234AC9E812F3F79C1EB5482 /* OverviewModules.swift in Sources */,
 				694114A7003564FD23B10F95 /* OverviewView.swift in Sources */,
@@ -476,6 +487,7 @@
 				EF772A611B5BEF711D6823FC /* Greeting.swift in Sources */,
 				AC77102FF46CE552C4DCC8C3 /* Kubera.swift in Sources */,
 				60EED302173F651DF49D64FF /* MarketComps.swift in Sources */,
+				D6C8C10E72B8BC6541FDB32C /* Monogram.swift in Sources */,
 				4F0B6D99E58EDA25AC3200F9 /* NetWorthStatsWidget.swift in Sources */,
 				6805D36BB9A254F3FA9B17C0 /* OverviewChart.swift in Sources */,
 				845C2BE690FE75DB5F95B88E /* OverviewModules.swift in Sources */,
