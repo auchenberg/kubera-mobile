@@ -30,6 +30,11 @@ final class AppStore {
     /// Home Screen widgets would show.
     private(set) var trends: PortfolioTrends?
     private(set) var comps: MarketComps?
+    /// Facts only Kubera's MCP endpoint serves: the summary metrics behind the
+    /// dashboard cards, the ranked holdings, and who is signed in. Decoration —
+    /// nil whenever no MCP token is stored or the endpoint declined to answer.
+    private(set) var detail: PortfolioDetail?
+    private(set) var profile: KuberaProfile?
 
     /// In-flight refresh, so the launch refresh and a pull-to-refresh don't
     /// both hit the API — the second caller awaits the first one's result.
@@ -46,6 +51,8 @@ final class AppStore {
         settings = SharedStore.settings()
         trends = SharedStore.cachedTrends()
         comps = SharedStore.cachedMarketComps()
+        detail = SharedStore.cachedDetail()
+        profile = SharedStore.cachedProfile()
 
         // Seed the status from what is on disk, so Settings has something true
         // to show before the first refresh lands: a cached snapshot means REST
@@ -150,11 +157,15 @@ final class AppStore {
         snapshot = nil
         trends = nil
         comps = nil
+        detail = nil
+        profile = nil
         connection = ConnectionStatus()
         SharedStore.clearCredentials()
         SharedStore.setSelectedPortfolioId(nil)
         SharedStore.clearSnapshot()
         SharedStore.clearTrends()
+        SharedStore.clearDetail()
+        SharedStore.clearProfile()
         SharedStore.clearLocalHistory()
         SharedStore.clearHistoryStatus()
         reloadWidgets()
@@ -259,14 +270,29 @@ final class AppStore {
             fromStatusLine: SharedStore.historyStatus(),
             hasToken: creds.mcpToken != nil
         )
+        await refreshDetail(creds: creds, portfolioId: snapshot.portfolioId)
         guard let refreshed else { return }
         trends = refreshed
         reloadWidgets()
     }
 
+    /// Pulls the MCP-only summary metrics and the account profile. Both are
+    /// decoration: a failure leaves the cached values in place and must never
+    /// fail the refresh that called it.
+    private func refreshDetail(creds: KuberaCredentials, portfolioId: String) async {
+        if let fetched = await Kubera.MCP.fetchDetail(creds: creds, portfolioId: portfolioId) {
+            detail = fetched
+            SharedStore.cache(detail: fetched)
+        }
+        if let fetched = await Kubera.MCP.fetchProfile(creds: creds) {
+            profile = fetched
+            SharedStore.cache(profile: fetched)
+        }
+    }
+
     /// Validates the MCP token by actually asking Kubera for history — the only
     /// honest check, since a well-formed token can still be rejected.
-    /// `KuberaMCP` records every outcome in shared defaults; this reads that
+    /// `Kubera.MCP` records every outcome in shared defaults; this reads that
     /// back as a typed status.
     private func validateHistory(creds: KuberaCredentials) async {
         guard creds.mcpToken != nil else {

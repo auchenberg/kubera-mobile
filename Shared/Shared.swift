@@ -13,6 +13,10 @@ enum SharedKeys {
     static let snapshot = "kubera.snapshot"
     static let trends = "kubera.trends"
     static let marketComps = "kubera.marketComps"
+    /// Summary metrics and holdings from Kubera's MCP endpoint, which the
+    /// REST snapshot does not carry.
+    static let portfolioDetail = "kubera.portfolioDetail"
+    static let profile = "kubera.profile"
     static let localHistory = "kubera.localHistory"
     /// Human-readable outcome of the last history fetch, for the Settings card.
     static let historyStatus = "kubera.historyStatus"
@@ -198,6 +202,34 @@ enum SharedStore {
 
     static func clearMarketComps() {
         defaults?.removeObject(forKey: SharedKeys.marketComps)
+    }
+
+    // MARK: - Portfolio detail cache
+
+    static func cachedDetail() -> PortfolioDetail? {
+        decode(PortfolioDetail.self, forKey: SharedKeys.portfolioDetail)
+    }
+
+    static func cache(detail: PortfolioDetail) {
+        encode(detail, forKey: SharedKeys.portfolioDetail)
+    }
+
+    static func clearDetail() {
+        defaults?.removeObject(forKey: SharedKeys.portfolioDetail)
+    }
+
+    // MARK: - Profile cache
+
+    static func cachedProfile() -> KuberaProfile? {
+        decode(KuberaProfile.self, forKey: SharedKeys.profile)
+    }
+
+    static func cache(profile: KuberaProfile) {
+        encode(profile, forKey: SharedKeys.profile)
+    }
+
+    static func clearProfile() {
+        defaults?.removeObject(forKey: SharedKeys.profile)
     }
 
     // MARK: - Local history log
