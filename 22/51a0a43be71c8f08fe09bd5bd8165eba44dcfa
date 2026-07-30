@@ -1,0 +1,47 @@
+App/Views/WelcomeView.swift
+  s_3b694bad7ccc14::t_2095d74cdc85a5 352-357,359-360,362,364-366
+Widgets/Assets.xcassets/AccentColor.colorset/Contents.json
+  s_3b694bad7ccc14::t_675c78ecff161f 8-21
+  s_3b694bad7ccc14::t_04de2434b791e5 5-7
+  s_ba7582c7ed7ea1::t_c29d2f40c7ef2e 4
+App/Views/WidgetsView.swift
+  s_3b694bad7ccc14::t_ee36213b68053a 150,154-155
+  s_3b694bad7ccc14::t_72dc0db2be6f64 144-147
+Shared/WidgetViews.swift
+  s_3b694bad7ccc14::t_8e286b500335fc 11-16,181,343,345,368-382
+  s_3b694bad7ccc14::t_2c1598e4eb4dc1 383-384
+Widgets/NetWorthStatsWidget.swift
+  s_3b694bad7ccc14::t_d675c9ea780b43 23-32
+Widgets/Assets.xcassets/WidgetBackground.colorset/Contents.json
+  s_3b694bad7ccc14::t_5a6a2ca5e1025a 8-21
+  s_3b694bad7ccc14::t_ffacbeb5c565b3 5-7
+  s_ba7582c7ed7ea1::t_f727851ca05233 4
+Shared/Format.swift
+  s_3b694bad7ccc14::t_242de39b28f532 3,111-119,121-138
+Tests/WidgetThemeTests.swift
+  s_3b694bad7ccc14::t_fdcfbc6d619c6b 1-96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.17",
+  "base_commit_sha": "2251a0a43be71c8f08fe09bd5bd8165eba44dcfa",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    },
+    "s_ba7582c7ed7ea1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-awidget-light-eb5cb91edc062923",
+        "model": "unknown"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
