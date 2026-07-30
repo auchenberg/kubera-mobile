@@ -954,6 +954,16 @@ struct OverviewView: View {
         metric: OverviewChart.Metric
     ) -> some View {
         let trend = OverviewModules.trend(in: series, current: value, now: Date(), calendar: .current)
+        // One unit for this card's two rows: per-value compaction put "+$1,348"
+        // directly above "+$281K", and a column whose notation changes partway
+        // down has to be re-read row by row. Assets and Debts are separate
+        // columns of figures and need not agree with each other.
+        //
+        // Compacted whatever the compact-numbers preference says, unlike the
+        // composition and holdings columns: these cards are half the screen
+        // wide, and an exact six-figure change cannot share a line with its
+        // percent.
+        let unit = sharedTrendUnit([trend.day?.amount, trend.year?.amount].compactMap { $0 })
 
         return Card {
             VStack(alignment: .leading, spacing: 4) {
@@ -972,22 +982,58 @@ struct OverviewView: View {
                     .accessibilityValue(Format.money(value, currency: currency, masked: masked, compact: false))
 
                 VStack(alignment: .leading, spacing: 2) {
-                    trendRow("1 DAY", trend.day, metric: metric)
-                    trendRow("1 YEAR", trend.year, metric: metric)
+                    trendRow("1 DAY", trend.day, metric: metric, unit: unit)
+                    trendRow("1 YEAR", trend.year, metric: metric, unit: unit)
                 }
                 .padding(.top, 2)
             }
         }
     }
 
-    /// One "1 DAY ▲ +$19,100 (+1.5%)" line. An unknown change prints an em dash
-    /// rather than a zero: a log that doesn't reach back a year has no answer,
-    /// and "0%" would claim the portfolio stood still.
+    /// `Format.unit(spanning:)`, stepped back down until the card's smallest row
+    /// can still say something.
+    ///
+    /// A day's move is two or three orders of magnitude under a year's, which is
+    /// a wider spread than a composition column ever sees: taking the unit from
+    /// the largest alone, a card whose year row is in millions rounds its day row
+    /// to "$0.01M", or to "$0.00M", which claims nothing moved. Stepping the
+    /// whole card down to thousands costs the year row the M suffix ("+$2410K")
+    /// and keeps both rows in one notation, which is the trade `Format.unit`
+    /// already makes inside a column.
+    ///
+    /// Zeros are excluded: a flat day cannot constrain a unit, and it renders as
+    /// a plain "$0" rather than in the card's unit anyway.
+    private func sharedTrendUnit(_ amounts: [Double]) -> Format.Unit {
+        let spanning = Format.unit(spanning: amounts, compact: true)
+        guard spanning != .exact,
+              let smallest = amounts.map(abs).filter({ $0 > 0 }).min()
+        else { return spanning }
+
+        // Down to thousands and no further. A quiet day of $38 against a year of
+        // $281K would otherwise drag the card back to exact and print
+        // "+$281,400", which is wider than the ragged pair this all replaced —
+        // the largest row is six figures by the time `Format.unit` compacts at
+        // all, and spelling it out is width the row does not have.
+        //
+        // A tenth of the unit is the floor for two significant figures at the two
+        // decimal places `Format.money` gives a compacted figure.
+        let steps: [Format.Unit] = [.billions, .millions, .thousands]
+        return steps.first { $0.divisor <= spanning.divisor && smallest >= $0.divisor / 10 } ?? .thousands
+    }
+
+    /// One "1 DAY  +$1.35K  +0.08%" line, the same shape at every magnitude: a
+    /// card whose height depends on the reader's own numbers cannot be lined up
+    /// against the card beside it, and a label optically centred against a
+    /// two-line block on one row and a one-line block on the next is worse than
+    /// either. An unknown change prints an em dash rather than a zero: a log
+    /// that doesn't reach back a year has no answer, and "0%" would claim the
+    /// portfolio stood still.
     @ViewBuilder
     private func trendRow(
         _ label: String,
         _ change: OverviewModules.Change?,
-        metric: OverviewChart.Metric
+        metric: OverviewChart.Metric,
+        unit: Format.Unit
     ) -> some View {
         let title = Text(label)
             .font(.caption2.weight(.semibold))
@@ -998,81 +1044,107 @@ struct OverviewView: View {
             if typeSize.isAccessibilitySize {
                 VStack(alignment: .leading, spacing: 2) {
                     title
-                    trendFigures(change, metric: metric)
+                    trendFigures(change, metric: metric, unit: unit, stacked: true)
                 }
             } else {
                 HStack(spacing: 4) {
                     title
                         .frame(width: trendLabelWidth, alignment: .leading)
-                    trendFigures(change, metric: metric)
-                    Spacer(minLength: 0)
+                    trendFigures(change, metric: metric, unit: unit, stacked: false)
                 }
             }
         }
         .accessibilityElement(children: .combine)
     }
 
+    /// `stacked` is the accessibility-size form, where the figures get a line
+    /// each unconditionally. Below that they always share one line — the shared
+    /// unit and the dropped arrow bought the width for it.
     @ViewBuilder
     private func trendFigures(
         _ change: OverviewModules.Change?,
-        metric: OverviewChart.Metric
+        metric: OverviewChart.Metric,
+        unit: Format.Unit,
+        stacked: Bool
     ) -> some View {
-        if let change {
-            // Favorability, not sign: a shrinking debt is good news and renders
-            // green. Exactly zero is neither, so it renders neutral.
-            let favorable = OverviewChart.isFavorable(change.amount, metric: metric)
-            let color = Theme.change(change.amount, isFavorable: favorable)
+        Group {
+            if let change {
+                // Favorability, not sign: a shrinking debt is good news and
+                // renders green. Exactly zero is neither, so it renders neutral.
+                let favorable = OverviewChart.isFavorable(change.amount, metric: metric)
+                let color = Theme.change(change.amount, isFavorable: favorable)
 
-            // These cards are half the screen wide, so the amount and the
-            // percent together often do not fit on one line. The amount is
-            // `.fixedSize`-d and never wraps: a figure broken across lines reads
-            // as two numbers ("+$1,34" / "8"), which is worse than being tall.
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 4) {
-                    amount(change, color: color)
-                    percent(change, color: color)
+                if stacked {
+                    VStack(alignment: .leading, spacing: 1) {
+                        amount(change, unit: unit, color: color)
+                        percent(change, color: color)
+                    }
+                } else {
+                    // The slack sits between the two figures rather than after
+                    // them, which puts the percents of all four rows across the
+                    // two cards in one column.
+                    HStack(spacing: 0) {
+                        amount(change, unit: unit, color: color)
+                        Spacer(minLength: 6)
+                        percent(change, color: color)
+                    }
                 }
-                VStack(alignment: .leading, spacing: 1) {
-                    amount(change, color: color)
-                    percent(change, color: color)
-                }
+            } else {
+                Text("—")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(Theme.dim)
+                    .accessibilityLabel("not available")
             }
-        } else {
-            Text("—")
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(Theme.dim)
-                .accessibilityLabel("not available")
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    /// The arrow and the signed amount, which travel together — the arrow is
-    /// reinforcement for a reader who cannot see the colour, so it must not end
-    /// up on a different line from the figure it qualifies.
-    private func amount(_ change: OverviewModules.Change, color: Color) -> some View {
-        HStack(spacing: 4) {
-            if change.amount != 0 {
-                Text(change.amount < 0 ? "▼" : "▲")
-                    .font(.caption2.weight(.bold))
-            }
-            Text(Format.money(change.amount, currency: currency, masked: masked, compact: true, signed: true))
-                .font(.caption2.weight(.semibold))
-                .monospacedDigit()
-                .contentTransition(.numericText(value: change.amount))
-        }
-        .lineLimit(1)
-        .fixedSize()
-        .foregroundStyle(color)
+    /// The signed change. No arrow: the explicit + or − already carries the
+    /// direction for a reader who cannot see the colour, and the glyph plus its
+    /// gap was most of the width the row needed to hold the percent on the same
+    /// line. `.fixedSize` and `.lineLimit(1)` keep the figure whole — broken
+    /// across lines it reads as two numbers ("+$1,34" / "8").
+    ///
+    /// The label carries the uncompacted figure so VoiceOver still reads the
+    /// exact amount the compacted glyphs stand in for.
+    private func amount(
+        _ change: OverviewModules.Change,
+        unit: Format.Unit,
+        color: Color
+    ) -> some View {
+        // The one row allowed out of the card's unit: a figure too small to
+        // register in it would print "$0.00K", which claims nothing moved on a
+        // day something did. Below a hundredth of the unit it says so exactly
+        // instead. A flat day lands here too and prints a plain "$0", which
+        // needs no unit.
+        let resolved: Format.Unit = abs(change.amount) < unit.divisor / 100 ? .exact : unit
+
+        return Text(Format.money(change.amount, currency: currency, masked: masked, unit: resolved, signed: true))
+            .font(.caption2.weight(.semibold))
+            .monospacedDigit()
+            .contentTransition(.numericText(value: change.amount))
+            .lineLimit(1)
+            .fixedSize()
+            .foregroundStyle(color)
+            .accessibilityLabel(
+                Format.money(change.amount, currency: currency, masked: masked, compact: false, signed: true)
+            )
     }
 
+    /// Unparenthesised — two characters the row cannot spare, and the weight
+    /// contrast against the amount already separates them. This is the figure
+    /// that scales rather than the amount: on the narrowest device a percentage
+    /// in the thousands is the only thing that can overrun the row, and the
+    /// amount is the one that has to stay exact.
     @ViewBuilder
     private func percent(_ change: OverviewModules.Change, color: Color) -> some View {
         if let percent = change.percent {
-            Text("(\(Format.percent(percent)))")
+            Text(Format.percent(percent))
                 .font(.caption2)
                 .monospacedDigit()
                 .contentTransition(.numericText(value: percent))
                 .lineLimit(1)
-                .fixedSize()
+                .minimumScaleFactor(0.8)
                 .foregroundStyle(color)
         }
     }
