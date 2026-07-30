@@ -97,6 +97,7 @@ struct WidgetsView: View {
             .font(.subheadline)
             .lineSpacing(4)
             .foregroundStyle(Theme.dim)
+            .fixedSize(horizontal: false, vertical: true)
             .padding(.horizontal, margin)
     }
 
@@ -124,6 +125,7 @@ struct WidgetsView: View {
             .font(.footnote)
             .lineSpacing(3)
             .foregroundStyle(Theme.dim)
+            .fixedSize(horizontal: false, vertical: true)
             .padding(.horizontal, margin)
             .padding(.bottom, 10)
     }

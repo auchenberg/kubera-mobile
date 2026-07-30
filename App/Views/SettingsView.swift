@@ -262,6 +262,10 @@ struct SettingsView: View {
                 .font(.footnote)
                 .lineSpacing(3)
                 .foregroundStyle(Theme.dim)
+                // Explanatory copy has to take the height it needs. Without
+                // this it renders as one truncated line, which is worse than
+                // absent: it looks like the sentence is still loading.
+                .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.vertical, 12)
             }
@@ -297,6 +301,7 @@ struct SettingsView: View {
         .font(.footnote)
         .lineSpacing(3)
         .foregroundStyle(Theme.dim)
+        .fixedSize(horizontal: false, vertical: true)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
@@ -487,6 +492,7 @@ private struct CredentialRow: View {
                     .font(.footnote)
                     .lineSpacing(3)
                     .foregroundStyle(Theme.dim)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .frame(minHeight: rowMinHeight)
