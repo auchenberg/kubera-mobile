@@ -103,6 +103,7 @@ struct OverviewView: View {
     }
     private var currency: String { snapshot.currency }
     private var masked: Bool { store.settings.privacyMode }
+    private var compactNumbers: Bool { store.settings.compactNumbers }
 
     /// The hero card's inset. Named because the chart cancels it out to bleed to
     /// the card's edges, and the two must stay in step.
@@ -1413,6 +1414,9 @@ struct OverviewView: View {
     private var compositionCard: some View {
         let groups = compositionGroups
         let largest = groups.first?.value ?? 0
+        // One unit for the whole column: per-value compaction put "$130K" two
+        // rows above "$74,000", which cannot be scanned.
+        let unit = Format.unit(spanning: groups.map(\.value), compact: compactNumbers)
 
         return Card {
             VStack(alignment: .leading, spacing: 12) {
@@ -1420,7 +1424,7 @@ struct OverviewView: View {
                     levelPills
                 }
                 ForEach(Array(groups.enumerated()), id: \.element.id) { index, group in
-                    compositionRow(index: index, group: group, largest: largest)
+                    compositionRow(index: index, group: group, largest: largest, unit: unit)
                 }
             }
         }
@@ -1429,7 +1433,8 @@ struct OverviewView: View {
     private func compositionRow(
         index: Int,
         group: OverviewModules.CompositionGroup,
-        largest: Double
+        largest: Double,
+        unit: Format.Unit
     ) -> some View {
         // Scaled so the largest group fills the track, like the holdings rows —
         // scaled to 100% every bar but the first would read as empty.
@@ -1438,7 +1443,7 @@ struct OverviewView: View {
         let name = Text(group.name)
             .font(.subheadline.weight(.semibold))
             .foregroundStyle(Theme.text)
-        let amount = Text(Format.money(group.value, currency: currency, masked: masked, compact: true))
+        let amount = Text(Format.money(group.value, currency: currency, masked: masked, unit: unit))
             .font(.subheadline.weight(.semibold))
             .monospacedDigit()
             .foregroundStyle(Theme.text)
@@ -1506,17 +1511,31 @@ struct OverviewView: View {
         let ranked = Array(snapshot.topHoldings.sorted { $0.value > $1.value }.prefix(5))
         let largest = ranked.first?.value ?? 0
 
+        // Shared across the column for the same reason as the composition rows.
+        // Compaction here also follows the type size: at accessibility sizes the
+        // row has far less width for the figure, so it compacts even when the
+        // preference is off.
+        let unit = Format.unit(
+            spanning: ranked.map(\.value),
+            compact: compactNumbers || typeSize.isAccessibilitySize
+        )
+
         return Card(padding: .cardRows) {
             VStack(spacing: 0) {
                 ForEach(Array(ranked.enumerated()), id: \.offset) { index, holding in
                     if index > 0 { RowDivider() }
-                    holdingRow(index: index, holding: holding, largest: largest)
+                    holdingRow(index: index, holding: holding, largest: largest, unit: unit)
                 }
             }
         }
     }
 
-    private func holdingRow(index: Int, holding: Holding, largest: Double) -> some View {
+    private func holdingRow(
+        index: Int,
+        holding: Holding,
+        largest: Double,
+        unit: Format.Unit
+    ) -> some View {
         // The bar is share of net worth scaled so the largest holding fills the
         // track; scaled to 100% every row would look nearly empty.
         let share = snapshot.netWorth > 0 ? holding.value / snapshot.netWorth * 100 : 0
@@ -1530,7 +1549,7 @@ struct OverviewView: View {
                 .font(.caption2)
                 .foregroundStyle(Theme.dim)
         }
-        let amount = Text(Format.money(holding.value, currency: currency, masked: masked, compact: typeSize.isAccessibilitySize))
+        let amount = Text(Format.money(holding.value, currency: currency, masked: masked, unit: unit))
             .font(.subheadline.weight(.semibold))
             .monospacedDigit()
             .foregroundStyle(Theme.text)

@@ -5,6 +5,76 @@ import UIKit
 enum Format {
     static let masked = "••••••"
 
+    /// The unit a whole column of figures shares.
+    ///
+    /// `money` decides per value, which is right for a figure standing alone and
+    /// wrong for a list: the composition breakdown was rendering "$130K" two
+    /// rows above "$74,000", and a column whose notation changes partway down
+    /// cannot be scanned — the reader has to re-read each row to compare it to
+    /// the one above.
+    enum Unit {
+        case exact
+        case thousands
+        case millions
+        case billions
+
+        var divisor: Double {
+            switch self {
+            case .exact: 1
+            case .thousands: 1_000
+            case .millions: 1_000_000
+            case .billions: 1_000_000_000
+            }
+        }
+
+        var suffix: String {
+            switch self {
+            case .exact: ""
+            case .thousands: "K"
+            case .millions: "M"
+            case .billions: "B"
+            }
+        }
+    }
+
+    /// Picks one unit for a set of related figures, from the largest of them.
+    ///
+    /// The largest rather than the average or the median: it is the value most
+    /// at risk of overflowing its row, and scaling everything to it keeps the
+    /// small rows honest — "$0.07M" is a worse row than "$74K", so a column
+    /// whose top is in the hundreds of thousands stays in thousands.
+    static func unit(spanning amounts: [Double], compact: Bool) -> Unit {
+        guard compact else { return .exact }
+        let largest = amounts.map(abs).max() ?? 0
+        // Same 100,000 floor as `money`, so a column of small figures is not
+        // pushed into a unit a single figure would not have used.
+        guard largest >= 100_000 else { return .exact }
+        if largest >= 1_000_000_000 { return .billions }
+        if largest >= 1_000_000 { return .millions }
+        return .thousands
+    }
+
+    /// `money`, but with the unit already decided by the column.
+    static func money(
+        _ amount: Double,
+        currency: String,
+        masked isMasked: Bool,
+        unit: Unit,
+        signed: Bool = false
+    ) -> String {
+        if isMasked { return masked }
+        if unit == .exact {
+            return money(amount, currency: currency, masked: false, compact: false, signed: signed)
+        }
+
+        let sign = signed && amount > 0 ? "+" : (amount < 0 ? "-" : "")
+        let value = abs(amount) / unit.divisor
+        // Same significant-figure rule as `money`, so a value formatted either
+        // way reads identically when the units happen to agree.
+        let digits = value >= 100 ? 0 : (value >= 10 ? 1 : 2)
+        return "\(sign)\(currencySymbol(for: currency))\(String(format: "%.\(digits)f", value))\(unit.suffix)"
+    }
+
     /// "$1.24M" style compact currency, or full grouping when compact is off.
     static func money(
         _ amount: Double,
