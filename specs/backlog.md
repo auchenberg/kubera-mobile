@@ -101,7 +101,46 @@ Home Screen result rather than describing it.
   affordance is discoverable; and whether the widget options belong back here
   contextually now that Settings owns them.
 
-### 9. OAuth — blocked on Kubera
+### 9. Redesign Settings around a profile header
+
+Model it on iOS's own account sheets (Photos' profile sheet is the reference):
+an identity block at the top, then grouped preference cards, then the legal or
+explanatory text last.
+
+```
+Settings
+├─ Profile header                  ← centred, not a list row
+│    avatar or monogram
+│    Kenneth Auchenberg            ← from KuberaProfile.name
+│    portfolio name · currency
+│    connection status: REST · History
+│    [Disconnect]                  ← lives WITH the identity it ends
+├─ Widget portfolio                ← grouped card, rows with a checkmark
+├─ Preferences                     ← Face ID / Privacy mode / Compact numbers
+├─ Growth history                  ← the MCP token row and its status
+└─ Data & privacy                  ← explanatory text, last
+```
+
+Why this over what exists:
+
+- **Disconnect belongs with the identity, not stranded mid-scroll.** It ends the
+  connection the header describes, so it reads as that block's action. Right now
+  it floats between Preferences and Data & privacy.
+- **The header answers "whose account is this?" in one glance** — the current
+  Account card shows a masked key and nothing else. `KuberaProfile.name` and
+  `.email` are already fetched.
+- **An avatar or monogram** gives the screen a focal point. Kubera's web app has
+  a profile picture; MCP's `get_profile` may expose one — check before assuming,
+  and fall back to initials rather than a placeholder silhouette.
+- Keep the per-surface status lines (REST vs History fail independently) — just
+  move them into the header where they describe the connection they belong to.
+- Keep the confirmation dialog on Disconnect, including the copy naming what is
+  lost, since disconnecting is still the only way to change credentials.
+
+Open question: whether an avatar is worth a network fetch and a cache for a
+screen most people open twice. Initials may be the better answer.
+
+### 10. OAuth — blocked on Kubera
 
 Tested live: Kubera's OAuth is real and complete (PKCE S256, public clients,
 refresh tokens) but **closed to unregistered clients**. Despite advertising
@@ -116,14 +155,14 @@ authorization server accepts a **custom-scheme** redirect (Claude registered an
 HTTPS one because it completes the flow server-side). Full evidence in
 `specs/settings-and-auth.md`.
 
-### 10. Dynamic Type
+### 11. Dynamic Type
 
 Every screen uses fixed `.system(size:)` fonts, so text does not grow with the
 system setting. Overflow is guarded with `lineLimit` + `minimumScaleFactor`, so
 nothing breaks — but the app is not accessible to anyone who needs larger text.
 This is an app-wide change, not a one-file fix.
 
-### 11. Ship it properly
+### 12. Ship it properly
 
 - **TestFlight** — `./release` exists and the App Store Connect app record is
   created, but uploading needs either a live Xcode session for the signing team
