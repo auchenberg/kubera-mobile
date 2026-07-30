@@ -177,6 +177,105 @@ struct ActionButton: View {
     }
 }
 
+/// A small action sized to its own label.
+///
+/// `ActionButton` is full-width and heavily filled, which reads as "this is the
+/// point of the screen" — right for the connect flow, wrong for a utility action
+/// sitting beside content. Two of those stacked on the Widgets tab outweighed the
+/// widget previews they exist to serve, and in light mode a pair of near-black
+/// slabs was the first thing the eye landed on.
+struct CompactButton: View {
+    enum Kind {
+        /// Filled. At most one per screen.
+        case prominent
+        /// Outlined, for anything the screen offers but does not lead with.
+        case secondary
+    }
+
+    let title: String
+    var systemImage: String?
+    var kind: Kind = .secondary
+    var isLoading = false
+    let action: () -> Void
+
+    @Environment(\.displayScale) private var displayScale
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.dynamicTypeSize) private var typeSize
+    @ScaledMetric(relativeTo: .subheadline) private var minHeight: CGFloat = 36
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                if isLoading {
+                    ProgressView().controlSize(.small).tint(foreground)
+                } else if let systemImage {
+                    Image(systemName: systemImage)
+                        .font(.footnote.weight(.semibold))
+                }
+                Text(title)
+                    // The label wraps at accessibility sizes, and the capsule
+                    // has to grow with it — without this the second line
+                    // rendered outside the fill.
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(foreground)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .frame(minHeight: minHeight)
+            // Sized to the label, except at accessibility sizes where a
+            // two-word label needs the whole width to stay on one line.
+            .frame(maxWidth: typeSize.isAccessibilitySize ? .infinity : nil)
+            .contentShape(.capsule)
+        }
+        .modifier(CompactButtonStyling(
+            kind: kind,
+            borderWidth: 1 / displayScale,
+            allowGlass: !reduceTransparency
+        ))
+        .disabled(isLoading)
+    }
+
+    private var foreground: Color {
+        kind == .prominent ? Theme.background : Theme.text
+    }
+}
+
+private struct CompactButtonStyling: ViewModifier {
+    let kind: CompactButton.Kind
+    let borderWidth: CGFloat
+    let allowGlass: Bool
+
+    func body(content: Content) -> some View {
+        if #available(iOS 26, *), allowGlass {
+            switch kind {
+            case .prominent:
+                content.tint(Theme.accent).buttonStyle(.glassProminent)
+            case .secondary:
+                content.buttonStyle(.glass)
+            }
+        } else {
+            content.buttonStyle(FlatCompactStyle(kind: kind, borderWidth: borderWidth))
+        }
+    }
+}
+
+private struct FlatCompactStyle: ButtonStyle {
+    let kind: CompactButton.Kind
+    let borderWidth: CGFloat
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .background(kind == .prominent ? Theme.accent : Theme.card, in: .capsule)
+            .overlay {
+                if kind == .secondary {
+                    Capsule().strokeBorder(Theme.border, lineWidth: borderWidth)
+                }
+            }
+            .opacity(configuration.isPressed ? 0.6 : 1)
+    }
+}
+
 /// `.glassProminent` on iOS 26 — which also supplies the press feedback the flat
 /// style has to fake — and the flat fill below it, or whenever Reduce
 /// Transparency is on, where a known-opaque fill is the whole point.

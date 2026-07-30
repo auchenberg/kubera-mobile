@@ -28,8 +28,10 @@ struct WidgetsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     intro
+                    actions
+                        .padding(.top, 14)
                     settingsLink
-                        .padding(.top, 12)
+                        .padding(.top, 14)
 
                     sectionTitle("Small")
                     gallery {
@@ -65,14 +67,14 @@ struct WidgetsView: View {
                         }
                     }
 
-                    ActionButton(title: "Add widgets") {
-                        showingAddSheet = true
+                    if let status {
+                        Text(status)
+                            .font(.footnote)
+                            .foregroundStyle(Theme.dim)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(.top, 20)
+                            .padding(.horizontal, margin)
                     }
-                    .padding(.top, 28)
-                    .padding(.horizontal, margin)
-
-                    updateSection
-                        .padding(.horizontal, margin)
                 }
             }
             // Instead of a trailing spacer, which would double against the
@@ -135,22 +137,41 @@ struct WidgetsView: View {
             .padding(.horizontal, margin)
     }
 
-    private var updateSection: some View {
-        VStack(spacing: 10) {
-            ActionButton(
-                title: "Update widget data now",
-                isLoading: store.refreshing,
-                action: { Task { await updateWidgetData() } }
-            )
+    /// Both actions at the top, sized to their labels. They used to be two
+    /// full-width filled slabs at the bottom of the page, which in light mode
+    /// were the heaviest things on a screen whose whole point is the previews
+    /// above them. Refresh stays secondary because pull-to-refresh already does
+    /// it — this is the discoverable spelling, not the primary way.
+    @ViewBuilder
+    private var actions: some View {
+        let add = CompactButton(
+            title: "Add widgets",
+            systemImage: "plus",
+            kind: .prominent
+        ) {
+            showingAddSheet = true
+        }
+        let refresh = CompactButton(
+            title: "Update data",
+            systemImage: "arrow.clockwise",
+            isLoading: store.refreshing
+        ) {
+            Task { await updateWidgetData() }
+        }
 
-            if let status {
-                Text(status)
-                    .font(.subheadline)
-                    .foregroundStyle(Theme.dim)
-                    .multilineTextAlignment(.center)
+        // Side by side until the labels stop fitting, which they do well before
+        // AX5 given two capsules and their symbols.
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 10) {
+                add
+                refresh
+            }
+            VStack(alignment: .leading, spacing: 10) {
+                add
+                refresh
             }
         }
-        .padding(.top, 20)
+        .padding(.horizontal, margin)
     }
 
     // MARK: - Gallery
@@ -256,21 +277,27 @@ struct WidgetsView: View {
     /// Stands in for a Lock Screen wallpaper: dark, softly graded, with one
     /// blurred highlight so the accessories are read against a photo rather
     /// than a flat swatch.
+    /// Lifted well off black and given some hue. Lock Screen accessories are
+    /// white-vibrancy, so the plate has to stay dark enough to read them — but a
+    /// near-black slab on a light page was the heaviest thing on the screen and
+    /// clashed with the light Home Screen cards above it. Indigo at this depth
+    /// still clears white text comfortably while reading as a wallpaper swatch
+    /// rather than a UI surface.
     private var wallpaper: some View {
         ZStack {
             LinearGradient(
                 colors: [
-                    Color(red: 0.13, green: 0.16, blue: 0.24),
-                    Color(red: 0.05, green: 0.06, blue: 0.10),
+                    Color(red: 0.29, green: 0.31, blue: 0.44),
+                    Color(red: 0.16, green: 0.17, blue: 0.27),
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
             Circle()
-                .fill(.white.opacity(0.16))
-                .frame(width: 140)
-                .blur(radius: 45)
-                .offset(x: -50, y: -40)
+                .fill(.white.opacity(0.20))
+                .frame(width: 150)
+                .blur(radius: 50)
+                .offset(x: -55, y: -45)
         }
     }
 
@@ -358,10 +385,13 @@ private struct CircularAccessoryClip: ViewModifier {
 
     func body(content: Content) -> some View {
         if isCircular {
+            // A ring rather than a filled disc: a translucent white fill over
+            // the plate went muddy grey and read as a UI well the real widget
+            // does not have. The ring is only there to show where the system
+            // clips.
             content
                 .clipShape(Circle())
-                .background(Circle().fill(.white.opacity(0.15)))
-                .overlay(Circle().strokeBorder(.white.opacity(0.25), lineWidth: 1))
+                .overlay(Circle().strokeBorder(.white.opacity(0.28), lineWidth: 1))
         } else {
             content
         }
