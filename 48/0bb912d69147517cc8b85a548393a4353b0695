@@ -1,0 +1,19 @@
+specs/backlog.md
+  s_2b8865ef49a4ed::t_46aac009ff901a 209,211-222
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.17",
+  "base_commit_sha": "480bb912d69147517cc8b85a548393a4353b0695",
+  "prompts": {},
+  "sessions": {
+    "s_2b8865ef49a4ed": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-asankey-0a016901f8aeadd1",
+        "model": "unknown"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
