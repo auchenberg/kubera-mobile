@@ -231,6 +231,10 @@ struct OverviewView: View {
             + Text(Image(systemName: "info.circle"))
             .font(.system(size: 15, weight: .semibold))
             .foregroundColor(Theme.dim)
+            // The type engine aligns the symbol to the run's baseline, which
+            // leaves a 15pt glyph sitting low against 26pt caps. Lifted to the
+            // optical centre of the capitals rather than the line box.
+            .baselineOffset(3)
     }
 
     /// The account's own name when the profile fetch has landed, else the
