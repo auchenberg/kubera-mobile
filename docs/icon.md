@@ -1,64 +1,42 @@
 # App icon
 
-The app icon is an original mark called **Ascent**. It replaces the placeholder that
-shipped earlier, which was Kubera's own "K" logo lifted from their web app's touch
-icon — a trademark this project has no right to use. Nothing in the icon derives from
-Kubera's branding.
+The icon is a **derivative of Kubera's own mark**: their geometric "K", drawn as
+negative space knocked out of a solid disc. Rendered in the app's off-white
+`#F5F7FA` on its near-black `#0B0E1A`, with the disc contained inside the canvas
+rather than bleeding past it.
 
-## The mark
+## Why this, and what it costs
 
-Three ascending treads merged into a single continuous mass, filleted at every corner,
-in the app's green on the app's near-black.
+Kubera Mobile is an unofficial client, and an icon derived from Kubera's mark is
+the fastest way to signal which service the app talks to. The maintainer chose
+this deliberately, over an original mark, having been shown the tradeoff.
 
-- **Why a staircase.** The app's whole reason to exist is a number on the Home Screen
-  that goes up. The chart is its signature, so the icon is the chart reduced to its
-  bare gesture: value rising left to right. It says "net worth over time" without a
-  word or a currency symbol.
-- **Why one solid mass rather than separate bars.** Solid silhouettes survive
-  downsampling; thin gaps do not. Separated bars were tried and the gaps closed up at
-  40×40pt into a green smudge. Merging the treads and filleting the inner corners
-  keeps it one confident shape at every size, and reads as drawn rather than as the
-  stock `chart.bar.fill` glyph.
-- **Why three treads, not four.** Four was tried first. At 40pt its 100px risers
-  scale to under 4px and the steps stop reading as steps — the profile turns into a
-  serrated diagonal, and the shallow bottom tread reads as a stray bar sitting beside
-  the mark rather than as the first stair. Three treads at 220 wide with a uniform
-  120 riser keep every step countable at 40pt, and the bottom tread becomes a solid
-  260-tall plinth that anchors the form.
-- **Colours.** Background is a vertical `#151B2E → #0B0E1A` gradient, matching the
-  app's near-black. The mark is a diagonal `#35C773 → #5FE694` gradient running
-  bottom-left to top-right, so the light follows the rise; it averages out to the
-  app's `#4ADE80` gain green.
-- **Composition — balance the ink, not the box.** An ascending form carries most of
-  its area at the right and bottom, so centring its *bounding box* leaves the
-  upper-left third empty and the icon reads as having slid down and right. The fix is
-  to centre the mark's **area centroid** instead. With the box centred the centroid
-  sits at `(558, 559)`; the box is therefore offset up and left until the centroid
-  reaches `(523, 523)` — three quarters of the way to the canvas centre. Going the
-  full distance to `(512, 512)` overshoots: the mark visibly drifts up-left and opens
-  a hole at the bottom right. Final bounding box `x 147..807`, `y 226..726`, so the
-  margins are deliberately uneven: left 147, right 217, top 226, bottom 298.
-  Verified that no part of the mark is clipped by iOS's corner mask at any size.
-- No text, no mask, no shadow, no transparency. iOS applies its own corner mask, so the
-  artwork is full-bleed square and the PNG has no alpha channel (App Store validation
-  rejects alpha).
+The tradeoff, recorded here so nobody has to rediscover it:
 
-## Directions that lost
+- **It is a derivative of a trademark the project does not own.** The README
+  disclaims affiliation; an icon that borrows their mark works against that
+  disclaimer.
+- **App Store review is the likely friction point.** Apple's guidelines cover
+  using another party's marks without permission, so a submission carrying this
+  icon may be rejected. Written permission from Kubera would settle it.
+- **The repository is public**, so the derivative is public too.
 
-All were rendered at 1024, 80, 60 and 40px, corner-masked, and compared at actual size:
+None of that is a reason it cannot be used on a personal build, which is what it
+is used for today. It is a reason to expect a conversation before any public
+distribution. If that conversation goes badly, the previous original mark
+("Ascent", three ascending treads) is in this file's history at commit `b36a48a`
+and can be restored without redesigning anything.
 
-| Direction | Why it lost |
-| --- | --- |
-| Separated ascending columns | Generic — reads as cellular signal strength. Gaps mushed shut at 40px. |
-| Bold zigzag line / trending-up stroke | Generic, and the stroke thinned into a squiggle when small. |
-| Area chart with a bright top edge | The dim fill went muddy and the curve's wiggle disappeared at 40px. |
-| Double ascending chevron | Reads as a "scroll up" / "collapse" UI control, not a brand. |
-| Full-bleed staircase splitting the canvas | Read as abstract wallpaper rather than a mark. |
-| Off-white staircase with a green cap block | Two-tone split the mark into two objects; the cap looked stuck on. |
-| Treads with a compounding (accelerating) rise | Thematically nice, but it starved the first tread into a sliver that vanished small. |
-| Four treads | Risers under 4px at 40pt; the steps blurred into a serration and the shallow first tread read as a stray bar. |
-| Fillet radius 58 | The step notches rounded away at 40px and the mark went blobby. |
-| Fillet radius 36 | Crisp, but stiffer than the rest of the app's rounded geometry. 40 splits the difference. |
+## Known weakness: small sizes
+
+The disc sits inside the canvas with a margin, which makes the K's negative-space
+gaps thin. At 40pt — the Home Screen size on a phone — the stem slice and the
+wedge cuts narrow considerably and the mark reads more as a disc with cuts in it
+than as a letter. Variants that let the K bleed past the canvas edge held up
+better small, and were not chosen.
+
+If it ever wants fixing without changing the design: widen the three knockout
+shapes in `icon-source.svg` and re-render. Check the result at 40px, not at 1024.
 
 ## Regenerating the PNG
 
