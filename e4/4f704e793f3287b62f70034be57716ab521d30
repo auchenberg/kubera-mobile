@@ -1,0 +1,32 @@
+App/Views/WidgetsView.swift
+  s_3b694bad7ccc14::t_7b823850663d71 249
+  s_3b694bad7ccc14::t_86708a0f82880b 275-281
+  s_3b694bad7ccc14::t_8a17d1116fceda 13
+  s_3b694bad7ccc14::t_7a47e97c166396 240-244
+  s_3b694bad7ccc14::t_935fb3d2528058 247
+  s_3b694bad7ccc14::t_e6803a9048804e 188-200
+  s_3b694bad7ccc14::t_c03ef62395fc0b 82
+  s_3b694bad7ccc14::t_ebf379e8ea2d2c 4-8,11-12,17-25,30-32,34-41,44-50,65,71-72,75,78-80,93-101,103-116,118-133,146,154-187,201-233,239,245-246,248,250-273,282-318,370-371,375-377,381-384,400,405-424,426-433,436,451,453,461-479
+  s_3b694bad7ccc14::t_9893935ca63976 350-364
+  s_3b694bad7ccc14::t_7a85372c44e98d 393-395
+  s_3b694bad7ccc14::t_77e53a79481a04 51,54-64
+  s_3b694bad7ccc14::t_6efdf298eb7a46 449
+  s_3b694bad7ccc14::t_23d50274b5c2ea 234-238
+  s_3b694bad7ccc14::t_57ce756d532a9b 274
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.17",
+  "base_commit_sha": "e44f704e793f3287b62f70034be57716ab521d30",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
