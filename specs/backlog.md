@@ -135,15 +135,24 @@ HTTPS one because it completes the flow server-side). Full evidence in
 
 ### 12. Ship it properly
 
-- **TestFlight** — `./release` exists and the App Store Connect app record is
-  created, but uploading needs either a live Xcode session for the signing team
-  or an App Store Connect API key. The API key is the durable fix.
-- **Make the repo public** — audited and pushed; the visibility flip is a
-  one-click decision that hasn't been made.
-- ~~**App icon**~~ ✅ — replaced with an original mark ("Ascent": three ascending
-  treads merged into one filleted mass). Kubera's "K" is gone from the repo.
-  `docs/icon.md` records the reasoning, the directions that lost, and how to
-  regenerate and re-check it at Home Screen size.
+- ~~**Make the repo public**~~ ✅ — live at
+  [auchenberg/kubera-mobile](https://github.com/auchenberg/kubera-mobile), MIT,
+  with a rewritten README and twelve screenshots. Verified before the flip: no
+  leaks across the full history, only `main` on the remote, and the pre-scrub
+  `private-history` branch has since been deleted and its objects garbage
+  collected.
+- ~~**App icon**~~ ✅ — but read the caveat. It is now a **derivative of
+  Kubera's own mark**, chosen deliberately over the original "Ascent" staircase.
+  `docs/icon.md` records the tradeoff: it works against the README's
+  unaffiliated disclaimer, and App Store review is the likely friction point.
+  The original mark is recoverable from commit `b36a48a`.
+- **TestFlight** — still the open one. `./release` exists and the App Store
+  Connect app record is created, but uploading needs either a live Xcode session
+  for the signing team or an App Store Connect API key. The API key is the
+  durable fix. Note the icon caveat above lands here too: this is the step where
+  a trademark-derived icon actually gets reviewed by someone.
+- **Tag a release.** `docs/RELEASE-NOTES.md` is written and marked as a draft;
+  the version number, date and wording are all still open. Nothing is tagged.
 
 ### 13. Confirm the minimizing tab bar actually fires
 
