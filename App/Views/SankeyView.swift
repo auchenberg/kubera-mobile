@@ -335,14 +335,32 @@ struct SankeyView: View {
         return Theme.text.opacity(steps[min(max(rank, 0), steps.count - 1)])
     }
 
-    /// Ribbons run at a fraction of their band's weight: they cover most of the
-    /// diagram's area, and at the caps' opacity the whole thing reads as a solid
-    /// block with no flow visible through it.
+    /// The trunk, and the tone every ribbon leaves it at.
+    private var trunkColor: Color {
+        Theme.text.opacity(contrast == .increased ? 1 : 0.92)
+    }
+
+    /// Ribbons run at a fraction of their band's weight for two reasons: they
+    /// cover most of the diagram's area, and — unlike in the reference — the
+    /// labels sit on top of them, so this ceiling is also the contrast budget.
+    /// Raising it above 0.30 is what would make the labels unreadable.
     private func ribbonColor(_ rank: Int) -> Color {
         let steps: [Double] = contrast == .increased
-            ? [0.54, 0.46, 0.39, 0.33, 0.28, 0.24]
+            ? [0.42, 0.37, 0.32, 0.28, 0.24, 0.21]
             : [0.30, 0.25, 0.20, 0.16, 0.13, 0.10]
         return Theme.text.opacity(steps[min(max(rank, 0), steps.count - 1)])
+    }
+
+    /// Every ribbon leaves the trunk at one shared tone and arrives at its own,
+    /// which is the reference's green-to-category wash rendered in the one
+    /// palette this app has. The gradient resolves across the view's bounds, so
+    /// all the ribbons share an axis and the fan reads as a single object.
+    private func ribbonGradient(_ rank: Int) -> LinearGradient {
+        LinearGradient(
+            colors: [Theme.text.opacity(contrast == .increased ? 0.30 : 0.20), ribbonColor(rank)],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
     }
 }
 
