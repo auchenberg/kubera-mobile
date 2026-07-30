@@ -37,6 +37,8 @@ struct OverviewView: View {
     /// back no number to take a fraction of.
     @ScaledMetric(relativeTo: .largeTitle) private var heroSize: CGFloat = 40
     @ScaledMetric(relativeTo: .caption2) private var trendLabelWidth: CGFloat = 42
+    /// Keeps the menu button at the 44pt minimum without padding the greeting row.
+    @ScaledMetric(relativeTo: .body) private var menuTapTarget: CGFloat = 44
     @ScaledMetric(relativeTo: .subheadline) private var ytdColumnWidth: CGFloat = 76
     @ScaledMetric(relativeTo: .subheadline) private var cagrColumnWidth: CGFloat = 64
     @ScaledMetric(relativeTo: .caption) private var sharePercentWidth: CGFloat = 48
@@ -162,12 +164,16 @@ struct OverviewView: View {
                         .padding(.bottom, 12)
                         .id(DeepLink.OverviewFocus.netWorth.anchor)
 
-                    statPair
-                        .id(DeepLink.OverviewFocus.assetsDebts.anchor)
+                    if shows(.assetsDebts) {
+                        statPair
+                            .id(DeepLink.OverviewFocus.assetsDebts.anchor)
+                    }
 
-                    balancePair
+                    if shows(.balances) {
+                        balancePair
+                    }
 
-                    if !growthRows.isEmpty || !comps.isEmpty {
+                    if shows(.growth), !growthRows.isEmpty || !comps.isEmpty {
                         // Benchmarks alone are not your CAGR, so the heading
                         // stops claiming to be when your own rows are missing.
                         SectionTitle(growthRows.isEmpty ? "Market" : "CAGR • YTD")
@@ -175,22 +181,22 @@ struct OverviewView: View {
                         growthCard
                     }
 
-                    if !allocationSegments.isEmpty {
+                    if shows(.allocation), !allocationSegments.isEmpty {
                         SectionTitle("Allocation")
                         allocationCard
                     }
 
-                    if Sankey.isWorthDrawing(assetFlowBranches) {
+                    if shows(.assetFlow), Sankey.isWorthDrawing(assetFlowBranches) {
                         SectionTitle("Asset flow")
                         assetFlowCard
                     }
 
-                    if !compositionGroups.isEmpty {
+                    if shows(.composition), !compositionGroups.isEmpty {
                         SectionTitle("Composition")
                         compositionCard
                     }
 
-                    if !snapshot.topHoldings.isEmpty {
+                    if shows(.holdings), !snapshot.topHoldings.isEmpty {
                         SectionTitle("Top holdings")
                         holdingsCard
                     }
@@ -252,7 +258,44 @@ struct OverviewView: View {
                     .presentationCompactAdaptation(.popover)
             }
             Spacer(minLength: 0)
+            moduleMenu
         }
+    }
+
+    /// Which blocks the dashboard shows. A `Menu` of toggles rather than a
+    /// screen in Settings: what you are choosing is on-screen behind the menu,
+    /// so the result is visible the moment you tap.
+    private var moduleMenu: some View {
+        Menu {
+            ForEach(OverviewModule.hideable) { module in
+                Toggle(module.title, isOn: binding(for: module))
+            }
+            Divider()
+            Button("Show all") {
+                store.updateSettings { $0.hiddenOverviewModules = [] }
+            }
+            .disabled(store.settings.hiddenOverviewModules.isEmpty)
+        } label: {
+            Image(systemName: "slider.horizontal.3")
+                .font(.system(.body, weight: .semibold))
+                .foregroundStyle(Theme.text)
+                .frame(width: menuTapTarget, height: menuTapTarget)
+                .contentShape(.rect)
+        }
+        .accessibilityLabel("Choose which blocks to show")
+    }
+
+    private func binding(for module: OverviewModule) -> Binding<Bool> {
+        Binding(
+            get: { store.settings.hiddenOverviewModules.shows(module) },
+            set: { visible in
+                store.updateSettings { $0.hiddenOverviewModules.setVisibility(visible, for: module) }
+            }
+        )
+    }
+
+    private func shows(_ module: OverviewModule) -> Bool {
+        store.settings.hiddenOverviewModules.shows(module)
     }
 
     private func greetingText(_ phrase: Greeting.Phrase) -> Text {

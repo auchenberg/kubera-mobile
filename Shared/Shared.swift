@@ -71,6 +71,17 @@ struct WidgetSettings: Codable {
     /// Lock the app behind Face ID / passcode. On by default — settings blobs
     /// written before this key existed decode to true.
     var appLockEnabled: Bool = true
+    /// The Overview blocks switched off, by their stable raw values. Hidden
+    /// rather than visible on purpose: a module added in a later version is then
+    /// visible by default rather than missing for everyone who saved a choice
+    /// before it existed.
+    var hiddenOverviewModules: Set<OverviewModule> = []
+
+    /// Spelled out because providing both `init(from:)` and `encode(to:)` stops
+    /// Swift synthesising them.
+    private enum CodingKeys: String, CodingKey {
+        case privacyMode, showGain, compactNumbers, appLockEnabled, hiddenOverviewModules
+    }
 
     init() {}
 
@@ -80,6 +91,23 @@ struct WidgetSettings: Codable {
         showGain = try container.decodeIfPresent(Bool.self, forKey: .showGain) ?? true
         compactNumbers = try container.decodeIfPresent(Bool.self, forKey: .compactNumbers) ?? true
         appLockEnabled = try container.decodeIfPresent(Bool.self, forKey: .appLockEnabled) ?? true
+        // An unknown raw value decodes to nil rather than throwing, so a blob
+        // written by a newer build cannot make an older one fail to read its
+        // settings at all.
+        hiddenOverviewModules = Set(
+            (try container.decodeIfPresent([String].self, forKey: .hiddenOverviewModules) ?? [])
+                .compactMap(OverviewModule.init(rawValue:))
+        )
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(privacyMode, forKey: .privacyMode)
+        try container.encode(showGain, forKey: .showGain)
+        try container.encode(compactNumbers, forKey: .compactNumbers)
+        try container.encode(appLockEnabled, forKey: .appLockEnabled)
+        // Sorted so an unchanged set encodes to identical bytes every time.
+        try container.encode(hiddenOverviewModules.map(\.rawValue).sorted(), forKey: .hiddenOverviewModules)
     }
 }
 
