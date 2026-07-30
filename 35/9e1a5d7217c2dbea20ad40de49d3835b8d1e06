@@ -1,0 +1,29 @@
+App/Views/WidgetsView.swift
+  s_3b694bad7ccc14::t_2d55881029551a 355
+  s_3b694bad7ccc14::t_a94d82d33c3ea9 2,7
+  s_3b694bad7ccc14::t_f1c5b15484fb15 120-131
+  s_3b694bad7ccc14::t_bfcfcbd04b88f5 27-30,32
+  s_3b694bad7ccc14::t_51ced08ffa171c 31
+  s_3b694bad7ccc14::t_4f5e7cf5b20b7c 251
+  s_3b694bad7ccc14::t_53170bac006328 445-460,462-520,522-523,525-527,540-599,603-604
+  s_3b694bad7ccc14::t_01afd07031d2fb 524,528-539
+  s_3b694bad7ccc14::t_30c409736c27f1 8-10
+specs/backlog.md
+  s_3b694bad7ccc14::t_bddb20e0b4130e 173,175-186
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.17",
+  "base_commit_sha": "359e1a5d7217c2dbea20ad40de49d3835b8d1e06",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
