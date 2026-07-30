@@ -41,6 +41,29 @@ final class AppStore {
     private var refreshTask: Task<Void, Error>?
 
     init() {
+        #if DEBUG
+        if AppStore.isDemoRun {
+            credentials = DemoData.credentials
+            portfolios = DemoData.portfolios
+            selectedPortfolioId = DemoData.portfolios.first?.id
+            snapshot = DemoData.snapshot
+            // App Lock off: a demo run has nothing to protect, and a simulator
+            // with no enrolled biometrics would open on a passcode sheet.
+            var demoSettings = WidgetSettings()
+            demoSettings.appLockEnabled = false
+            settings = demoSettings
+            trends = DemoData.trends
+            comps = DemoData.comps
+            detail = DemoData.detail
+            profile = DemoData.profile
+            connection = ConnectionStatus(
+                rest: .connected(at: Date(timeIntervalSince1970: DemoData.snapshot.updatedAt)),
+                history: .connected(points: DemoData.history.count)
+            )
+            return
+        }
+        #endif
+
         SharedStore.migrateLegacyCredentialsIfNeeded()
         let storedCredentials = SharedStore.credentials()
         let cachedSnapshot = SharedStore.cachedSnapshot()
@@ -66,6 +89,22 @@ final class AppStore {
             )
         )
     }
+
+    #if DEBUG
+    /// Renders the whole app against `DemoData` with no Kubera account and
+    /// nothing written to the Keychain or the shared container. Two uses: taking
+    /// the README screenshots, and letting someone who has cloned this repo
+    /// without a Kubera subscription see what it does.
+    ///
+    /// Debug-only and launch-argument-gated, so it cannot be reached in a release
+    /// build or by any in-app action:
+    ///
+    ///     xcrun simctl launch <device> com.kubera.mobile -KuberaDemoMode YES
+    static var isDemoRun: Bool {
+        ProcessInfo.processInfo.arguments.contains("-KuberaDemoMode")
+            || UserDefaults.standard.bool(forKey: "KuberaDemoMode")
+    }
+    #endif
 
     // MARK: - Session
 
@@ -173,7 +212,27 @@ final class AppStore {
 
     // MARK: - Data
 
+    /// The merged server + on-device history the chart, the trends and the
+    /// widgets all read, so none of them can disagree about the curve.
+    ///
+    /// Goes through the store rather than being read from `SharedStore` at the
+    /// call site so a demo run has a series too: it deliberately writes nothing
+    /// to the shared container, which would otherwise leave the chart empty and
+    /// claiming Kubera had served no history.
+    var history: [KuberaAPI.HistoryPoint] {
+        #if DEBUG
+        if AppStore.isDemoRun { return DemoData.history }
+        #endif
+        return SharedStore.localHistory()
+    }
+
     func refresh() async throws {
+        #if DEBUG
+        // A demo run holds credentials Kubera would reject, and letting the
+        // launch refresh reach the network would replace the seeded state with
+        // an auth failure the moment the app opened.
+        if AppStore.isDemoRun { return }
+        #endif
         if let refreshTask {
             return try await refreshTask.value
         }
@@ -186,6 +245,9 @@ final class AppStore {
     /// Re-checks both surfaces against the stored credentials without changing
     /// them, for the status header in Settings.
     func checkConnection() async {
+        #if DEBUG
+        if AppStore.isDemoRun { return }
+        #endif
         guard let creds = credentials else {
             connection = ConnectionStatus()
             return

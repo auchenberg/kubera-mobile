@@ -124,6 +124,16 @@ enum DemoData {
     /// be obviously a placeholder rather than anyone's real name.
     static let profile = KuberaProfile(name: "Sam Rivera", email: nil)
 
+    /// Stand-in credentials for the debug demo run, which needs a non-nil value
+    /// to get past the connect screen but never talks to Kubera. Deliberately
+    /// self-describing rather than key-shaped: nothing here should ever be
+    /// mistaken for a real secret, and nothing writes it to the Keychain.
+    static let credentials = KuberaCredentials(
+        apiKey: "demo-not-a-real-key",
+        secret: "demo-not-a-real-secret",
+        mcpToken: "demo-not-a-real-token"
+    )
+
     /// The portfolio list, which Settings' picker and the portfolio switcher
     /// both read. Two entries, so a switcher has something to switch between.
     static let portfolios: [PortfolioListItem] = [

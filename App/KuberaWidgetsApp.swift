@@ -91,10 +91,29 @@ private struct LockScreenView: View {
 private struct MainTabView: View {
     private enum Tab {
         case dashboard, widgets, settings
+
+        /// Always the dashboard, except in a debug run that asked for another
+        /// tab. Opening straight onto a tab exists so screenshots can be taken
+        /// without driving the UI: `simctl openurl` raises a system "Open in…"
+        /// confirmation that `simctl` has no way to dismiss.
+        ///
+        ///     xcrun simctl launch <device> com.kubera.mobile \
+        ///       -KuberaDemoMode -KuberaInitialTab widgets
+        static var initial: Tab {
+            #if DEBUG
+            switch UserDefaults.standard.string(forKey: "KuberaInitialTab") {
+            case "widgets": return .widgets
+            case "settings": return .settings
+            default: return .dashboard
+            }
+            #else
+            return .dashboard
+            #endif
+        }
     }
 
     @Environment(AppStore.self) private var store
-    @State private var selection: Tab = .dashboard
+    @State private var selection: Tab = Tab.initial
     /// The Overview module a widget tap asked for, consumed and cleared by
     /// `OverviewView` once it has scrolled there.
     @State private var overviewFocus: DeepLink.OverviewFocus?
@@ -119,6 +138,7 @@ private struct MainTabView: View {
                 }
                 .tag(Tab.settings)
         }
+        .modifier(MinimizingTabBar())
         .task {
             // The dashboard shows its own error state for a failed refresh.
             try? await store.refresh()
@@ -153,6 +173,21 @@ private struct MainTabView: View {
         case .dashboard: return "chart.line.uptrend.xyaxis"
         case .widgets: return selected ? "square.grid.2x2.fill" : "square.grid.2x2"
         case .settings: return selected ? "gearshape.fill" : "gearshape"
+        }
+    }
+}
+
+/// Lets the floating tab bar shrink out of the way as content scrolls up, which
+/// is what iOS 26 apps do and what the screens' own bottom padding now assumes.
+/// Reported not to fire in tabs built on `NavigationStack(path:)`; the Overview's
+/// stack has no path binding, so it should — but confirm on a device before
+/// trusting it, because failure here is silent.
+private struct MinimizingTabBar: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26, *) {
+            content.tabBarMinimizeBehavior(.onScrollDown)
+        } else {
+            content
         }
     }
 }
