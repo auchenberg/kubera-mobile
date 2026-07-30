@@ -1,0 +1,22 @@
+App/Views/SettingsView.swift
+  s_3b694bad7ccc14::t_af3b691cddb578 299-306
+  s_3b694bad7ccc14::t_a76a0446c1303e 404-419
+  s_3b694bad7ccc14::t_2a2f2dc02d8705 307
+  s_3b694bad7ccc14::t_ac1e88199d6fbc 420
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.17",
+  "base_commit_sha": "b6f2d932ed310475247556cd609a8ba7e96f6f79",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
