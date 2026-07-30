@@ -1,11 +1,13 @@
 import SwiftUI
+import UIKit
 import WidgetKit
 
 /// The widget gallery: one horizontally scrolling row per family, each card the
 /// real widget view from `Shared/WidgetViews.swift` at the family's true point
-/// size. Nothing here is a mockup or a screenshot, and nothing is scaled down —
-/// a medium widget is 338pt wide and simply does not fit a phone's width beside
-/// a page margin, which is what the horizontal scrollers are for.
+/// size *on this device* — see `WidgetPreviewSize`. Nothing here is a mockup or
+/// a screenshot, and nothing is scaled down, so a card is a fixed width the
+/// page cannot reflow: two mediums side by side are wider than any iPhone,
+/// which is what the horizontal scrollers are for.
 struct WidgetsView: View {
     @Environment(AppStore.self) private var store
     @Environment(\.colorScheme) private var colorScheme
@@ -21,6 +23,12 @@ struct WidgetsView: View {
     /// visible, so the page margin is applied per element rather than to the
     /// whole column.
     private let margin: CGFloat = 20
+
+    /// This device's widget footprints, or the nearest class Apple publishes.
+    /// Computed rather than stored: it is read from the screen, and a stored
+    /// copy would outlive a Display Zoom change that the app is relaunched for
+    /// but the view struct is not necessarily rebuilt by.
+    private var footprints: WidgetPreviewSize.Match { WidgetPreviewSize.current }
 
     var body: some View {
         NavigationStack {
@@ -108,6 +116,18 @@ struct WidgetsView: View {
                     .lineSpacing(4)
                     .foregroundStyle(Theme.dim)
                     .fixedSize(horizontal: false, vertical: true)
+
+                // Only when it is true. The previews claim to be actual size,
+                // so on a screen Apple has published no widget sizes for they
+                // have to say they are the nearest thing instead of quietly
+                // being a few points wrong.
+                if !footprints.isExact {
+                    Text("Apple publishes no widget sizes for this screen, so these are the closest size it does publish — a few points out.")
+                        .font(.footnote)
+                        .lineSpacing(3)
+                        .foregroundStyle(Theme.dim)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
 
                 actions
             }
@@ -228,7 +248,7 @@ struct WidgetsView: View {
         family: WidgetFamily,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
-        let size = WidgetPreviewSize.points(for: family)
+        let size = footprints.points(for: family)
         let shape = RoundedRectangle(cornerRadius: family.usesThemedBackground ? 24 : 20, style: .continuous)
 
         // A widget is a fixed canvas: its text does not grow with the phone's
@@ -332,7 +352,7 @@ struct WidgetsView: View {
     }
 
     private func plateWidth(for family: WidgetFamily) -> CGFloat {
-        let size = WidgetPreviewSize.points(for: family)
+        let size = footprints.points(for: family)
         return family.usesThemedBackground ? size.width : size.width + lockPlateInset * 2
     }
 
@@ -422,21 +442,166 @@ private struct CircularAccessoryClip: ViewModifier {
     }
 }
 
+/// Widget footprints in points, keyed on the portrait screen size the device
+/// reports.
+///
+/// Every row is transcribed verbatim from Apple's Human Interface Guidelines,
+/// "Widgets › Specifications › iOS dimensions" (page last revised 16 December
+/// 2025):
+/// https://developer.apple.com/design/human-interface-guidelines/widgets
+///
+/// Nothing is interpolated. WidgetKit exposes no API to ask a family for its
+/// footprint, so a table is the only way — and a plausible-looking number
+/// invented for a missing row would defeat the one thing a true-size preview is
+/// for. Apple publishes no row for the 402pt and 440pt screens the iPhone
+/// 16/17 Pro and Pro Max report, so those fall to the nearest published class
+/// and the page says so rather than claiming precision it does not have.
+///
+/// Large and extra-large are omitted because this app ships neither.
 private enum WidgetPreviewSize {
-    /// Footprints vary by a few points across devices; these are the iPhone
-    /// 15/16 Pro figures, which is what the previews are laid out against.
-    static func points(for family: WidgetFamily) -> CGSize {
-        switch family {
-        case .systemMedium: return CGSize(width: 338, height: 158)
-        case .accessoryRectangular: return CGSize(width: 172, height: 76)
-        case .accessoryCircular: return CGSize(width: 76, height: 76)
-        case .accessoryInline: return CGSize(width: 172, height: 26)
-        default: return CGSize(width: 158, height: 158)
+    struct Footprint {
+        let screen: CGSize
+        let small: CGSize
+        let medium: CGSize
+        /// Absent where the table prints N/A, which is only the 320×568 class —
+        /// it predates Lock Screen widgets, though a zoomed iPhone SE still
+        /// reports it.
+        let accessory: Accessory?
+
+        /// Scalars rather than sizes so the table below stays legible against
+        /// the source: small and circular are square, and every published row
+        /// gives inline the same 26pt height.
+        init(
+            _ screen: (CGFloat, CGFloat),
+            small: CGFloat,
+            medium: (CGFloat, CGFloat),
+            circular: CGFloat? = nil,
+            rectangular: (CGFloat, CGFloat)? = nil,
+            inline: CGFloat? = nil
+        ) {
+            self.screen = CGSize(width: screen.0, height: screen.1)
+            self.small = CGSize(width: small, height: small)
+            self.medium = CGSize(width: medium.0, height: medium.1)
+            if let circular, let rectangular, let inline {
+                accessory = Accessory(
+                    circular: CGSize(width: circular, height: circular),
+                    rectangular: CGSize(width: rectangular.0, height: rectangular.1),
+                    inline: CGSize(width: inline, height: 26)
+                )
+            } else {
+                accessory = nil
+            }
         }
     }
 
+    struct Accessory {
+        let circular: CGSize
+        let rectangular: CGSize
+        let inline: CGSize
+    }
+
+    /// A resolved lookup: the footprints to lay out against, and whether they
+    /// are actually this device's.
+    struct Match {
+        let footprint: Footprint
+        /// False when this device's screen is not one the guidelines publish,
+        /// or when it is but publishes no accessory sizes — this page renders
+        /// every family, so either way the previews are the nearest published
+        /// class rather than the real thing.
+        let isExact: Bool
+
+        func points(for family: WidgetFamily) -> CGSize {
+            switch family {
+            case .systemMedium: return footprint.medium
+            case .accessoryCircular: return accessory.circular
+            case .accessoryRectangular: return accessory.rectangular
+            case .accessoryInline: return accessory.inline
+            default: return footprint.small
+            }
+        }
+
+        private var accessory: Accessory {
+            footprint.accessory ?? WidgetPreviewSize.fallbackAccessory
+        }
+    }
+
+    /// For the one published row that omits accessory sizes. These are the
+    /// 375×667 figures: the only device that reports 320×568 is a zoomed
+    /// iPhone SE, so it borrows the class it is a zoom of.
+    static let fallbackAccessory = Accessory(
+        circular: CGSize(width: 68, height: 68),
+        rectangular: CGSize(width: 153, height: 68),
+        inline: CGSize(width: 225, height: 26)
+    )
+
+    /// The class the previews were laid out against before this table existed.
+    /// Also the fallback if the nearest-match ever comes up empty, so the
+    /// lookup cannot return nothing.
+    static let standard = Footprint(
+        (393, 852), small: 158, medium: (338, 158), circular: 72, rectangular: (160, 72), inline: 234
+    )
+
+    private static let table: [Footprint] = [
+        Footprint((430, 932), small: 170, medium: (364, 170), circular: 76, rectangular: (172, 76), inline: 257),
+        Footprint((428, 926), small: 170, medium: (364, 170), circular: 76, rectangular: (172, 76), inline: 257),
+        Footprint((414, 896), small: 169, medium: (360, 169), circular: 76, rectangular: (160, 72), inline: 248),
+        Footprint((414, 736), small: 159, medium: (348, 157), circular: 76, rectangular: (170, 76), inline: 248),
+        standard,
+        Footprint((390, 844), small: 158, medium: (338, 158), circular: 72, rectangular: (160, 72), inline: 234),
+        Footprint((375, 812), small: 155, medium: (329, 155), circular: 72, rectangular: (157, 72), inline: 225),
+        Footprint((375, 667), small: 148, medium: (321, 148), circular: 68, rectangular: (153, 68), inline: 225),
+        Footprint((360, 780), small: 155, medium: (329, 155), circular: 72, rectangular: (157, 72), inline: 225),
+        Footprint((320, 568), small: 141, medium: (292, 141)),
+    ]
+
+    /// This device's row, or the nearest published one.
+    ///
+    /// Keyed on the screen rather than on a `GeometryReader`, because the
+    /// table's key *is* the screen size and a view's size is never that — it is
+    /// the window minus safe areas and the tab bar, which could not tell
+    /// 375×812 from 375×667, two classes whose footprints differ by 7pt. Going
+    /// through the screen also gets Display Zoom right for free: a zoomed phone
+    /// reports the smaller size, which the guidelines already list as its own
+    /// row.
+    ///
+    /// `UIScreen.main` is soft-deprecated and wrong under multitasking, so the
+    /// window scene's screen is preferred; the fallback only matters before a
+    /// scene has connected. This app is iPhone-only and portrait-only, so
+    /// neither the deprecation nor multitasking is live here.
+    static var current: Match {
+        let scene = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first
+        return match(screen: (scene?.screen ?? UIScreen.main).bounds.size)
+    }
+
+    /// Normalised to portrait, so a bounds read that arrives rotated cannot
+    /// silently select a different row.
+    static func match(screen: CGSize) -> Match {
+        let portrait = CGSize(
+            width: min(screen.width, screen.height),
+            height: max(screen.width, screen.height)
+        )
+        let nearest = table.min {
+            distance($0.screen, portrait) < distance($1.screen, portrait)
+        } ?? standard
+        return Match(
+            footprint: nearest,
+            isExact: nearest.screen == portrait && nearest.accessory != nil
+        )
+    }
+
+    /// Width dominates and height only breaks ties: width is what the Home
+    /// Screen grid is laid out against, and the two duplicated widths in the
+    /// table are the only cases height has to settle. A screen wider than
+    /// anything published lands on the widest row, since that is the nearest.
+    private static func distance(_ row: CGSize, _ screen: CGSize) -> (CGFloat, CGFloat) {
+        (abs(row.width - screen.width), abs(row.height - screen.height))
+    }
+
     /// One height for every accessory plate, so the Lock Screen row reads as a
-    /// single strip of wallpaper rather than three ragged slabs.
+    /// single strip of wallpaper rather than three ragged slabs. Also the
+    /// tallest accessory any published row has, so no widget overflows it.
     static let lockPlateHeight: CGFloat = 76
 }
 

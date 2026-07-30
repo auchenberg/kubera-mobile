@@ -170,13 +170,20 @@ Full evidence in `specs/settings-and-auth.md`.
 - **Tag a release.** `docs/RELEASE-NOTES.md` is written and marked as a draft;
   the version number, date and wording are all still open. Nothing is tagged.
 
-### 14. Widget preview footprints are hardcoded to one device
+### 14. Widget preview footprints ✅
 
-`WidgetPreviewSize` in `App/Views/WidgetsView.swift` holds iPhone 15/16 Pro point
-sizes. Real footprints vary by a few points across devices, so on an SE or a Max
-the "true size" preview is true-ish. `WidgetCenter` exposes no footprint API, so
-the honest options are a small per-screen-width table or accepting the drift and
-saying so. Low stakes, but the whole point of the gallery is fidelity.
+`WidgetPreviewSize` now carries the ten iPhone screen classes Apple publishes
+widget dimensions for, and resolves this device against them.
+
+Keyed on the **screen**, not a `GeometryReader`: the table's key *is* the screen
+size, and a view's size never is — it is the window minus safe areas and the tab
+bar, which cannot tell 375×812 from 375×667, two classes whose footprints differ
+by 7pt. Going through the screen also handles Display Zoom for free, since a
+zoomed phone reports the smaller size and the guidelines list it as its own row.
+
+An unpublished screen falls to the nearest class by width, and **says so** — the
+previews claim to be actual size, so on a screen Apple publishes nothing for they
+admit to being a few points out rather than quietly lying.
 
 ---
 
