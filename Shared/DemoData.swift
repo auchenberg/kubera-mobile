@@ -82,6 +82,55 @@ enum DemoData {
     /// widget previews should be showing a new user.
     static let settings = WidgetSettings()
 
+    // MARK: - Detail and profile
+
+    /// The figures Kubera serves only over MCP, so the demo can fill the same
+    /// modules the live Overview does — cash on hand, tax estimate, investable,
+    /// and the sheet/section hierarchy the composition breakdown groups by.
+    ///
+    /// Internally consistent on purpose: the asset values sum to the snapshot's
+    /// asset total, and `netWorth` is `assetTotal - debtTotal`, so nothing in the
+    /// demo contradicts anything else on screen.
+    static let detail = PortfolioDetail(
+        currency: snapshot.currency,
+        netWorth: snapshot.netWorth,
+        assetTotal: snapshot.assetTotal,
+        debtTotal: snapshot.debtTotal,
+        cashOnHand: 74_000,
+        estimatedTax: 96_400,
+        investableTotal: 1_066_400,
+        costBasis: snapshot.costBasis,
+        unrealizedGain: snapshot.unrealizedGain,
+        assets: demoAssets,
+        updatedAt: Date().timeIntervalSince1970
+    )
+
+    /// Spread across enough sheets and sections that the composition breakdown
+    /// has something to group, rank, and fold into "Other".
+    private static let demoAssets: [PortfolioDetail.Asset] = [
+        .init(name: "Index funds", value: 430_000, assetClass: "Investment", ticker: "VTI", sheet: "Investments", section: "Taxable"),
+        .init(name: "Retirement", value: 240_000, assetClass: "Investment", ticker: nil, sheet: "Investments", section: "Retirement"),
+        .init(name: "Growth fund", value: 190_000, assetClass: "Fund", ticker: nil, sheet: "Investments", section: "Taxable"),
+        .init(name: "Home", value: 450_000, assetClass: "Real estate", ticker: nil, sheet: "Real estate", section: "Primary"),
+        .init(name: "Bitcoin", value: 96_000, assetClass: "Crypto", ticker: "BTC", sheet: "Crypto", section: "Wallets"),
+        .init(name: "Ethereum", value: 34_000, assetClass: "Crypto", ticker: "ETH", sheet: "Crypto", section: "Wallets"),
+        .init(name: "Checking", value: 48_000, assetClass: "Cash", ticker: nil, sheet: "Banks", section: "Everyday"),
+        .init(name: "Savings", value: 26_000, assetClass: "Cash", ticker: nil, sheet: "Banks", section: "Reserve"),
+        .init(name: "Car", value: 62_000, assetClass: "Vehicle", ticker: nil, sheet: "Vehicles", section: nil),
+        .init(name: "Watch", value: 34_000, assetClass: "Collectible", ticker: nil, sheet: "Collectibles", section: nil),
+    ]
+
+    /// A first name, so the greeting has something to use in the demo. Chosen to
+    /// be obviously a placeholder rather than anyone's real name.
+    static let profile = KuberaProfile(name: "Sam Rivera", email: nil)
+
+    /// The portfolio list, which Settings' picker and the portfolio switcher
+    /// both read. Two entries, so a switcher has something to switch between.
+    static let portfolios: [PortfolioListItem] = [
+        PortfolioListItem(id: portfolioId, name: "Sample portfolio", currency: "USD"),
+        PortfolioListItem(id: "demo-sample-2", name: "Family", currency: "USD"),
+    ]
+
     // MARK: - History
 
     /// The demo series, ending today. Resolved once per process, so every view
@@ -116,13 +165,18 @@ enum DemoData {
             // Debt amortizes on a straight line — a mortgage plus a car loan
             // paying down, not something that reacts to the markets.
             let debt = startDebtTotal + (snapshot.debtTotal - startDebtTotal) * t
+            // Investable is the liquid slice, so it tracks net worth but swings
+            // wider: the illiquid half (a home, a car) does not move day to day,
+            // which is exactly why the two curves are worth drawing together.
+            let investableShare = 0.72 + 0.10 * t
+            let investable = netWorth * investableShare * (1 + envelope(t) * wobble(index) * 0.6)
 
             return KuberaAPI.HistoryPoint(
                 date: formatter.string(from: date),
                 value: netWorth,
                 assetTotal: netWorth + debt,
                 debtTotal: debt,
-                investibleTotal: nil
+                investibleTotal: investable
             )
         }
     }
@@ -148,4 +202,5 @@ enum DemoData {
     static let netWorthPoints = OverviewChart.points(from: history, calendar: .current)
     static let assetPoints = OverviewChart.points(from: history, calendar: .current) { $0.assetTotal }
     static let debtPoints = OverviewChart.points(from: history, calendar: .current) { $0.debtTotal }
+    static let investablePoints = OverviewChart.points(from: history, calendar: .current) { $0.investibleTotal }
 }

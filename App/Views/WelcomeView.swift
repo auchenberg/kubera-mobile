@@ -40,6 +40,9 @@ struct WelcomeView: View {
                 statPair
                     .padding(.top, 12)
 
+                detailPair
+                    .padding(.top, 12)
+
                 SectionTitle("On your Home Screen")
                 widgetStrip
 
@@ -259,6 +262,45 @@ struct WelcomeView: View {
         HStack(spacing: 12) {
             statCard("ASSETS", value: snapshot.assetTotal, series: DemoData.assetPoints, metric: .asset)
             statCard("DEBTS", value: snapshot.debtTotal, series: DemoData.debtPoints, metric: .debt)
+        }
+    }
+
+    /// The two figures Kubera serves only over MCP. Shown here because the demo
+    /// has to advertise every module the signed-in Overview renders — a module
+    /// missing from the demo reads as a missing feature.
+    @ViewBuilder
+    private var detailPair: some View {
+        let detail = DemoData.detail
+        if let cash = detail.cashOnHand, let tax = detail.estimatedTax {
+            HStack(spacing: 12) {
+                plainStatCard("CASH ON HAND", value: cash, note: "6% of net worth")
+                plainStatCard("TAX ESTIMATE", value: tax, note: "on unrealized gains")
+            }
+        }
+    }
+
+    private func plainStatCard(_ label: String, value: Double, note: String) -> some View {
+        Card {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(label)
+                    .font(.system(size: 12, weight: .semibold))
+                    .kerning(1)
+                    .foregroundStyle(Theme.dim)
+
+                Text(Format.money(value, currency: currency, masked: false, compact: false))
+                    .font(.system(size: 20, weight: .bold))
+                    .monospacedDigit()
+                    .foregroundStyle(Theme.text)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+
+                Text(note)
+                    .font(.system(size: 12))
+                    .foregroundStyle(Theme.dim)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
