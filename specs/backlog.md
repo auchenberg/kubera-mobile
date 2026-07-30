@@ -206,13 +206,20 @@ block need to agree with whatever the Overview does, and right now it is worth
 confirming they do. Flagging it because a delta with an unstated baseline is a
 number that looks precise and isn't.
 
-### B. Is the palette monochrome-plus-two by policy?
+### B. Monochrome-plus-two — decided: it stays ✅
 
-You said early on "very monochrome for now" and I have held to it: greyscale plus
-one green and one red. The allocation bar and the composition breakdown both
-*want* a categorical palette — distinct colours per asset class — and they will
-keep wanting one. Either we write the monochrome rule down as policy, or we own a
-contrast-checked category palette, which is real work rather than a colour pick.
+Greyscale plus one green and one red. The maintainer's verdict: *"accident but
+it works."* So it is policy now rather than an accident, and it is written down
+here because the accident could otherwise be undone by someone tidying up.
+
+What this rules out: a categorical palette. The allocation bar, the composition
+breakdown and any future Sankey all *want* a colour per category, and each will
+press for one. The answer is a **luminance ramp** ordered by value —
+`OverviewView`'s `rampColor(_:)` — not a rainbow.
+
+Green and red keep their existing jobs and no others: direction of change, never
+category identity. Anything that needs to distinguish categories does it by
+order, size and label.
 
 ### C. Stale-data disclosure
 
