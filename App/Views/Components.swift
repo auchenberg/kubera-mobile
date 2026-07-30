@@ -243,16 +243,25 @@ struct CompactButton: View {
         case secondary
     }
 
+    enum Size {
+        case regular
+        /// For a pair of buttons sharing a card with body copy, where a
+        /// regular capsule competes with the text it is meant to sit under.
+        case small
+    }
+
     let title: String
     var systemImage: String?
     var kind: Kind = .secondary
+    var size: Size = .regular
     var isLoading = false
     let action: () -> Void
 
     @Environment(\.displayScale) private var displayScale
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.dynamicTypeSize) private var typeSize
-    @ScaledMetric(relativeTo: .subheadline) private var minHeight: CGFloat = 36
+    @ScaledMetric(relativeTo: .subheadline) private var regularHeight: CGFloat = 36
+    @ScaledMetric(relativeTo: .footnote) private var smallHeight: CGFloat = 30
 
     var body: some View {
         Button(action: action) {
@@ -261,7 +270,7 @@ struct CompactButton: View {
                     ProgressView().controlSize(.small).tint(foreground)
                 } else if let systemImage {
                     Image(systemName: systemImage)
-                        .font(.footnote.weight(.semibold))
+                        .font((size == .small ? Font.caption : .footnote).weight(.semibold))
                 }
                 Text(title)
                     // The label wraps at accessibility sizes, and the capsule
@@ -269,11 +278,11 @@ struct CompactButton: View {
                     // rendered outside the fill.
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .font(.subheadline.weight(.semibold))
+            .font(labelFont)
             .foregroundStyle(foreground)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .frame(minHeight: minHeight)
+            .padding(.horizontal, size == .small ? 12 : 16)
+            .padding(.vertical, size == .small ? 6 : 8)
+            .frame(minHeight: size == .small ? smallHeight : regularHeight)
             // Sized to the label, except at accessibility sizes where a
             // two-word label needs the whole width to stay on one line.
             .frame(maxWidth: typeSize.isAccessibilitySize ? .infinity : nil)
@@ -285,6 +294,10 @@ struct CompactButton: View {
             allowGlass: !reduceTransparency
         ))
         .disabled(isLoading)
+    }
+
+    private var labelFont: Font {
+        size == .small ? .footnote.weight(.semibold) : .subheadline.weight(.semibold)
     }
 
     private var foreground: Color {

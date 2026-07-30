@@ -8,7 +8,6 @@ import WidgetKit
 /// a page margin, which is what the horizontal scrollers are for.
 struct WidgetsView: View {
     @Environment(AppStore.self) private var store
-    @Environment(\.openURL) private var openURL
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.colorSchemeContrast) private var contrast
     @State private var status: String?
@@ -27,17 +26,12 @@ struct WidgetsView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    ScreenHeader(
-                        "Widgets",
-                        subtitle: "Drawn here exactly as they land on your Home Screen and Lock Screen — real size, your live data."
-                    )
-                    .padding(.horizontal, margin)
-                    .padding(.top, 8)
-                    .padding(.bottom, 16)
+                    ScreenHeader("Widgets")
+                        .padding(.horizontal, margin)
+                        .padding(.top, 8)
+                        .padding(.bottom, 16)
 
-                    actions
-                    settingsLink
-                        .padding(.top, 14)
+                    introCard
 
                     sectionTitle("Small")
                     gallery {
@@ -103,23 +97,23 @@ struct WidgetsView: View {
 
     // MARK: - Chrome
 
-    /// Privacy mode and Compact numbers stay in Settings because they change the
-    /// app as well as the widgets; this link is the discoverability fix for that.
-    private var settingsLink: some View {
-        Button {
-            openURL(DeepLink.settings.url)
-        } label: {
-            HStack(spacing: 4) {
-                Text("These previews use your Settings")
-                Image(systemName: "chevron.right")
-                    .font(.caption2.weight(.semibold))
+    /// What the other tabs lead with: the title on the page, then one card. The
+    /// bottom padding is on top of `SectionTitle`'s own top padding, so the
+    /// intro reads as its own block rather than as the first gallery's heading.
+    private var introCard: some View {
+        Card {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("Kubera can show widgets on your homescreen. Below are a preview of the widgets we support.")
+                    .font(.subheadline)
+                    .lineSpacing(4)
+                    .foregroundStyle(Theme.dim)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                actions
             }
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(Theme.text)
-            .multilineTextAlignment(.leading)
         }
-        .buttonStyle(.plain)
         .padding(.horizontal, margin)
+        .padding(.bottom, 12)
     }
 
     private var lockScreenNote: some View {
@@ -141,19 +135,22 @@ struct WidgetsView: View {
     /// full-width filled slabs at the bottom of the page, which in light mode
     /// were the heaviest things on a screen whose whole point is the previews
     /// above them. Refresh stays secondary because pull-to-refresh already does
-    /// it — this is the discoverable spelling, not the primary way.
+    /// it — this is the discoverable spelling, not the primary way. Small
+    /// because they share the intro card with the copy above them.
     @ViewBuilder
     private var actions: some View {
         let add = CompactButton(
             title: "Add widgets",
             systemImage: "plus",
-            kind: .prominent
+            kind: .prominent,
+            size: .small
         ) {
             showingAddSheet = true
         }
         let refresh = CompactButton(
             title: "Update data",
             systemImage: "arrow.clockwise",
+            size: .small,
             isLoading: store.refreshing
         ) {
             Task { await updateWidgetData() }
@@ -171,7 +168,6 @@ struct WidgetsView: View {
                 refresh
             }
         }
-        .padding(.horizontal, margin)
     }
 
     // MARK: - Gallery
