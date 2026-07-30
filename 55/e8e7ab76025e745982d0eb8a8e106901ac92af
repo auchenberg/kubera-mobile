@@ -1,0 +1,22 @@
+specs/backlog.md
+  s_3b694bad7ccc14::t_4a80b5a9d5ddb2 79-103
+  s_3b694bad7ccc14::t_19a536bc122336 104-115
+  s_3b694bad7ccc14::t_c987a0a1961334 143-167
+  s_3b694bad7ccc14::t_cb82a13bc5444a 116
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.17",
+  "base_commit_sha": "55e8e7ab76025e745982d0eb8a8e106901ac92af",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
