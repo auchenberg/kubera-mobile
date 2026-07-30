@@ -11,8 +11,8 @@ API using credentials you create in your own account — there is no server in b
 
 ## Screenshots
 
-Your whole net worth, one scroll, no chrome in the way. Drag the chart and the
-headline figure follows your finger.
+Your whole net worth, one scroll, no chrome in the way. Hold a finger anywhere on
+the chart and the headline figure and its change jump to that day.
 
 | Overview | Widgets | Settings |
 | --- | --- | --- |
