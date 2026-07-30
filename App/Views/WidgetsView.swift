@@ -27,9 +27,15 @@ struct WidgetsView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    intro
+                    ScreenHeader(
+                        "Widgets",
+                        subtitle: "Drawn here exactly as they land on your Home Screen and Lock Screen — real size, your live data."
+                    )
+                    .padding(.horizontal, margin)
+                    .padding(.top, 8)
+                    .padding(.bottom, 16)
+
                     actions
-                        .padding(.top, 14)
                     settingsLink
                         .padding(.top, 14)
 
@@ -83,7 +89,10 @@ struct WidgetsView: View {
             .background(Theme.background)
             .softTopScrollEdge()
             .refreshable { await updateWidgetData() }
-            .navigationTitle("Widgets")
+            // No nav title: `ScreenHeader` is this screen's heading, so the tab
+            // opens at the same height as the Overview. A large title would
+            // reserve a bar above the content and start the page lower.
+            .toolbar(.hidden, for: .navigationBar)
             // iOS offers no API to open the widget gallery, so the button
             // walks through the manual steps instead.
             .sheet(isPresented: $showingAddSheet) {
@@ -93,15 +102,6 @@ struct WidgetsView: View {
     }
 
     // MARK: - Chrome
-
-    private var intro: some View {
-        Text("Three widgets, drawn here exactly as they land on your Home Screen and Lock Screen — real size, your live data.")
-            .font(.subheadline)
-            .lineSpacing(4)
-            .foregroundStyle(Theme.dim)
-            .fixedSize(horizontal: false, vertical: true)
-            .padding(.horizontal, margin)
-    }
 
     /// Privacy mode and Compact numbers stay in Settings because they change the
     /// app as well as the widgets; this link is the discoverability fix for that.
@@ -123,7 +123,7 @@ struct WidgetsView: View {
     }
 
     private var lockScreenNote: some View {
-        Text("Shown on a stand-in wallpaper. On the Lock Screen these render in white vibrancy over whatever is behind them.")
+        Text("Shown on a stand-in wallpaper. On the Lock Screen these take their colour from whatever wallpaper is behind them, so the real thing follows your wallpaper rather than this.")
             .font(.footnote)
             .lineSpacing(3)
             .foregroundStyle(Theme.dim)
@@ -249,11 +249,13 @@ struct WidgetsView: View {
                 .overlay(shape.strokeBorder(WidgetTheme.border, lineWidth: 1))
                 .shadow(color: .black.opacity(colorScheme == .dark ? 0.4 : 0.1), radius: 8, y: 3)
         } else {
-            // Accessories are vibrancy-rendered white-on-transparent and would
-            // disappear on a light card. The dark appearance is forced so their
-            // `.primary`/`.secondary` foregrounds resolve the way vibrancy does.
+            // A Lock Screen accessory is vibrancy over the wallpaper, so it
+            // has no colour of its own — it takes the appearance the wallpaper
+            // forces. The plate follows the app's appearance and the content is
+            // told to resolve against the same one, so `.primary`/`.secondary`
+            // land legibly on whichever plate is showing.
             widget
-                .environment(\.colorScheme, .dark)
+                .environment(\.colorScheme, plateScheme)
                 // The inline family is one run of text the system fits beside
                 // the clock. Shrinking it keeps the preview readable at large
                 // type rather than clipping inside the fixed footprint.
@@ -264,42 +266,67 @@ struct WidgetsView: View {
                 // faint ring behind it. Without this the preview shows content
                 // that would be cut off on the real Lock Screen, which is the
                 // one thing a true-size preview exists to prevent.
-                .modifier(CircularAccessoryClip(isCircular: family == .accessoryCircular))
+                .modifier(CircularAccessoryClip(
+                    isCircular: family == .accessoryCircular,
+                    edge: plateEdgeColor
+                ))
                 .padding(lockPlateInset)
                 .frame(height: WidgetPreviewSize.lockPlateHeight + lockPlateInset * 2)
                 .background { wallpaper }
                 .clipShape(shape)
-                .overlay(shape.strokeBorder(.white.opacity(wallpaperEdge), lineWidth: 1))
-                .shadow(color: .black.opacity(colorScheme == .dark ? 0.4 : 0.15), radius: 8, y: 3)
+                .overlay(shape.strokeBorder(plateEdgeColor.opacity(wallpaperEdge), lineWidth: 1))
+                .shadow(color: .black.opacity(colorScheme == .dark ? 0.4 : 0.10), radius: 8, y: 3)
         }
     }
 
-    /// Stands in for a Lock Screen wallpaper: dark, softly graded, with one
-    /// blurred highlight so the accessories are read against a photo rather
-    /// than a flat swatch.
-    /// Lifted well off black and given some hue. Lock Screen accessories are
-    /// white-vibrancy, so the plate has to stay dark enough to read them — but a
-    /// near-black slab on a light page was the heaviest thing on the screen and
-    /// clashed with the light Home Screen cards above it. Indigo at this depth
-    /// still clears white text comfortably while reading as a wallpaper swatch
-    /// rather than a UI surface.
+    /// Stands in for a Lock Screen wallpaper, following the app's appearance.
+    ///
+    /// A real accessory is vibrancy over whatever wallpaper is behind it, so it
+    /// has no fixed appearance of its own — which is why a permanently dark
+    /// plate read as "dark mode leaked in" on an otherwise light page. Note this
+    /// tracks the *app's* appearance, not the user's actual wallpaper; the two
+    /// can disagree, which is what the caption under the row admits.
+    ///
+    /// Contrast measured against the gradient's worst stop for each appearance,
+    /// with `.secondary` taken as 60% of `.primary` over the plate. Recorded so
+    /// the next change can be checked rather than eyeballed — the dark plate's
+    /// light end started at 4.05:1 for secondary text and had to come down.
+    ///
+    /// - dark plate: primary 9.7:1 lightest / 15.3:1 darkest, secondary 4.7:1
+    /// - light plate: primary 15.7:1 lightest / 11.2:1 darkest, secondary 4.6:1
     private var wallpaper: some View {
         ZStack {
             LinearGradient(
-                colors: [
-                    Color(red: 0.29, green: 0.31, blue: 0.44),
-                    Color(red: 0.16, green: 0.17, blue: 0.27),
-                ],
+                colors: plateIsLight
+                    ? [
+                        Color(red: 0.86, green: 0.87, blue: 0.92),
+                        Color(red: 0.72, green: 0.74, blue: 0.83),
+                    ]
+                    : [
+                        Color(red: 0.24, green: 0.26, blue: 0.38),
+                        Color(red: 0.13, green: 0.14, blue: 0.23),
+                    ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
             Circle()
-                .fill(.white.opacity(0.20))
+                .fill((plateIsLight ? Color.white : Color.white).opacity(plateIsLight ? 0.55 : 0.20))
                 .frame(width: 150)
                 .blur(radius: 50)
                 .offset(x: -55, y: -45)
         }
     }
+
+    /// The plate follows the app rather than being fixed dark.
+    private var plateIsLight: Bool { colorScheme != .dark }
+
+    /// What the accessory content resolves its `.primary`/`.secondary` against,
+    /// so the vibrancy stand-in matches the plate it sits on.
+    private var plateScheme: ColorScheme { plateIsLight ? .light : .dark }
+
+    /// The hairline and the circular ring have to invert with the plate or they
+    /// disappear into it.
+    private var plateEdgeColor: Color { plateIsLight ? .black : .white }
 
     /// The wallpaper plate is a fixed dark slab in both appearances, so its edge
     /// cannot come from `Theme` and pick up contrast awareness with it — a 14%
@@ -382,16 +409,17 @@ struct WidgetsView: View {
 /// same concrete view type.
 private struct CircularAccessoryClip: ViewModifier {
     let isCircular: Bool
+    /// Inverts with the plate, or the ring disappears into a light wallpaper.
+    let edge: Color
 
     func body(content: Content) -> some View {
         if isCircular {
-            // A ring rather than a filled disc: a translucent white fill over
-            // the plate went muddy grey and read as a UI well the real widget
-            // does not have. The ring is only there to show where the system
-            // clips.
+            // A ring rather than a filled disc: a translucent fill over the
+            // plate went muddy and read as a UI well the real widget does not
+            // have. The ring is only there to show where the system clips.
             content
                 .clipShape(Circle())
-                .overlay(Circle().strokeBorder(.white.opacity(0.28), lineWidth: 1))
+                .overlay(Circle().strokeBorder(edge.opacity(0.28), lineWidth: 1))
         } else {
             content
         }
