@@ -429,6 +429,7 @@ private struct AddWidgetsSheet: View {
                         .font(.footnote)
                         .lineSpacing(4)
                         .foregroundStyle(Theme.dim)
+                        .fixedSize(horizontal: false, vertical: true)
                         .padding(.top, 16)
                 }
             }
@@ -455,6 +456,7 @@ private struct AddWidgetsSheet: View {
                 .font(.body)
                 .lineSpacing(4)
                 .foregroundStyle(Theme.text)
+                .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.vertical, 10)
