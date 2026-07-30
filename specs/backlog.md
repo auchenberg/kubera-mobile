@@ -76,69 +76,47 @@ Widget light mode landed alongside: `WidgetTheme` resolves per trait collection,
 with the darker green and red in light mode because the bright dark-mode green is
 unreadable on white.
 
+### 8. Widgets tab as a gallery ✅
+
+Each family now scrolls horizontally at true point size with a peek of the next
+card. The medium widget is no longer scaled down to fit — which had been
+misrepresenting the one thing a preview is for, its text size. Lock Screen
+accessories are previewed for the first time, on a dark stand-in wallpaper, with
+the circular family clipped to a circle because the system clips it too. Still
+the real views from `Shared/WidgetViews.swift`, never mockups.
+
+Widget options stayed in Settings; the tab links to them instead. Privacy mode
+and Compact numbers change the app as well as the widgets, so splitting them
+across two screens would have been the wrong fix for a discoverability problem.
+
+### 9. Settings around a profile header ✅
+
+Opens on an identity — monogram from `KuberaProfile.name`, display name,
+portfolio · currency — with the per-surface REST and history status lines moved
+into that block, then Disconnect directly beneath it. Then grouped cards, then
+the privacy text last.
+
+Disconnect is a red row, not a filled red button: iOS puts Sign Out in a plain
+row in its own account sheets, and a full-width red slab outshouted the identity
+it sits under. Monogram over avatar, as the open question suspected — it never
+fails to load and costs no fetch. The initials logic lives in
+`Shared/Monogram.swift` with tests, because `App/` is untestable by construction.
+
+### 11. Dynamic Type ✅
+
+Text styles across every screen, `@ScaledMetric` for what must grow beside text,
+and layouts that switch at accessibility sizes rather than only growing. The hero
+figure auto-compacts at accessibility sizes with the full number in its VoiceOver
+value. Verified at AX5 in the simulator, which caught two real bugs: the
+assets/debts rows wrapping mid-number at *default* size, and the portfolio name
+truncating to "Sample portfoli…" in the Settings header.
+
+Sequenced before the two redesigns, per the research doc, so the new screens were
+built scaling rather than retrofitted twice.
+
 ---
 
 ## Next
-
-### 8. Redesign the Widgets tab as a gallery
-
-The tab works but reads as a list of labelled previews stacked vertically. The
-welcome screen's original treatment was better: widgets presented as a
-**horizontally scrolling gallery** of cards at true widget size, which shows the
-Home Screen result rather than describing it.
-
-- Group by family — small, medium, Lock Screen — and scroll horizontally within
-  each group, so a medium widget is not squeezed into a phone's width beside a
-  section title.
-- Show every family each widget supports, including the Lock Screen accessories,
-  which the current tab does not preview at all.
-- Keep rendering the real widget content views (`Shared/WidgetViews.swift`) with
-  live data. They must never drift back into mockups — that was the whole point
-  of moving them into the shared layer.
-- Keep "Add widgets" and "Update widget data now", but let the gallery carry the
-  page rather than the section titles.
-- Worth evaluating: page indicators or a peek at the next card so the horizontal
-  affordance is discoverable; and whether the widget options belong back here
-  contextually now that Settings owns them.
-
-### 9. Redesign Settings around a profile header
-
-Model it on iOS's own account sheets (Photos' profile sheet is the reference):
-an identity block at the top, then grouped preference cards, then the legal or
-explanatory text last.
-
-```
-Settings
-├─ Profile header                  ← centred, not a list row
-│    avatar or monogram
-│    Kenneth Auchenberg            ← from KuberaProfile.name
-│    portfolio name · currency
-│    connection status: REST · History
-│    [Disconnect]                  ← lives WITH the identity it ends
-├─ Widget portfolio                ← grouped card, rows with a checkmark
-├─ Preferences                     ← Face ID / Privacy mode / Compact numbers
-├─ Growth history                  ← the MCP token row and its status
-└─ Data & privacy                  ← explanatory text, last
-```
-
-Why this over what exists:
-
-- **Disconnect belongs with the identity, not stranded mid-scroll.** It ends the
-  connection the header describes, so it reads as that block's action. Right now
-  it floats between Preferences and Data & privacy.
-- **The header answers "whose account is this?" in one glance** — the current
-  Account card shows a masked key and nothing else. `KuberaProfile.name` and
-  `.email` are already fetched.
-- **An avatar or monogram** gives the screen a focal point. Kubera's web app has
-  a profile picture; MCP's `get_profile` may expose one — check before assuming,
-  and fall back to initials rather than a placeholder silhouette.
-- Keep the per-surface status lines (REST vs History fail independently) — just
-  move them into the header where they describe the connection they belong to.
-- Keep the confirmation dialog on Disconnect, including the copy naming what is
-  lost, since disconnecting is still the only way to change credentials.
-
-Open question: whether an avatar is worth a network fetch and a cache for a
-screen most people open twice. Initials may be the better answer.
 
 ### 10. OAuth — blocked on Kubera
 
@@ -155,13 +133,6 @@ authorization server accepts a **custom-scheme** redirect (Claude registered an
 HTTPS one because it completes the flow server-side). Full evidence in
 `specs/settings-and-auth.md`.
 
-### 11. Dynamic Type
-
-Every screen uses fixed `.system(size:)` fonts, so text does not grow with the
-system setting. Overflow is guarded with `lineLimit` + `minimumScaleFactor`, so
-nothing breaks — but the app is not accessible to anyone who needs larger text.
-This is an app-wide change, not a one-file fix.
-
 ### 12. Ship it properly
 
 - **TestFlight** — `./release` exists and the App Store Connect app record is
@@ -169,9 +140,31 @@ This is an app-wide change, not a one-file fix.
   or an App Store Connect API key. The API key is the durable fix.
 - **Make the repo public** — audited and pushed; the visibility flip is a
   one-click decision that hasn't been made.
-- **App icon** — currently Kubera's own "K" logo, which is fine for a personal
-  build but is their trademark. Worth an original icon before any public
-  distribution.
+- ~~**App icon**~~ ✅ — replaced with an original mark ("Ascent": three ascending
+  treads merged into one filleted mass). Kubera's "K" is gone from the repo.
+  `docs/icon.md` records the reasoning, the directions that lost, and how to
+  regenerate and re-check it at Home Screen size.
+
+### 13. Confirm the minimizing tab bar actually fires
+
+`.tabBarMinimizeBehavior(.onScrollDown)` is enabled and gated to iOS 26. It is
+reported not to work in tabs built on `NavigationStack(path:)`; the Overview's
+stack has no path binding, so it should — but **it fails silently**, and the
+simulator here could not be driven to scroll (no Accessibility permission for UI
+automation, and `simctl` cannot send touches). So this is unverified.
+
+Worth ten seconds on a device: open the Overview, scroll down, see whether the
+tab bar shrinks. If it doesn't, the screens' bottom padding is still correct —
+they use `.safeAreaPadding(.bottom)` now — so the only cost is a missing
+flourish.
+
+### 14. Widget preview footprints are hardcoded to one device
+
+`WidgetPreviewSize` in `App/Views/WidgetsView.swift` holds iPhone 15/16 Pro point
+sizes. Real footprints vary by a few points across devices, so on an SE or a Max
+the "true size" preview is true-ish. `WidgetCenter` exposes no footprint API, so
+the honest options are a small per-screen-width table or accepting the drift and
+saying so. Low stakes, but the whole point of the gallery is fidelity.
 
 ---
 
