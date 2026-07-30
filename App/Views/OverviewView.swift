@@ -71,6 +71,10 @@ struct OverviewView: View {
     private var currency: String { snapshot.currency }
     private var masked: Bool { store.settings.privacyMode }
 
+    /// The hero card's inset. Named because the chart cancels it out to bleed to
+    /// the card's edges, and the two must stay in step.
+    private static let cardInset: CGFloat = 16
+
     private var visiblePoints: [ChartPoint] {
         OverviewChart.filter(netWorthSeries, to: range, now: Date(), calendar: .current)
     }
@@ -211,7 +215,12 @@ struct OverviewView: View {
         let points = visiblePoints
         let investable = visibleInvestablePoints
 
-        return Card(padding: EdgeInsets(top: 16, leading: 16, bottom: 12, trailing: 16)) {
+        return Card(padding: EdgeInsets(
+            top: Self.cardInset,
+            leading: Self.cardInset,
+            bottom: 12,
+            trailing: Self.cardInset
+        )) {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .firstTextBaseline) {
                     Text("NET WORTH")
@@ -240,8 +249,13 @@ struct OverviewView: View {
                 }
 
                 if points.count >= 2 {
+                    // Bleeds past the card's inset so the fill meets both edges.
+                    // Inset, the area stopped short of the card and read as a
+                    // floating rectangle rather than the card's own graph —
+                    // especially against the full-width pill row below it.
                     chart(points, investable: investable)
                         .padding(.top, 14)
+                        .padding(.horizontal, -Self.cardInset)
                     endpointLabels(points)
                         .padding(.top, 6)
                 } else {
