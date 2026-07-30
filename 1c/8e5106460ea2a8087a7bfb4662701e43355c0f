@@ -1,0 +1,32 @@
+Tests/KuberaSDKTests.swift
+  s_3b694bad7ccc14::t_3fbcb5c347aac4 1-404
+App/AppStore.swift
+  s_3b694bad7ccc14::t_c2fdecbd6a41a2 33-37,54-55,160-161,167-168,273,279-290
+  s_3b694bad7ccc14::t_87651e03ca1a57 295
+  s_3b694bad7ccc14::t_a298fbd1337c45 291-292
+Shared/Shared.swift
+  s_3b694bad7ccc14::t_4bffbb1b0ed046 16-19,207-233
+  s_3b694bad7ccc14::t_ea479d5e008226 234
+Shared/Kubera.swift
+  s_3b694bad7ccc14::t_f24576ee7f3e57 663-1076
+  s_3b694bad7ccc14::t_9da80c4aad0d02 477-481
+  s_3b694bad7ccc14::t_f78f1716403d16 381-476,482-540
+  s_3b694bad7ccc14::t_743c0824887fdb 541-662
+  s_3b694bad7ccc14::t_a4061f6adc82ae 1-380
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.17",
+  "base_commit_sha": "1c8e5106460ea2a8087a7bfb4662701e43355c0f",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
