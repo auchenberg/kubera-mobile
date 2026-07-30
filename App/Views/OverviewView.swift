@@ -234,7 +234,7 @@ struct OverviewView: View {
             // The type engine aligns the symbol to the run's baseline, which
             // leaves a 15pt glyph sitting low against 26pt caps. Lifted to the
             // optical centre of the capitals rather than the line box.
-            .baselineOffset(3)
+            .baselineOffset(2)
     }
 
     /// The account's own name when the profile fetch has landed, else the
