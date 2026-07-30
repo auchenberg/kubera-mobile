@@ -21,40 +21,96 @@ extension View {
     /// washes out over a chart's gradient fill, which is why the scrub tooltip
     /// passes `Theme.card` and the pill row, which floats over a flat card,
     /// passes nothing.
-    func controlGlass<S: InsettableShape>(in shape: S, tint: Color? = nil) -> some View {
-        modifier(ControlGlassModifier(shape: shape, tint: tint))
+    ///
+    /// `isInteractive` is for surfaces the user taps; it adds the scale-and-
+    /// highlight response that makes glass feel alive, and is dropped under
+    /// Reduce Motion.
+    func controlGlass<S: InsettableShape>(
+        in shape: S,
+        tint: Color? = nil,
+        isInteractive: Bool = false
+    ) -> some View {
+        modifier(ControlGlassModifier(shape: shape, tint: tint, isInteractive: isInteractive))
+    }
+
+    /// The soft top fade under a scroll view's leading edge.
+    ///
+    /// Written out rather than left to `.automatic` because iOS 27 flips the
+    /// default to `.hard`: leaving it automatic means an OS upgrade silently
+    /// changes how every screen's top edge looks.
+    func softTopScrollEdge() -> some View {
+        modifier(SoftTopScrollEdgeModifier())
     }
 }
 
 private struct ControlGlassModifier<S: InsettableShape>: ViewModifier {
     let shape: S
     let tint: Color?
+    let isInteractive: Bool
 
     @Environment(\.displayScale) private var displayScale
+    @Environment(\.colorSchemeContrast) private var contrast
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     func body(content: Content) -> some View {
-        if #available(iOS 26, *) {
+        if #available(iOS 26, *), !reduceTransparency {
             content.glassEffect(glass, in: shape)
         } else {
             content
                 // Backgrounds stack back-to-front in reverse order of
                 // application, so the material lands behind the tint and the
                 // tint reads as a wash over it rather than under it.
-                .background(tint.map { $0.opacity(0.5) } ?? .clear, in: shape)
-                .background(.ultraThinMaterial, in: shape)
+                .background(surfaceFill, in: shape)
+                .background(surfaceMaterial, in: shape)
                 // `.ultraThinMaterial` over a white card in light mode is very
                 // nearly invisible; the hairline is what makes the control read
                 // as a control at all before iOS 26.
-                .overlay(shape.strokeBorder(Theme.border, lineWidth: 1 / displayScale))
+                .overlay(shape.strokeBorder(Theme.border, lineWidth: borderWidth))
         }
     }
 
     @available(iOS 26, *)
     private var glass: Glass {
-        guard let tint else { return .regular }
-        // Low opacity on purpose: Apple's guidance is that a tint rescues
-        // legibility or conveys meaning, and at full strength the surface reads
-        // as a colored chip rather than as glass.
-        return .regular.tint(tint.opacity(0.4))
+        var glass = Glass.regular
+        if let tint {
+            // Low opacity on purpose: Apple's guidance is that a tint rescues
+            // legibility or conveys meaning, and at full strength the surface
+            // reads as a colored chip rather than as glass.
+            glass = glass.tint(tint.opacity(0.4))
+        }
+        if isInteractive, !reduceMotion {
+            glass = glass.interactive()
+        }
+        return glass
+    }
+
+    /// Reduce Transparency means "stop sampling what is behind this", so the
+    /// fallback drops the material entirely rather than merely thickening it and
+    /// promotes the tint to an opaque fill. `AnyShapeStyle` because `.background`
+    /// needs one concrete type across both cases.
+    private var surfaceFill: AnyShapeStyle {
+        if reduceTransparency {
+            return AnyShapeStyle(tint ?? Theme.card)
+        }
+        return AnyShapeStyle(tint.map { $0.opacity(0.5) } ?? Color.clear)
+    }
+
+    private var surfaceMaterial: AnyShapeStyle {
+        reduceTransparency ? AnyShapeStyle(Color.clear) : AnyShapeStyle(Material.ultraThinMaterial)
+    }
+
+    private var borderWidth: CGFloat {
+        contrast == .increased ? 1 : 1 / displayScale
+    }
+}
+
+private struct SoftTopScrollEdgeModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26, *) {
+            content.scrollEdgeEffectStyle(.soft, for: .top)
+        } else {
+            content
+        }
     }
 }
