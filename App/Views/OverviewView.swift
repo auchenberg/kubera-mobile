@@ -14,6 +14,14 @@ import UIKit
 /// All arithmetic lives in `OverviewChart` and `OverviewModules` so it can be
 /// unit tested; this file is layout, gesture, and haptics only.
 struct OverviewView: View {
+    /// The module a widget tap asked to see. Cleared once scrolled to, so the
+    /// next tap on the same widget scrolls again rather than being swallowed.
+    @Binding var focus: DeepLink.OverviewFocus?
+
+    init(focus: Binding<DeepLink.OverviewFocus?> = .constant(nil)) {
+        _focus = focus
+    }
+
     @Environment(AppStore.self) private var store
     @Environment(\.colorScheme) private var colorScheme
 
@@ -89,6 +97,23 @@ struct OverviewView: View {
 
     var body: some View {
         NavigationStack {
+            ScrollViewReader { scroller in
+                content
+                    .onChange(of: focus) { _, new in
+                        guard let new else { return }
+                        // Anchored .top rather than .center: these are section
+                        // headings, and centring one leaves its card half
+                        // scrolled past.
+                        withAnimation(.easeInOut(duration: 0.45)) {
+                            scroller.scrollTo(new.anchor, anchor: .top)
+                        }
+                        focus = nil
+                    }
+            }
+        }
+    }
+
+    private var content: some View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     greeting
@@ -106,8 +131,10 @@ struct OverviewView: View {
 
                     heroCard
                         .padding(.bottom, 12)
+                        .id(DeepLink.OverviewFocus.netWorth.anchor)
 
                     statPair
+                        .id(DeepLink.OverviewFocus.assetsDebts.anchor)
 
                     balancePair
 
@@ -115,6 +142,7 @@ struct OverviewView: View {
                         // Benchmarks alone are not your CAGR, so the heading
                         // stops claiming to be when your own rows are missing.
                         SectionTitle(growthRows.isEmpty ? "Market" : "CAGR • YTD")
+                            .id(DeepLink.OverviewFocus.growth.anchor)
                         growthCard
                     }
 
@@ -152,7 +180,6 @@ struct OverviewView: View {
                 engageHaptics.prepare()
                 await reload()
             }
-        }
     }
 
     // MARK: - Greeting
@@ -162,18 +189,48 @@ struct OverviewView: View {
     private var greeting: some View {
         let phrase = Greeting.phrase(for: greetingDate)
 
-        return HStack(alignment: .firstTextBaseline, spacing: 5) {
-            Text(Greeting.line(for: greetingDate, name: greetingName))
-                .font(.system(size: 26, weight: .semibold))
-                .kerning(-0.3)
-                .foregroundStyle(Theme.text)
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-            if let note = phrase.note {
-                greetingNoteMarker(note)
+        // The marker is concatenated into the text run rather than placed beside
+        // it in an HStack. Neither .center nor .firstTextBaseline lines a round
+        // glyph up with cap-height text — one centres on the line box, which
+        // sits lower than the letters look, and the other drops it to the
+        // baseline. Inside a Text, the type engine does the optical alignment.
+        return HStack(spacing: 0) {
+            Button {
+                if phrase.note != nil { showsGreetingNote = true }
+            } label: {
+                greetingText(phrase)
+            }
+            .buttonStyle(.plain)
+            .disabled(phrase.note == nil)
+            .accessibilityLabel(
+                phrase.note == nil
+                    ? Greeting.line(for: greetingDate, name: greetingName)
+                    : "What this greeting means"
+            )
+            .popover(isPresented: $showsGreetingNote) {
+                Text(phrase.note ?? "")
+                    .font(.system(size: 14))
+                    .foregroundStyle(Theme.text)
+                    .padding(14)
+                    // Without this a popover becomes a sheet on a phone, which
+                    // is a whole modal for one sentence.
+                    .presentationCompactAdaptation(.popover)
             }
             Spacer(minLength: 0)
         }
+    }
+
+    private func greetingText(_ phrase: Greeting.Phrase) -> Text {
+        let line = Text(Greeting.line(for: greetingDate, name: greetingName))
+            .font(.system(size: 26, weight: .semibold))
+            .kerning(-0.3)
+            .foregroundColor(Theme.text)
+        guard phrase.note != nil else { return line }
+        return line
+            + Text("  ")
+            + Text(Image(systemName: "info.circle"))
+            .font(.system(size: 15, weight: .semibold))
+            .foregroundColor(Theme.dim)
     }
 
     /// The account's own name when the profile fetch has landed, else the
@@ -185,27 +242,6 @@ struct OverviewView: View {
 
     /// A footnote, not a badge: `Theme.dim` and no tint, because anything
     /// colored beside a greeting reads as something being wrong.
-    private func greetingNoteMarker(_ note: String) -> some View {
-        Button {
-            showsGreetingNote = true
-        } label: {
-            Image(systemName: "info.circle")
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Theme.dim)
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("What this greeting means")
-        .popover(isPresented: $showsGreetingNote) {
-            Text(note)
-                .font(.system(size: 14))
-                .foregroundStyle(Theme.text)
-                .padding(14)
-                // Without this a popover becomes a sheet on a phone, which is a
-                // whole modal for one sentence.
-                .presentationCompactAdaptation(.popover)
-        }
-    }
-
     // MARK: - Hero + chart
 
     private var heroCard: some View {

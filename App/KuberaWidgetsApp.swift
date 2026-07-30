@@ -95,10 +95,13 @@ private struct MainTabView: View {
 
     @Environment(AppStore.self) private var store
     @State private var selection: Tab = .dashboard
+    /// The Overview module a widget tap asked for, consumed and cleared by
+    /// `OverviewView` once it has scrolled there.
+    @State private var overviewFocus: DeepLink.OverviewFocus?
 
     var body: some View {
         TabView(selection: $selection) {
-            OverviewView()
+            OverviewView(focus: $overviewFocus)
                 .tabItem {
                     Label("Overview", systemImage: icon(.dashboard))
                 }
@@ -125,10 +128,18 @@ private struct MainTabView: View {
         // plain kubera:// — lands on the dashboard rather than
         // whatever tab was open last.
         .onOpenURL { url in
-            switch url.host() {
-            case "widgets": selection = .widgets
-            case "settings": selection = .settings
-            default: selection = .dashboard
+            switch DeepLink(url: url) {
+            case .widgets:
+                selection = .widgets
+            case .settings:
+                selection = .settings
+            case let .overview(focus):
+                selection = .dashboard
+                // Carries the module a widget was showing, so the Overview can
+                // bring it into view. Re-set even when it matches the previous
+                // value so tapping the same widget twice scrolls again.
+                overviewFocus = nil
+                overviewFocus = focus
             }
         }
     }
