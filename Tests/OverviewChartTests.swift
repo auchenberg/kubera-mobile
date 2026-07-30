@@ -330,4 +330,174 @@ final class OverviewChartTests: XCTestCase {
 
         XCTAssertEqual(segments.map(\.name), ["Investable", "Real estate"])
     }
+
+    // MARK: - Scrubbing
+
+    func testScrubbableNeedsTwoPoints() {
+        XCTAssertFalse(OverviewChart.isScrubbable([]))
+        XCTAssertFalse(OverviewChart.isScrubbable([point("2026-07-01", 1_200_000)]))
+        XCTAssertTrue(OverviewChart.isScrubbable([
+            point("2026-07-01", 1_200_000),
+            point("2026-07-02", 1_210_000),
+        ]))
+    }
+
+    /// The scrubbed delta answers the same question the resting delta does, so it
+    /// measures from the window's first point and not from today.
+    func testScrubChangeMeasuresFromTheWindowStart() {
+        let points = [
+            point("2026-07-01", 1_200_000),
+            point("2026-07-10", 1_260_000),
+            point("2026-07-20", 1_320_000),
+        ]
+
+        let change = OverviewChart.scrubChange(to: points[1], in: points)
+
+        XCTAssertEqual(change?.amount, 60_000)
+        XCTAssertEqual(change?.percent ?? 0, 5, accuracy: 0.0001)
+    }
+
+    func testScrubChangeToTheWindowStartIsZero() {
+        let points = [point("2026-07-01", 1_200_000), point("2026-07-20", 1_320_000)]
+
+        let change = OverviewChart.scrubChange(to: points[0], in: points)
+
+        XCTAssertEqual(change?.amount, 0)
+        XCTAssertEqual(change?.percent, 0)
+    }
+
+    func testScrubChangeToTheLastPointMatchesTheRestingDelta() {
+        let points = [
+            point("2026-07-01", 1_200_000),
+            point("2026-07-10", 1_140_000), // a dip in between must not matter
+            point("2026-07-20", 1_320_000),
+        ]
+
+        let scrub = OverviewChart.scrubChange(to: points[2], in: points)
+        let resting = OverviewChart.change(in: points)
+
+        XCTAssertNotNil(scrub)
+        XCTAssertEqual(scrub?.amount, resting?.amount, "releasing the finger must not change the number")
+        XCTAssertEqual(scrub?.percent ?? 0, resting?.percent ?? 0, accuracy: 0.0001)
+    }
+
+    func testScrubChangeCanBeNegative() {
+        let points = [
+            point("2026-07-01", 1_200_000),
+            point("2026-07-10", 1_140_000),
+            point("2026-07-20", 1_320_000),
+        ]
+
+        XCTAssertEqual(OverviewChart.scrubChange(to: points[1], in: points)?.amount, -60_000)
+    }
+
+    func testScrubChangeNeedsAWindowAndANonZeroStart() {
+        let single = [point("2026-07-01", 1_200_000)]
+        XCTAssertNil(
+            OverviewChart.scrubChange(to: single[0], in: single),
+            "one point is a dot; there is no window start to measure from"
+        )
+
+        let fromZero = [point("2026-07-01", 0), point("2026-07-20", 1_200_000)]
+        XCTAssertNil(
+            OverviewChart.scrubChange(to: fromZero[1], in: fromZero),
+            "a percentage against zero is meaningless, so the whole delta hides"
+        )
+    }
+
+    /// The tooltip masks its amount and keeps its date: a date leaks nothing, and
+    /// masking one would leave the scrub with no readout at all.
+    func testTooltipAmountIsMaskedUnderPrivacyMode() {
+        let scrubbed = point("2026-07-21", 1_240_860)
+
+        XCTAssertEqual(
+            Format.money(scrubbed.value, currency: "USD", masked: true, compact: false),
+            Format.masked
+        )
+        XCTAssertNotEqual(
+            Format.money(scrubbed.value, currency: "USD", masked: false, compact: false),
+            Format.masked
+        )
+    }
+
+    // MARK: - Scrub versus scroll
+
+    func testAShortDragHasNotDecidedYet() {
+        XCTAssertEqual(OverviewChart.intent(dx: 0, dy: 0), .undecided)
+        XCTAssertEqual(OverviewChart.intent(dx: 4, dy: 3), .undecided)
+        XCTAssertEqual(OverviewChart.intent(dx: -5, dy: 2), .undecided)
+    }
+
+    func testHorizontalDominanceEngagesTheScrub() {
+        XCTAssertEqual(OverviewChart.intent(dx: 12, dy: 3), .scrub)
+        XCTAssertEqual(OverviewChart.intent(dx: -12, dy: -3), .scrub, "scrubbing backwards still scrubs")
+    }
+
+    func testVerticalDominanceLeavesTheTouchToThePage() {
+        XCTAssertEqual(OverviewChart.intent(dx: 3, dy: 12), .scroll)
+        XCTAssertEqual(OverviewChart.intent(dx: -3, dy: -12), .scroll)
+    }
+
+    func testADiagonalTieGoesToScrolling() {
+        XCTAssertEqual(
+            OverviewChart.intent(dx: 10, dy: 10),
+            .scroll,
+            "a missed scrub costs one more swipe; a stolen scroll makes the page feel stuck"
+        )
+    }
+
+    func testTheThresholdIsMeasuredOnTheDominantAxisAlone() {
+        // 5 and 5 is past 6pt of total travel, but neither axis has moved far
+        // enough to say what the finger means.
+        XCTAssertEqual(OverviewChart.intent(dx: 5, dy: 5), .undecided)
+        XCTAssertEqual(OverviewChart.intent(dx: 6, dy: 0), .scrub)
+        XCTAssertEqual(OverviewChart.intent(dx: 0, dy: 6), .scroll)
+    }
+
+    // MARK: - Fallback x-to-date mapping
+
+    func testDateAtFractionWalksTheWindow() {
+        let points = [point("2026-07-01", 1_200_000), point("2026-07-11", 1_320_000)]
+
+        XCTAssertEqual(OverviewChart.date(atFraction: 0, in: points), day("2026-07-01"))
+        XCTAssertEqual(OverviewChart.date(atFraction: 1, in: points), day("2026-07-11"))
+        XCTAssertEqual(OverviewChart.date(atFraction: 0.5, in: points), day("2026-07-06"))
+    }
+
+    func testDateAtFractionClampsPastEitherEdge() {
+        let points = [point("2026-07-01", 1_200_000), point("2026-07-11", 1_320_000)]
+
+        XCTAssertEqual(OverviewChart.date(atFraction: -3, in: points), day("2026-07-01"))
+        XCTAssertEqual(OverviewChart.date(atFraction: 4, in: points), day("2026-07-11"))
+    }
+
+    func testDateAtFractionOfAnEmptySeriesIsNil() {
+        XCTAssertNil(OverviewChart.date(atFraction: 0.5, in: []))
+    }
+
+    func testDateAtFractionOfASinglePointIsThatPoint() {
+        XCTAssertEqual(
+            OverviewChart.date(atFraction: 0.5, in: [point("2026-07-01", 1_200_000)]),
+            day("2026-07-01")
+        )
+    }
+
+    // MARK: - Tooltip clamping
+
+    func testTooltipFollowsTheTouchInTheMiddleOfThePlot() {
+        XCTAssertEqual(OverviewChart.tooltipCenter(near: 180, tooltipWidth: 148, plotWidth: 340), 180)
+    }
+
+    func testTooltipStaysInsideBothPlotEdges() {
+        XCTAssertEqual(OverviewChart.tooltipCenter(near: 2, tooltipWidth: 148, plotWidth: 340), 74)
+        XCTAssertEqual(OverviewChart.tooltipCenter(near: 338, tooltipWidth: 148, plotWidth: 340), 266)
+    }
+
+    func testATooltipWiderThanThePlotCenters() {
+        XCTAssertEqual(
+            OverviewChart.tooltipCenter(near: 10, tooltipWidth: 400, plotWidth: 340),
+            170,
+            "no edge it could sit against would contain it, so it doesn't pretend to pick one"
+        )
+    }
 }

@@ -1,16 +1,18 @@
 import Charts
 import SwiftUI
+import UIKit
 
-/// The Overview screen: one hero number, the chart that reads it out, then the
-/// supporting modules Kubera's own dashboard carries — Assets and Debts with
-/// their 1 DAY / 1 YEAR lines, the CAGR • YTD block with market comps,
-/// allocation, and top holdings.
+/// The Overview screen: a greeting, one hero number, the chart that reads it
+/// out, then the supporting modules Kubera's own dashboard carries — Assets and
+/// Debts with their 1 DAY / 1 YEAR lines, the CAGR • YTD block with market
+/// comps, allocation, and top holdings.
 ///
-/// Phase 1 of `specs/overview-dashboard.md` — static chart, plain capsule range
-/// pills, no scrubbing and no glass (both phase 2).
+/// Phase 2 of `specs/overview-dashboard.md`: drag-to-scrub that retargets the
+/// hero, Liquid Glass on the controls layer only, and `.numericText` transitions
+/// on every figure that can change.
 ///
 /// All arithmetic lives in `OverviewChart` and `OverviewModules` so it can be
-/// unit tested; this file is layout only.
+/// unit tested; this file is layout, gesture, and haptics only.
 struct OverviewView: View {
     @Environment(AppStore.self) private var store
     @Environment(\.colorScheme) private var colorScheme
@@ -26,6 +28,27 @@ struct OverviewView: View {
     /// Investable is not on `PortfolioSnapshot`; it comes from the detail fetch,
     /// or from the history series when that has not landed.
     @State private var investableSeries: [ChartPoint] = []
+
+    /// Fixed when the screen appears. `Greeting.phrase` reseeds every hour, and
+    /// reading the clock per render would let the greeting change underneath a
+    /// scroll.
+    @State private var greetingDate = Date()
+    @State private var showsGreetingNote = false
+
+    /// The point under the finger, or nil when nobody is scrubbing. Everything
+    /// the scrub changes — hero, delta, rule, dot, tooltip — reads off this.
+    @State private var scrubbed: ChartPoint?
+    /// What the current drag has been decided to mean. Reset at the start of
+    /// every drag rather than only on release, so a gesture the `ScrollView`
+    /// cancels mid-flight can't leave scrubbing wedged off.
+    @State private var scrubIntent: OverviewChart.ScrubIntent = .undecided
+    /// When the last selection tick fired, for rate limiting.
+    @State private var lastTick = Date.distantPast
+    /// Held in `@State` so the generators survive re-renders with their
+    /// `prepare()` still in effect — a generator rebuilt every render is a
+    /// generator that is never warm, and the first tick of every drag lands late.
+    @State private var selectionHaptics = UISelectionFeedbackGenerator()
+    @State private var engageHaptics = UIImpactFeedbackGenerator(style: .light)
 
     /// Falls back to the sample portfolio so the screen never renders empty —
     /// a signed-out or pre-first-fetch launch still shows the real layout.
@@ -64,6 +87,10 @@ struct OverviewView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
+                    greeting
+                        .padding(.top, 8)
+                        .padding(.bottom, 16)
+
                     if let errorMessage {
                         Card {
                             Text(errorMessage)
@@ -108,16 +135,83 @@ struct OverviewView: View {
                 .padding(.bottom, 32)
             }
             .background(Theme.background)
-            .navigationTitle("Overview")
+            // No nav title: the greeting is this screen's heading, the way
+            // Kubera's own dashboard opens. A bar with "Overview" in it would
+            // either compete with the greeting or cost 44pt of empty chrome
+            // above it.
+            .toolbar(.hidden, for: .navigationBar)
             .refreshable { await reload() }
-            .task { await reload() }
+            .task {
+                // Warm both generators once; the first tick of a cold generator
+                // arrives noticeably after the finger has already moved.
+                selectionHaptics.prepare()
+                engageHaptics.prepare()
+                await reload()
+            }
+        }
+    }
+
+    // MARK: - Greeting
+
+    /// The screen's heading: "Hej, Kenneth", with a quiet marker when the
+    /// greeting is a hello the reader may not know.
+    private var greeting: some View {
+        let phrase = Greeting.phrase(for: greetingDate)
+
+        return HStack(alignment: .firstTextBaseline, spacing: 5) {
+            Text(Greeting.line(for: greetingDate, name: greetingName))
+                .font(.system(size: 26, weight: .semibold))
+                .kerning(-0.3)
+                .foregroundStyle(Theme.text)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            if let note = phrase.note {
+                greetingNoteMarker(note)
+            }
+            Spacer(minLength: 0)
+        }
+    }
+
+    /// The account's own name when the profile fetch has landed, else the
+    /// portfolio's. `Greeting.firstName` already treats the generic portfolio
+    /// names as nameless, so this hands over whichever it has without checking.
+    private var greetingName: String? {
+        store.profile?.name ?? store.snapshot?.portfolioName
+    }
+
+    /// A footnote, not a badge: `Theme.dim` and no tint, because anything
+    /// colored beside a greeting reads as something being wrong.
+    private func greetingNoteMarker(_ note: String) -> some View {
+        Button {
+            showsGreetingNote = true
+        } label: {
+            Image(systemName: "info.circle")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(Theme.dim)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("What this greeting means")
+        .popover(isPresented: $showsGreetingNote) {
+            Text(note)
+                .font(.system(size: 14))
+                .foregroundStyle(Theme.text)
+                .padding(14)
+                // Without this a popover becomes a sheet on a phone, which is a
+                // whole modal for one sentence.
+                .presentationCompactAdaptation(.popover)
         }
     }
 
     // MARK: - Hero + chart
 
     private var heroCard: some View {
-        Card(padding: EdgeInsets(top: 16, leading: 16, bottom: 12, trailing: 16)) {
+        // Windowed once per render and handed down: the scrub reads these on
+        // every touch move, and re-filtering the whole series per subview would
+        // do it several times a frame.
+        let points = visiblePoints
+        let investable = visibleInvestablePoints
+
+        return Card(padding: EdgeInsets(top: 16, leading: 16, bottom: 12, trailing: 16)) {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .firstTextBaseline) {
                     Text("NET WORTH")
@@ -125,7 +219,7 @@ struct OverviewView: View {
                         .kerning(1)
                         .foregroundStyle(Theme.dim)
                     Spacer(minLength: 8)
-                    if !visibleInvestablePoints.isEmpty {
+                    if !investable.isEmpty {
                         chartLegend
                     }
                 }
@@ -134,9 +228,10 @@ struct OverviewView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
                     .foregroundStyle(Theme.text)
+                    .contentTransition(.numericText(value: heroAmount))
                     .padding(.top, 2)
 
-                heroDelta
+                heroDelta(points)
                     .padding(.top, 4)
 
                 if let investableNow {
@@ -144,26 +239,36 @@ struct OverviewView: View {
                         .padding(.top, 10)
                 }
 
-                if visiblePoints.count >= 2 {
-                    chart(visiblePoints, investable: visibleInvestablePoints)
+                if points.count >= 2 {
+                    chart(points, investable: investable)
                         .padding(.top, 14)
-                    endpointLabels(visiblePoints)
+                    endpointLabels(points)
                         .padding(.top, 6)
-                    rangePills
-                        .padding(.top, 12)
                 } else {
                     emptyChartNote
                         .padding(.top, 16)
+                }
+
+                // Offered whenever the series has a shape *somewhere*, not just
+                // in the current window — hiding the pills when YTD happens to
+                // be empty strands the reader on the one range with no data.
+                if netWorthSeries.count >= 2 {
+                    rangePills
+                        .padding(.top, 12)
                 }
             }
         }
     }
 
+    /// The figure the hero prints: the scrubbed day while a finger is on the
+    /// chart, otherwise today's net worth.
+    private var heroAmount: Double { scrubbed?.value ?? snapshot.netWorth }
+
     /// "$1.240 Million" with the currency symbol shrunk and raised, the way the
     /// Kubera dashboard and the Net Worth widget set it.
     private var heroValue: Text {
         let size: CGFloat = 40
-        let text = Format.millions(snapshot.netWorth, currency: currency, masked: masked)
+        let text = Format.millions(heroAmount, currency: currency, masked: masked)
         guard let split = currencySymbolSplit(text) else {
             return Text(text).font(.system(size: size, weight: .bold)).kerning(-1)
         }
@@ -176,8 +281,8 @@ struct OverviewView: View {
     }
 
     @ViewBuilder
-    private var heroDelta: some View {
-        if let change = OverviewChart.change(in: visiblePoints) {
+    private func heroDelta(_ points: [ChartPoint]) -> some View {
+        if let change = heroChange(in: points) {
             let favorable = OverviewChart.isFavorable(change.amount, metric: .asset)
             HStack(spacing: 6) {
                 Text(change.amount < 0 ? "▼" : "▲")
@@ -185,10 +290,12 @@ struct OverviewView: View {
                 Text(Format.money(change.amount, currency: currency, masked: masked, compact: false, signed: true))
                     .font(.system(size: 15, weight: .semibold))
                     .monospacedDigit()
+                    .contentTransition(.numericText(value: change.amount))
                 Text(Format.percent(change.percent))
                     .font(.system(size: 15, weight: .semibold))
                     .monospacedDigit()
-                Text(range.deltaLabel)
+                    .contentTransition(.numericText(value: change.percent))
+                Text(heroDeltaLabel)
                     .font(.system(size: 13))
                     .foregroundStyle(Theme.dim)
             }
@@ -200,6 +307,22 @@ struct OverviewView: View {
                 .font(.system(size: 13))
                 .foregroundStyle(Theme.dim)
         }
+    }
+
+    /// Both states measure from the **window's first** point, so touching the
+    /// chart retargets the number without changing what it means.
+    private func heroChange(in points: [ChartPoint]) -> (amount: Double, percent: Double)? {
+        if let scrubbed {
+            return OverviewChart.scrubChange(to: scrubbed, in: points)
+        }
+        return OverviewChart.change(in: points)
+    }
+
+    /// The sentence tail: the range's own wording at rest, the scrubbed date
+    /// while dragging ("▲ $12,400 +1% by Jul 21").
+    private var heroDeltaLabel: String {
+        guard let scrubbed else { return range.deltaLabel }
+        return "by \(Self.scrubDateFormatter.string(from: scrubbed.date))"
     }
 
     /// Investable as the hero's second figure, the way Kubera's dashboard card
@@ -214,6 +337,7 @@ struct OverviewView: View {
                 .font(.system(size: 18, weight: .semibold))
                 .monospacedDigit()
                 .foregroundStyle(Theme.text.opacity(0.85))
+                .contentTransition(.numericText(value: amount))
         }
         .lineLimit(1)
         .minimumScaleFactor(0.6)
@@ -307,6 +431,11 @@ struct OverviewView: View {
         .chartXAxis(.hidden)
         .chartYAxis(.hidden)
         .chartLegend(.hidden)
+        .chartOverlay { proxy in
+            GeometryReader { geometry in
+                scrubLayer(proxy: proxy, geometry: geometry, points: points)
+            }
+        }
         .frame(height: 170)
         .animation(.easeInOut(duration: 0.3), value: range)
     }
@@ -330,29 +459,45 @@ struct OverviewView: View {
     /// The chart's only axis furniture: the window's first and last date.
     private func endpointLabels(_ points: [ChartPoint]) -> some View {
         HStack {
-            Text(shortDate(points[0].date))
+            Text(Self.endpointDateFormatter.string(from: points[0].date))
             Spacer(minLength: 8)
-            Text(shortDate(points[points.count - 1].date))
+            Text(Self.endpointDateFormatter.string(from: points[points.count - 1].date))
         }
         .font(.system(size: 11))
         .foregroundStyle(Theme.dim)
     }
 
     /// Shown only in place of a chart that has nothing to draw, so it explains
-    /// an absence rather than annotating real data.
+    /// an absence rather than annotating real data. Which absence it is matters:
+    /// an empty window with pills below it is a different instruction from a
+    /// history that hasn't loaded.
     private var emptyChartNote: some View {
-        Text("Not enough history yet. Growth fills in as Kubera's history loads.")
-            .font(.system(size: 13))
-            .foregroundStyle(Theme.dim)
-            .fixedSize(horizontal: false, vertical: true)
+        Text(
+            netWorthSeries.count >= 2
+                ? "No history in this window yet. Try a longer range."
+                : "Not enough history yet. Growth fills in as Kubera's history loads."
+        )
+        .font(.system(size: 13))
+        .foregroundStyle(Theme.dim)
+        .fixedSize(horizontal: false, vertical: true)
     }
 
+    /// One glass slab with plain pills inside it, rather than six glass buttons:
+    /// a single sampling surface can't produce glass-on-glass, and the selected
+    /// pill stays a solid `Theme.text` capsule so the selection reads without
+    /// depending on translucency in either appearance.
     private var rangePills: some View {
         HStack(spacing: 4) {
             ForEach(ChartRange.allCases) { option in
                 let active = option == range
                 Button {
-                    withAnimation(.snappy(duration: 0.25)) { range = option }
+                    selectionHaptics.selectionChanged()
+                    withAnimation(.snappy(duration: 0.25)) {
+                        range = option
+                        // A held readout from the old window would be a date the
+                        // new one may not contain.
+                        scrubbed = nil
+                    }
                 } label: {
                     Text(option.label)
                         .font(.system(size: 12, weight: .semibold))
@@ -362,10 +507,173 @@ struct OverviewView: View {
                         .padding(.vertical, 7)
                         .background(active ? Theme.text : .clear)
                         .clipShape(Capsule())
+                        .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
             }
         }
+        .padding(3)
+        .controlGlass(in: Capsule())
+    }
+
+    // MARK: - Scrubbing
+
+    /// Fixed rather than measured: a bubble that resizes as the digits change
+    /// jitters under the finger, and a constant width means the clamp against
+    /// the plot edges is a constant too.
+    private static let scrubTooltipWidth: CGFloat = 148
+
+    /// The scrub's whole surface: an invisible hit area over the plot, the rule
+    /// and dot marking the held point, and the tooltip.
+    @ViewBuilder
+    private func scrubLayer(proxy: ChartProxy, geometry: GeometryProxy, points: [ChartPoint]) -> some View {
+        let plot = plotRect(proxy: proxy, geometry: geometry)
+
+        ZStack(alignment: .topLeading) {
+            // The hit area is the whole overlay rather than just the plot, so a
+            // finger near the chart's edge still reads.
+            Rectangle()
+                .fill(.clear)
+                .contentShape(Rectangle())
+
+            if let scrubbed,
+               let offsetX = proxy.position(forX: scrubbed.date),
+               let offsetY = proxy.position(forY: scrubbed.value) {
+                let x = plot.minX + offsetX
+
+                Rectangle()
+                    .fill(Theme.text.opacity(0.35))
+                    .frame(width: 1, height: plot.height)
+                    .position(x: x, y: plot.midY)
+
+                // Pinned to the top of the plot rather than floating above the
+                // dot: it keeps the one glass surface here from ever reaching
+                // down to the glass pill row, and it stops the bubble from
+                // jumping vertically as the curve rises and falls.
+                scrubTooltip(scrubbed)
+                    .position(
+                        x: plot.minX + OverviewChart.tooltipCenter(
+                            near: offsetX,
+                            tooltipWidth: Self.scrubTooltipWidth,
+                            plotWidth: plot.width
+                        ),
+                        y: plot.minY + 14
+                    )
+
+                // Drawn last, so it stays visible where the curve peaks into the
+                // tooltip's band — the bubble would otherwise swallow the marker
+                // at exactly the point most worth pointing at. Card-colored halo,
+                // so the dot reads as a dot over the 2pt line it sits on.
+                ZStack {
+                    Circle().fill(Theme.card).frame(width: 13, height: 13)
+                    Circle().fill(Theme.text).frame(width: 7, height: 7)
+                }
+                .position(x: x, y: plot.minY + offsetY)
+            }
+        }
+        // Simultaneous, not exclusive: an exclusive `DragGesture` claims the
+        // touch the instant it lands and the page stops scrolling anywhere over
+        // the chart. Running alongside the `ScrollView`'s own pan lets both see
+        // the drag, and `OverviewChart.intent` decides which one acts on it.
+        .simultaneousGesture(scrubGesture(proxy: proxy, plot: plot, points: points))
+    }
+
+    /// Swift Charts reports positions relative to the plot area, so the touch
+    /// has to be moved into the same space. Falls back to the whole overlay when
+    /// the plot anchor is unavailable, which is only off by the axis inset — and
+    /// both axes are hidden here.
+    private func plotRect(proxy: ChartProxy, geometry: GeometryProxy) -> CGRect {
+        guard let anchor = proxy.plotFrame else {
+            return CGRect(origin: .zero, size: geometry.size)
+        }
+        return geometry[anchor]
+    }
+
+    private func scrubTooltip(_ point: ChartPoint) -> some View {
+        HStack(spacing: 6) {
+            Text(Self.scrubDateFormatter.string(from: point.date))
+                .foregroundStyle(Theme.dim)
+            // Masked under privacy mode like every other amount; the date is
+            // not, because a date leaks nothing.
+            Text(Format.money(point.value, currency: currency, masked: masked, compact: false))
+                .monospacedDigit()
+                .foregroundStyle(Theme.text)
+        }
+        .font(.system(size: 11, weight: .semibold))
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .frame(width: Self.scrubTooltipWidth)
+        // Tinted, unlike the pill row: this one floats over the curve and its
+        // gradient fill, and bare glass over that is unreadable.
+        .controlGlass(in: Capsule(), tint: Theme.card)
+    }
+
+    private func scrubGesture(proxy: ChartProxy, plot: CGRect, points: [ChartPoint]) -> some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { value in
+                // A `minimumDistance: 0` drag opens with a zero translation, so
+                // this is where a new gesture announces itself — and it is the
+                // only reset that survives the `ScrollView` cancelling the
+                // previous drag without ever calling `onEnded`, which would
+                // otherwise leave a readout stuck on screen and scrubbing wedged
+                // off for good.
+                if value.translation == .zero {
+                    scrubIntent = .undecided
+                    scrubbed = nil
+                }
+
+                if scrubIntent == .undecided {
+                    let intent = OverviewChart.intent(
+                        dx: value.translation.width,
+                        dy: value.translation.height
+                    )
+                    guard intent != .undecided else { return }
+                    scrubIntent = intent
+                    if intent == .scrub { engageHaptics.impactOccurred(intensity: 0.5) }
+                }
+
+                guard scrubIntent == .scrub else { return }
+                scrub(toX: value.location.x, proxy: proxy, plot: plot, points: points)
+            }
+            .onEnded { _ in endScrub() }
+    }
+
+    private func scrub(toX x: CGFloat, proxy: ChartProxy, plot: CGRect, points: [ChartPoint]) {
+        guard OverviewChart.isScrubbable(points) else { return }
+
+        let offsetX = x - plot.minX
+        let date = proxy.value(atX: offsetX, as: Date.self)
+            ?? OverviewChart.date(
+                atFraction: plot.width > 0 ? offsetX / plot.width : 0,
+                in: points
+            )
+        guard let date, let point = OverviewChart.nearest(to: date, in: points) else { return }
+        guard point != scrubbed else { return }
+
+        scrubbed = point
+        tick()
+    }
+
+    /// One tick per data point crossed, and never faster than 30 a second: an
+    /// ALL window can hold thousands of points, so a fast drag crosses dozens
+    /// per frame and an unlimited generator turns that into a continuous buzz
+    /// that reads as the phone malfunctioning.
+    private func tick() {
+        let now = Date()
+        guard now.timeIntervalSince(lastTick) >= 1.0 / 30 else { return }
+        lastTick = now
+        selectionHaptics.selectionChanged()
+    }
+
+    private func endScrub() {
+        scrubIntent = .undecided
+        guard scrubbed != nil else { return }
+        // Animated on release but not during the drag: the hero has to track
+        // the finger exactly while it moves, and only the spring back to today's
+        // figure should read as motion.
+        withAnimation(.snappy(duration: 0.25)) { scrubbed = nil }
     }
 
     // MARK: - Assets / debts
@@ -399,6 +707,7 @@ struct OverviewView: View {
                     .font(.system(size: 20, weight: .bold))
                     .monospacedDigit()
                     .foregroundStyle(Theme.text)
+                    .contentTransition(.numericText(value: value))
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
 
@@ -438,11 +747,13 @@ struct OverviewView: View {
                     .font(.system(size: 11, weight: .semibold))
                     .monospacedDigit()
                     .foregroundStyle(color)
+                    .contentTransition(.numericText(value: change.amount))
                 if let percent = change.percent {
                     Text("(\(Format.percent(percent)))")
                         .font(.system(size: 11))
                         .monospacedDigit()
                         .foregroundStyle(color)
+                        .contentTransition(.numericText(value: percent))
                 }
             } else {
                 Text("—")
@@ -495,6 +806,7 @@ struct OverviewView: View {
                     .font(.system(size: 20, weight: .bold))
                     .monospacedDigit()
                     .foregroundStyle(Theme.text)
+                    .contentTransition(.numericText(value: value))
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
 
@@ -631,6 +943,7 @@ struct OverviewView: View {
                 .font(.system(size: 15, weight: .semibold))
                 .monospacedDigit()
                 .foregroundStyle(percentColor(row.ytd))
+                .contentTransition(.numericText(value: row.ytd ?? 0))
                 .frame(width: 76, alignment: .trailing)
 
             if showsCAGR {
@@ -639,6 +952,7 @@ struct OverviewView: View {
                     .font(.system(size: 15))
                     .monospacedDigit()
                     .foregroundStyle(row.cagr == nil ? Theme.dim : Theme.text)
+                    .contentTransition(.numericText(value: row.cagr ?? 0))
                     .frame(width: 64, alignment: .trailing)
             }
         }
@@ -660,6 +974,7 @@ struct OverviewView: View {
                         .font(.system(size: 13, weight: .semibold))
                         .monospacedDigit()
                         .foregroundStyle(percentColor(comp.percent))
+                        .contentTransition(.numericText(value: comp.percent))
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                 }
@@ -783,6 +1098,7 @@ struct OverviewView: View {
                     .font(.system(size: 14, weight: .semibold))
                     .monospacedDigit()
                     .foregroundStyle(Theme.text)
+                    .contentTransition(.numericText(value: group.value))
                     .lineLimit(1)
             }
 
@@ -802,6 +1118,7 @@ struct OverviewView: View {
             ForEach(OverviewModules.CompositionLevel.allCases) { option in
                 let active = option == compositionLevel
                 Button {
+                    selectionHaptics.selectionChanged()
                     withAnimation(.snappy(duration: 0.25)) { compositionLevel = option }
                 } label: {
                     Text(option.label)
@@ -812,6 +1129,7 @@ struct OverviewView: View {
                         .padding(.vertical, 6)
                         .background(active ? Theme.text : .clear)
                         .clipShape(Capsule())
+                        .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
             }
@@ -866,6 +1184,7 @@ struct OverviewView: View {
                         .font(.system(size: 15, weight: .semibold))
                         .monospacedDigit()
                         .foregroundStyle(Theme.text)
+                        .contentTransition(.numericText(value: holding.value))
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                 }
@@ -914,13 +1233,35 @@ struct OverviewView: View {
         // The merged server + on-device series; the same one the trends and the
         // widgets read, so the chart can't disagree with them.
         let series = SharedStore.localHistory()
-        netWorthSeries = OverviewChart.points(from: series, calendar: .current)
-        assetSeries = OverviewChart.points(from: series, calendar: .current) { $0.assetTotal }
-        debtSeries = OverviewChart.points(from: series, calendar: .current) { $0.debtTotal }
-        investableSeries = OverviewModules.investableSeries(from: series, calendar: .current)
+        // Animated so a refresh that moves the figures reads as the numbers
+        // changing rather than as the screen being replaced.
+        withAnimation(.snappy(duration: 0.25)) {
+            netWorthSeries = OverviewChart.points(from: series, calendar: .current)
+            assetSeries = OverviewChart.points(from: series, calendar: .current) { $0.assetTotal }
+            debtSeries = OverviewChart.points(from: series, calendar: .current) { $0.debtTotal }
+            investableSeries = OverviewModules.investableSeries(from: series, calendar: .current)
+        }
     }
 
     // MARK: - Formatting helpers
+
+    /// Cached: the endpoint labels render twice per layout and the scrub tooltip
+    /// re-renders on every touch move, and building a `DateFormatter` per call
+    /// there is the kind of allocation a drag can feel.
+    private static let endpointDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }()
+
+    /// "Jul 21" — no year, because the window already prints its own endpoints
+    /// and the delta's tail has to fit beside a signed amount and a percent.
+    private static let scrubDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate("MMMd")
+        return formatter
+    }()
 
     /// Everything ahead of the first digit is the currency symbol ("$", "kr ").
     /// Nil for a masked value, which has no symbol to split off.
@@ -930,13 +1271,6 @@ struct OverviewView: View {
             return nil
         }
         return (String(text[..<firstDigit]), String(text[firstDigit...]))
-    }
-
-    private func shortDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter.string(from: date)
     }
 }
 

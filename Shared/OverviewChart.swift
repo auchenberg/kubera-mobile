@@ -201,6 +201,84 @@ enum OverviewChart {
         }
     }
 
+    // MARK: - Scrubbing
+
+    /// Whether the window has enough shape to scrub. One point is a dot: there
+    /// is nothing to drag along and no window start to measure a delta from.
+    static func isScrubbable(_ points: [ChartPoint]) -> Bool {
+        points.count >= 2
+    }
+
+    /// The delta the hero retargets to while a finger is on the chart: the
+    /// scrubbed point against the **window's first** point, not against today.
+    ///
+    /// Measuring from the window start is what makes the scrub readable — it
+    /// answers "how far had it moved by this date", which is the same question
+    /// the resting delta answers, so the number does not change meaning when you
+    /// touch the chart. Nil under the same conditions as `change(in:)`.
+    static func scrubChange(
+        to scrubbed: ChartPoint,
+        in points: [ChartPoint]
+    ) -> (amount: Double, percent: Double)? {
+        guard points.count >= 2, let first = points.first, first.value != 0 else { return nil }
+        let amount = scrubbed.value - first.value
+        return (amount: amount, percent: amount / first.value * 100)
+    }
+
+    /// What a drag over the chart is asking for.
+    ///
+    /// The chart lives inside the page's vertical `ScrollView`, so a drag has to
+    /// prove it means the chart before it is allowed to take over: a gesture
+    /// that grabs the touch on contact steals every vertical swipe that starts
+    /// on the chart and the page stops scrolling there.
+    enum ScrubIntent: Sendable, Equatable {
+        /// Hasn't moved far enough to tell — keep watching, change nothing.
+        case undecided
+        /// Horizontal and past the threshold: the finger is scrubbing.
+        case scrub
+        /// Vertical: the page is scrolling, and this drag never becomes a scrub.
+        case scroll
+    }
+
+    /// How far a finger travels before its direction is taken as intent. Small
+    /// enough that engaging still feels immediate, large enough that the noise
+    /// in a fingertip's first few points doesn't decide.
+    static let scrubEngageDistance: Double = 6
+
+    /// Classifies a drag's translation. The dominant axis wins, and an exact tie
+    /// reads as a scroll — the page keeping the touch is the safer mistake,
+    /// because a missed scrub costs one more swipe while a stolen scroll makes
+    /// the screen feel stuck.
+    static func intent(
+        dx: Double,
+        dy: Double,
+        threshold: Double = scrubEngageDistance
+    ) -> ScrubIntent {
+        let horizontal = abs(dx)
+        let vertical = abs(dy)
+        guard max(horizontal, vertical) >= threshold else { return .undecided }
+        return horizontal > vertical ? .scrub : .scroll
+    }
+
+    /// Date at a fraction across the window, 0 being the first point and 1 the
+    /// last. The fallback for mapping a touch when Swift Charts won't hand back
+    /// its own x scale; clamped, so a finger dragged past either edge reads as
+    /// that edge rather than extrapolating off the end of the series.
+    static func date(atFraction fraction: Double, in points: [ChartPoint]) -> Date? {
+        guard let first = points.first, let last = points.last else { return nil }
+        let clamped = min(max(fraction, 0), 1)
+        return first.date.addingTimeInterval(last.date.timeIntervalSince(first.date) * clamped)
+    }
+
+    /// Horizontal center for the scrub tooltip: the touch position, pulled back
+    /// far enough that the bubble stays inside the plot. A bubble wider than the
+    /// plot centers instead of committing to an edge it would overhang anyway.
+    static func tooltipCenter(near x: Double, tooltipWidth: Double, plotWidth: Double) -> Double {
+        guard tooltipWidth < plotWidth else { return plotWidth / 2 }
+        let half = tooltipWidth / 2
+        return min(max(x, half), plotWidth - half)
+    }
+
     // MARK: - Allocation
 
     /// One slice of the allocation bar.
