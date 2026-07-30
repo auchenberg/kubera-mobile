@@ -1,0 +1,26 @@
+App/Views/WidgetsView.swift
+  s_3b694bad7ccc14::t_f66c5adf1d0012 92-95
+  s_3b694bad7ccc14::t_a046635e5cf4eb 126
+  s_3b694bad7ccc14::t_51ece4356308bf 30-37
+  s_3b694bad7ccc14::t_8bfdbd7cf20485 252-256,258,277
+  s_3b694bad7ccc14::t_e49df2a79895b2 282-296,300-308,313,320-329
+  s_3b694bad7ccc14::t_00340501042160 412-413,417-419,422
+  s_3b694bad7ccc14::t_27c03eb4bd5768 269-272,278
+  s_3b694bad7ccc14::t_801e4a062f2c04 330
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.17",
+  "base_commit_sha": "113979409678dc2a6248ca2b14fcd652fe484e2a",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
