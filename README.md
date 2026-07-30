@@ -137,8 +137,8 @@ From `project.yml`, which is the source of truth:
 ## Getting started
 
 ```sh
-git clone https://github.com/auchenberg/kubera-widgets.git
-cd kubera-widgets
+git clone https://github.com/auchenberg/kubera-mobile.git
+cd kubera-mobile
 brew install xcodegen        # once
 ./dev
 ```
