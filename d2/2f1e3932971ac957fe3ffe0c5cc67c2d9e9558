@@ -1,0 +1,33 @@
+App/Views/GlassBackground.swift
+  s_3b694bad7ccc14::t_f21640158cf0a7 64-65
+  s_3b694bad7ccc14::t_8f44ddee3b07d6 24-42,49,52-54,57,69,75-88,97-98,101-114
+  s_3b694bad7ccc14::t_7cbcddbbbda7cc 89-96,99-100
+Shared/Monogram.swift
+  s_3b694bad7ccc14::t_2287c126eb4791 1-41
+App/Views/Components.swift
+  s_3b694bad7ccc14::t_1d514b8925a989 3-4,7-8
+  s_3b694bad7ccc14::t_016ee716bbda98 5-6
+  s_3b694bad7ccc14::t_1c4cbdda8c06fe 32,51
+  s_3b694bad7ccc14::t_5045f3b59b1e3c 15,22-31,33-50,52-84,97-101,107,109-111,114-115,122,127,143-145,155-160,162-166,180-200,209
+Tests/MonogramTests.swift
+  s_3b694bad7ccc14::t_2ea976920ce783 1-120
+App/Theme.swift
+  s_3b694bad7ccc14::t_8fff3723c70b95 6-16,24-75,82,89-90,92-100,102-111
+  s_3b694bad7ccc14::t_860945d98bc6c5 76-81,83-88
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.17",
+  "base_commit_sha": "d22f1e3932971ac957fe3ffe0c5cc67c2d9e9558",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
