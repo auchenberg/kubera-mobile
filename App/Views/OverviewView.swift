@@ -180,6 +180,11 @@ struct OverviewView: View {
                         allocationCard
                     }
 
+                    if Sankey.isWorthDrawing(assetFlowBranches) {
+                        SectionTitle("Asset flow")
+                        assetFlowCard
+                    }
+
                     if !compositionGroups.isEmpty {
                         SectionTitle("Composition")
                         compositionCard
@@ -1471,6 +1476,30 @@ struct OverviewView: View {
     }
 
     // MARK: - Composition
+
+    /// The Sankey's bands. Follows the composition card's sheet/section toggle,
+    /// so switching level moves both rather than leaving the two disagreeing
+    /// about what a group is while sitting one above the other.
+    private var assetFlowBranches: [Sankey.Branch] {
+        Sankey.branches(from: detail?.assets ?? [], by: compositionLevel)
+    }
+
+    /// Assets, not net worth. The bands sum to the asset side, so that is what
+    /// the trunk has to be called — labelling it "net worth" would print the
+    /// asset total under the wrong word. A real net-worth flow would need debts
+    /// as an outflow, which is a different diagram.
+    private var assetFlowCard: some View {
+        Card {
+            SankeyView(
+                source: "Assets",
+                branches: assetFlowBranches,
+                currency: currency,
+                masked: masked,
+                compact: compactNumbers,
+                accessibilityTitle: "Assets by \(compositionLevel.rawValue)"
+            )
+        }
+    }
 
     private var compositionGroups: [OverviewModules.CompositionGroup] {
         OverviewModules.composition(detail?.assets ?? [], by: compositionLevel)
