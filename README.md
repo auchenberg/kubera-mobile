@@ -11,18 +11,31 @@ API using credentials you create in your own account — there is no server in b
 
 ## Screenshots
 
-| | Light | Dark |
-| --- | --- | --- |
-| **Overview** | ![Overview, light](docs/overview-light.png) | ![Overview, dark](docs/overview-dark.png) |
-| **Overview, lower modules** | ![Overview modules, light](docs/overview-modules-light.png) | ![Overview modules, dark](docs/overview-modules-dark.png) |
-| **Widgets** | ![Widgets, light](docs/widgets-light.png) | ![Widgets, dark](docs/widgets-dark.png) |
-| **Lock Screen previews** | ![Lock Screen previews, light](docs/lockscreen-light.png) | ![Lock Screen previews, dark](docs/lockscreen-dark.png) |
-| **Settings** | ![Settings, light](docs/settings-light.png) | ![Settings, dark](docs/settings-dark.png) |
-| **Welcome / first run** | ![Welcome, light](docs/welcome-light.png) | ![Welcome, dark](docs/welcome-dark.png) |
+Your whole net worth, one scroll, no chrome in the way. Drag the chart and the
+headline figure follows your finger.
 
-Every figure in these screenshots is synthetic. They are taken from the built-in
-demo mode, which you can run yourself — see [Try it without a Kubera
-account](#try-it-without-a-kubera-account).
+| Overview | Widgets | Settings |
+| --- | --- | --- |
+| ![Overview in light mode](docs/overview-light.png) | ![Widgets tab in light mode](docs/widgets-light.png) | ![Settings in light mode](docs/settings-light.png) |
+| ![Overview in dark mode](docs/overview-dark.png) | ![Widgets tab in dark mode](docs/widgets-dark.png) | ![Settings in dark mode](docs/settings-dark.png) |
+
+Keep scrolling and the dashboard keeps going: growth against the S&P 500, Dow and
+Bitcoin, allocation as one bar, and your holdings grouped the way you filed them
+in Kubera. The Widgets tab previews every widget at its **true point size** —
+those are the real widget views, not mockups, so what you see is the text size
+you will get. Lock Screen accessories are shown on a stand-in wallpaper, because
+that is the only honest way to preview something that draws itself from whatever
+is behind it.
+
+| Growth, allocation, composition | Lock Screen widgets | First run |
+| --- | --- | --- |
+| ![Overview modules in light mode](docs/overview-modules-light.png) | ![Lock Screen widget previews in light mode](docs/lockscreen-light.png) | ![Welcome screen in light mode](docs/welcome-light.png) |
+| ![Overview modules in dark mode](docs/overview-modules-dark.png) | ![Lock Screen widget previews in dark mode](docs/lockscreen-dark.png) | ![Welcome screen in dark mode](docs/welcome-dark.png) |
+
+Every figure above is invented. These are captured from the built-in demo mode,
+which renders the entire app against a synthetic portfolio — no Kubera account, no
+subscription, no credentials. You can run it in about a minute: see [Try it
+without a Kubera account](#try-it-without-a-kubera-account).
 
 ## Features
 
