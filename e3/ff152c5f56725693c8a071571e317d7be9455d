@@ -1,0 +1,31 @@
+App/Views/GlassBackground.swift
+  s_3b694bad7ccc14::t_67b5fec69c96f3 1-60
+KuberaWidgets.xcodeproj/project.pbxproj
+  s_3b694bad7ccc14::t_53577a0c6f3825 51,125,167,435
+App/Views/OverviewView.swift
+  s_3b694bad7ccc14::t_1e5b9632a8215b 3,5-8,10-12,15,32-52,90-93,138-142,144-201,208-214,222,231,234,242-243,245,251-258,263-266,271,284-285,293,297-298,312-327,340,434-438,462,464,471-473,475-482,485-488,494-500,510,515-561,572-616,626-676,710,750,756,809,946,955,977,1101,1121,1132,1187,1236-1243,1248-1265
+  s_3b694bad7ccc14::t_1f05507c66e783 617-625
+  s_3b694bad7ccc14::t_3bf679445dab56 562-571
+Tests/OverviewChartTests.swift
+  s_3b694bad7ccc14::t_ceee6c4d91a7ce 333-416,418,420-502
+  s_3b694bad7ccc14::t_54fee197cf2c89 417,419
+Shared/OverviewChart.swift
+  s_3b694bad7ccc14::t_84abccb734ce4a 204-280
+  s_3b694bad7ccc14::t_5cb04cf976a05f 281
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.17",
+  "base_commit_sha": "e3ff152c5f56725693c8a071571e317d7be9455d",
+  "prompts": {},
+  "sessions": {
+    "s_3b694bad7ccc14": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6e721a8-73f4-45d5-94e7-5b8b8daadb9f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
