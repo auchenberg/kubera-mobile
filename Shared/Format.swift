@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import UIKit
 
 enum Format {
     static let masked = "••••••"
@@ -107,10 +108,32 @@ enum Format {
     }
 }
 
+/// Widget palette, resolved per trait collection the same way `Theme` is in the
+/// app, so a widget follows the Home Screen's appearance instead of forcing
+/// dark. WidgetKit renders the extension with the environment's traits, so a
+/// dynamic `UIColor` resolves correctly in both appearances — and in the app's
+/// in-app previews, which draw these same views.
+///
+/// The values match `Theme`'s so app and widgets agree. Light-mode
+/// positive/negative are deliberately darker than their dark-mode counterparts:
+/// #4ADE80 and #F87171 are unreadable on a near-white background.
 enum WidgetTheme {
-    static let background = Color(red: 0.043, green: 0.055, blue: 0.102) // #0B0E1A
-    static let text = Color(red: 0.961, green: 0.969, blue: 0.980) // #F5F7FA
-    static let dim = Color(red: 0.541, green: 0.576, blue: 0.651) // #8A93A6
-    static let positive = Color(red: 0.290, green: 0.871, blue: 0.502) // #4ADE80
-    static let negative = Color(red: 0.973, green: 0.443, blue: 0.443) // #F87171
+    static let background = adaptive(light: 0xF4F5F7, dark: 0x0B0E1A)
+    static let text = adaptive(light: 0x0B0E1A, dark: 0xF5F7FA)
+    static let dim = adaptive(light: 0x6B7280, dark: 0x8A93A6)
+    static let border = adaptive(light: 0xE5E7EB, dark: 0x232838)
+    static let positive = adaptive(light: 0x15803D, dark: 0x4ADE80)
+    static let negative = adaptive(light: 0xB91C1C, dark: 0xF87171)
+
+    private static func adaptive(light: UInt32, dark: UInt32) -> Color {
+        Color(UIColor { traits in
+            let rgb = traits.userInterfaceStyle == .dark ? dark : light
+            return UIColor(
+                red: CGFloat((rgb >> 16) & 0xFF) / 255,
+                green: CGFloat((rgb >> 8) & 0xFF) / 255,
+                blue: CGFloat(rgb & 0xFF) / 255,
+                alpha: 1
+            )
+        })
+    }
 }

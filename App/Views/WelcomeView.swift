@@ -349,19 +349,21 @@ struct WelcomeView: View {
         .padding(.horizontal, -20)
     }
 
-    /// A small widget is 158×158 at 2x and keeps its dark widget palette in both
-    /// appearances, which is exactly how it looks on the Home Screen.
+    /// A small widget is 158×158 in points, on the widget's own adaptive
+    /// background, so the plate matches the Home Screen in both appearances.
+    ///
+    /// In light mode that background is the same shade as this screen's, so the
+    /// plate is outlined and lifted on a shadow to keep its bounds legible —
+    /// the treatment `widgetPreviewFrame` gives the previews in Widgets.
     private func widgetCard<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
-        content()
+        let shape = RoundedRectangle(cornerRadius: 24, style: .continuous)
+        return content()
             .padding(16)
-            .frame(width: 158, height: 158)
+            .frame(width: 158, height: 158, alignment: .topLeading)
             .background(WidgetTheme.background)
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.07))
-            )
-            .shadow(color: .black.opacity(colorScheme == .dark ? 0.5 : 0.15), radius: 8, y: 3)
+            .clipShape(shape)
+            .overlay(shape.strokeBorder(WidgetTheme.border, lineWidth: 1))
+            .shadow(color: .black.opacity(colorScheme == .dark ? 0.4 : 0.1), radius: 8, y: 3)
     }
 
     // MARK: - Closing

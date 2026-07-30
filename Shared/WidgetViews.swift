@@ -8,6 +8,12 @@ import WidgetKit
 /// the app has no way to set it.
 ///
 /// The signed-out state and the widget configuration stay in the extension.
+///
+/// Colours come from `WidgetTheme`, which resolves per appearance, so every view
+/// here works on a light or a dark Home Screen. The Lock Screen accessory
+/// families are the exception: they are vibrancy-rendered, so they keep the
+/// default foreground styles (`.secondary` at most) — a themed colour there
+/// renders as a flat, washed-out block.
 
 // MARK: - Net Worth
 
@@ -172,7 +178,7 @@ struct NetWorthWidgetContent: View {
             if !hasStatRows {
                 Text("Updated \(Format.updatedAt(snapshot.updatedAt))")
                     .font(.system(size: 9))
-                    .foregroundStyle(WidgetTheme.dim.opacity(0.7))
+                    .foregroundStyle(WidgetTheme.dim)
                     .lineLimit(1)
             }
         }
@@ -334,9 +340,9 @@ struct AssetsDebtsWidgetContent: View {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 5)
-                        .fill(WidgetTheme.positive.opacity(0.85))
+                        .fill(WidgetTheme.positive)
                     RoundedRectangle(cornerRadius: 5)
-                        .fill(WidgetTheme.negative.opacity(0.9))
+                        .fill(WidgetTheme.negative)
                         .frame(width: max(geo.size.width * debtRatio, snapshot.debtTotal > 0 ? 6 : 0))
                 }
             }
@@ -357,5 +363,22 @@ struct AssetsDebtsWidgetContent: View {
 
     private func money(_ amount: Double, _ snapshot: PortfolioSnapshot) -> String {
         Format.money(amount, currency: snapshot.currency, settings: settings)
+    }
+}
+
+// MARK: - Backgrounds
+
+extension WidgetFamily {
+    /// Whether the family draws `WidgetTheme.background` as its container
+    /// background. Lock Screen accessories get their backdrop from the system
+    /// and render their content with vibrancy, so filling them with an opaque
+    /// theme colour paints over the Lock Screen instead of blending into it.
+    var usesThemedBackground: Bool {
+        switch self {
+        case .accessoryInline, .accessoryCircular, .accessoryRectangular:
+            return false
+        default:
+            return true
+        }
     }
 }

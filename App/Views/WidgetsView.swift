@@ -141,12 +141,18 @@ private extension View {
     /// own background, so the preview matches the Home Screen pixel for pixel.
     /// A medium widget is wider than the card it sits in on most iPhones, so it
     /// scales down proportionally rather than clipping.
+    ///
+    /// In light mode the widget's background is nearly the colour of the card it
+    /// sits on, so the plate is outlined to keep its bounds legible; in dark mode
+    /// the same outline reads as the widget's edge.
     func widgetPreviewFrame(family: WidgetFamily) -> some View {
         let size = WidgetPreviewSize.points(for: family)
+        let shape = RoundedRectangle(cornerRadius: 24, style: .continuous)
         let plate = padding(16)
             .frame(width: size.width, height: size.height, alignment: .topLeading)
             .background(WidgetTheme.background)
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .clipShape(shape)
+            .overlay(shape.strokeBorder(WidgetTheme.border, lineWidth: 1))
 
         return GeometryReader { geo in
             plate
