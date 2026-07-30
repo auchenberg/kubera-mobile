@@ -197,14 +197,29 @@ costs a network fetch and a cache for a screen you open twice; and `Card`
 **never becomes glass** — glass belongs on the controls layer, not under figures
 you are trying to read.
 
-### A. Scrub delta baseline: range-start or today? — **correctness, not taste**
+### A. Scrub delta baseline — decided: range-start ✅
 
-When you scrub the chart, the delta shown next to the hero figure has to be
-measured from *something*, and the app has to pick one and label it. Apple's
-Stocks measures from the start of the selected range. The widgets and the CAGR
-block need to agree with whatever the Overview does, and right now it is worth
-confirming they do. Flagging it because a delta with an unstated baseline is a
-number that looks precise and isn't.
+The delta beside the hero figure is measured from the **start of the selected
+range**, never from today. Scrub to Jul 10 on a YTD chart and it reads "up
+$60,000" meaning since Jan 1 — the same convention Apple's Stocks uses.
+
+The code already did this (`OverviewChart.scrubChange` subtracts `first.value`);
+what was missing was anyone having decided it, so nothing stopped it drifting.
+`testScrubBaselineIsTheRangeStartAndNotToday` now pins it. The two conventions
+agree at the right-hand edge, so that test discriminates them the only way
+possible: it moves the *last* point and asserts a mid-series delta does not
+follow.
+
+Consistency across the app, checked rather than assumed:
+
+- **Hero delta** — range-start, labelled with the range's own wording ("year to
+  date") at rest and "by <date>" while scrubbing.
+- **Widgets and the CAGR block** — not range-based at all. They show fixed
+  windows (1 DAY, YTD) that carry their own labels, so there is nothing to
+  disagree with.
+
+The rule this leaves behind: **every delta states its window.** A signed figure
+with no stated baseline is the failure mode, not a particular choice of baseline.
 
 ### B. Monochrome-plus-two — decided: it stays ✅
 

@@ -357,6 +357,27 @@ final class OverviewChartTests: XCTestCase {
         XCTAssertEqual(change?.percent ?? 0, 5, accuracy: 0.0001)
     }
 
+    /// Pins the answer to a decision that was open: the scrub delta is measured
+    /// from the **start of the selected range**, not from today. The two agree
+    /// at the right-hand edge, so only a mid-series scrub can tell them apart —
+    /// and only moving the *last* point can prove which end the baseline is at.
+    func testScrubBaselineIsTheRangeStartAndNotToday() {
+        let start = point("2026-07-01", 1_200_000)
+        let middle = point("2026-07-10", 1_260_000)
+
+        let shortWindow = [start, middle, point("2026-07-20", 1_320_000)]
+        let longWindow = [start, middle, point("2026-07-20", 900_000)]
+
+        let a = OverviewChart.scrubChange(to: middle, in: shortWindow)
+        let b = OverviewChart.scrubChange(to: middle, in: longWindow)
+
+        // Today moved by 420,000 between the two series. A today-relative
+        // baseline would move with it; a range-start one cannot.
+        XCTAssertEqual(a?.amount, 60_000)
+        XCTAssertEqual(b?.amount, 60_000, "the delta must not depend on where the series ends")
+        XCTAssertEqual(a?.percent ?? 0, b?.percent ?? 1, accuracy: 0.0001)
+    }
+
     func testScrubChangeToTheWindowStartIsZero() {
         let points = [point("2026-07-01", 1_200_000), point("2026-07-20", 1_320_000)]
 
