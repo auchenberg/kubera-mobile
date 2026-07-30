@@ -173,6 +173,61 @@ This is an app-wide change, not a one-file fix.
   build but is their trademark. Worth an original icon before any public
   distribution.
 
+---
+
+## Decisions that need you
+
+`specs/design-research.md` ends with a list of open questions. I settled the ones
+that were mine to settle and implemented them; these are the ones that are
+genuinely yours, either because they change what the app asserts about your money
+or because they commit us to real work.
+
+For the record, the ones I settled and did not ask about: widget options **stay in
+Settings** (Privacy mode and Compact numbers affect the app too, so Settings is
+their honest home — the Widgets tab links to them instead); the hero figure
+**auto-compacts at accessibility text sizes** with the full unabbreviated number
+in its VoiceOver value, because that is the only option that neither lies nor
+breaks the layout; Settings gets a **monogram, not an avatar**, since an avatar
+costs a network fetch and a cache for a screen you open twice; and `Card`
+**never becomes glass** — glass belongs on the controls layer, not under figures
+you are trying to read.
+
+### A. Scrub delta baseline: range-start or today? — **correctness, not taste**
+
+When you scrub the chart, the delta shown next to the hero figure has to be
+measured from *something*, and the app has to pick one and label it. Apple's
+Stocks measures from the start of the selected range. The widgets and the CAGR
+block need to agree with whatever the Overview does, and right now it is worth
+confirming they do. Flagging it because a delta with an unstated baseline is a
+number that looks precise and isn't.
+
+### B. Is the palette monochrome-plus-two by policy?
+
+You said early on "very monochrome for now" and I have held to it: greyscale plus
+one green and one red. The allocation bar and the composition breakdown both
+*want* a categorical palette — distinct colours per asset class — and they will
+keep wanting one. Either we write the monochrome rule down as policy, or we own a
+contrast-checked category palette, which is real work rather than a colour pick.
+
+### C. Stale-data disclosure
+
+The app currently shows a confident net worth figure with no indication of its
+age. If the last refresh failed, or the phone was offline, that figure is
+yesterday's and looks like today's. The fix is an "as of HH:mm" line under the
+hero and on the widget previews once the snapshot passes some threshold — but the
+threshold is a judgement call about your data, so you pick it: an hour? a day?
+
+### D. A net-worth readout on the tab bar
+
+iOS 26's `.tabViewBottomAccessory` puts a persistent line above the tab bar,
+visible from every tab. One line — current figure and today's delta — is the
+flourish that best fits this app's content. It is also a permanent
+always-on-screen display of your net worth, including any time you hand someone
+your phone, which is why it is your call and not mine. Privacy mode would need to
+cover it.
+
+---
+
 ### Ideas, unranked
 
 - Net worth sparkline widget (the history series can now feed it).
