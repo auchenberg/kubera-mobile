@@ -32,13 +32,13 @@ open -a Simulator
 
 echo "▸ building"
 xcodebuild \
-  -project KuberaWidgets.xcodeproj \
-  -scheme KuberaWidgets \
+  -project KuberaMobile.xcodeproj \
+  -scheme KuberaMobile \
   -destination "id=$UDID" \
   -derivedDataPath build \
   -quiet build
 
-APP="build/Build/Products/Debug-iphonesimulator/KuberaWidgets.app"
+APP="build/Build/Products/Debug-iphonesimulator/KuberaMobile.app"
 echo "▸ installing"
 xcrun simctl install "$UDID" "$APP"
 

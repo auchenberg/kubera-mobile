@@ -1,4 +1,9 @@
+<img src="docs/icon.png" alt="Kubera Mobile app icon" width="128" align="left" hspace="16" vspace="4">
+
 # Kubera Mobile
+
+<br clear="left">
+
 
 A native iOS app and Home Screen widget suite for [Kubera](https://www.kubera.com),
 written in SwiftUI and WidgetKit. It reads your portfolio straight from Kubera's own
@@ -149,7 +154,7 @@ whatever simulator is already booted or boots an iPhone 17 Pro, builds, installs
 launches, and streams the app's console until you press Ctrl+C. Override the
 simulator with `SIM_NAME="iPhone 17" ./dev`.
 
-To work in Xcode instead, run `xcodegen` and open `KuberaWidgets.xcodeproj`. Tests
+To work in Xcode instead, run `xcodegen` and open `KuberaMobile.xcodeproj`. Tests
 run with ⌘U; the test bundle needs no host app.
 
 ### Try it without a Kubera account
@@ -243,7 +248,7 @@ Every claim here is in the code; the file is named beside it.
 
 ```
 project.yml     XcodeGen spec — the .xcodeproj is generated, edit this instead
-App/            SwiftUI app: KuberaWidgetsApp, AppStore (@Observable), AppLock, Views/
+App/            SwiftUI app: KuberaMobileApp, AppStore (@Observable), AppLock, Views/
 Shared/         Compiled into the app, the widget extension AND the test bundle:
   Kubera.swift    The whole API surface — REST + MCP transports, every decoder
   Shared.swift    Keychain + App Group storage, shared models

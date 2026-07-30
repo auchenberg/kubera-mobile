@@ -5,15 +5,15 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-ARCHIVE="build/KuberaWidgets.xcarchive"
+ARCHIVE="build/KuberaMobile.xcarchive"
 
 echo "▸ xcodegen"
 xcodegen --quiet
 
 echo "▸ archiving"
 xcodebuild \
-  -project KuberaWidgets.xcodeproj \
-  -scheme KuberaWidgets \
+  -project KuberaMobile.xcodeproj \
+  -scheme KuberaMobile \
   -configuration Release \
   -destination 'generic/platform=iOS' \
   -archivePath "$ARCHIVE" \

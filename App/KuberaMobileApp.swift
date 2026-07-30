@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct KuberaWidgetsApp: App {
+struct KuberaMobileApp: App {
     @State private var store = AppStore()
     @State private var appLock: AppLock
     @Environment(\.scenePhase) private var scenePhase

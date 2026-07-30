@@ -1,4 +1,4 @@
-name: KuberaWidgets
+name: KuberaMobile
 options:
   createIntermediateGroups: true
   deploymentTarget:
@@ -13,14 +13,14 @@ settings:
     TARGETED_DEVICE_FAMILY: "1"
 
 targets:
-  KuberaWidgets:
+  KuberaMobile:
     type: application
     platform: iOS
     sources:
       - App
       - Shared
     dependencies:
-      - target: KuberaWidgetsExtension
+      - target: KuberaMobileExtension
         embed: true
     info:
       path: App/Info.plist
@@ -40,11 +40,11 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.kubera.mobile
-        CODE_SIGN_ENTITLEMENTS: App/KuberaWidgets.entitlements
+        CODE_SIGN_ENTITLEMENTS: App/KuberaMobile.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
 
   # Pure-logic tests over the Shared sources; no host app needed.
-  KuberaWidgetsTests:
+  KuberaMobileTests:
     type: bundle.unit-test
     platform: iOS
     sources:
@@ -55,7 +55,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.kubera.mobile.tests
         GENERATE_INFOPLIST_FILE: true
 
-  KuberaWidgetsExtension:
+  KuberaMobileExtension:
     type: app-extension
     platform: iOS
     sources:
@@ -71,7 +71,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.kubera.mobile.widgets
-        CODE_SIGN_ENTITLEMENTS: Widgets/KuberaWidgetsExtension.entitlements
+        CODE_SIGN_ENTITLEMENTS: Widgets/KuberaMobileExtension.entitlements
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME: WidgetBackground
         SKIP_INSTALL: true

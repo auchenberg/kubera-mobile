@@ -1,0 +1,792 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		03AF9D20EEBED6BB22ED9BE8 /* ConnectionStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDD427BFB87A3FC24F74C060 /* ConnectionStatusTests.swift */; };
+		0425A89C1465DB57A4B81C9F /* OverviewChartTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08126F91CADFD534EF56286 /* OverviewChartTests.swift */; };
+		062C090975C8940007D9D16D /* NetWorthStatsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 264A04444F04E8F1B60B0DB4 /* NetWorthStatsWidget.swift */; };
+		07755B550E10C0804ED651B7 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ACDFDB5BD58DC3AA5A61D3 /* AppStore.swift */; };
+		08C0BE9F05AA7FB80BE77408 /* Greeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21A1CB8F4B982AB90F295030 /* Greeting.swift */; };
+		08D19863C3C0F8E847E017BE /* Format.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62D2C9A2C8EA3C03FF5F21C /* Format.swift */; };
+		0A6A878BB3BC7F85FD4F3FF9 /* Monogram.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD5986C9B8661912BFBADCED /* Monogram.swift */; };
+		0C5F8D178D6F7B825491BE7A /* TrendsCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BBBC41CF7BE15CAF4F4FA1D /* TrendsCalculatorTests.swift */; };
+		0DE247DEAF0A1B581E9EF638 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328215AC2C45BB485D797BFB /* Theme.swift */; };
+		12E4B8656B175FF4D361E3A2 /* DeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = A573F2169A14F50B143BF1BC /* DeepLink.swift */; };
+		140D39729BD485F33ACEE3EC /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4AC441EF2E1AC60A27E6B67 /* SignInView.swift */; };
+		1724B3204A6C092F6995A4E9 /* MonogramTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 262F1F7E2BF0FE1A9E47AB2E /* MonogramTests.swift */; };
+		18915210EB2CB22EBD7D0EFE /* DemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D3E541C3B55D4E373CEC8D /* DemoData.swift */; };
+		18BB7418A8D5FE21EDF0857E /* GreetingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CFBD86EAEB690861ED4F2E3 /* GreetingTests.swift */; };
+		1B934284989416631EFE608D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF244FEF4E6972F4313382C /* SettingsView.swift */; };
+		1CC824A5C9AED0B0C39D1557 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0AC87E408EBA75707BF54758 /* Assets.xcassets */; };
+		1F1397DFF3832C27468FE791 /* KuberaMobileExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AD8E4C28962AB77C22AD6A70 /* KuberaMobileExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		299198589C471960C21E70C3 /* AppLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182C59BC9F5733E349C3738E /* AppLock.swift */; };
+		2E354EE157BDE7C048980095 /* OverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93F1725E177D1300E68CC37B /* OverviewView.swift */; };
+		3156D310CAB943642E972458 /* DeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = A573F2169A14F50B143BF1BC /* DeepLink.swift */; };
+		33634B50D45AFCBCC55B140C /* AppLockPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0A326EBD9A73EB29CAFBF1 /* AppLockPolicy.swift */; };
+		33ABAC2D864C1400FEA641AD /* MarketComps.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2DF12ECBF442B9DCEC6F25 /* MarketComps.swift */; };
+		3EF7AFDE30E57864BA7620F6 /* DemoDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 831A39C7C3AF19152F9CA86C /* DemoDataTests.swift */; };
+		41E9D445727B6857D51867A5 /* FormatUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A84D4B8FC71F5E7D8DB0919A /* FormatUnitTests.swift */; };
+		482C8CAA2E0FC846FBCE0BD4 /* AppLockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EF6EEECC827E637397288F7 /* AppLockTests.swift */; };
+		4BD6772C523118CFB10A3C60 /* WidgetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CF5AEB0AE0934F98263045A /* WidgetsView.swift */; };
+		52B21BC6C65E2DC5E174D457 /* Trends.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82BC53E481EB16D1E8231F78 /* Trends.swift */; };
+		52B959234BDB5654BFEE9C55 /* KuberaSDKTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F72CF76C84828635CF98C48 /* KuberaSDKTests.swift */; };
+		57E805002AF04E07109B1C0A /* Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DF0E332103430E59CD3A1F /* Provider.swift */; };
+		5A20168EA40868E4AC5D1DE3 /* Kubera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84236A371F0E34921F109CED /* Kubera.swift */; };
+		650EACC4071DA55BD6DE55B0 /* AppLockPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0A326EBD9A73EB29CAFBF1 /* AppLockPolicy.swift */; };
+		66FE47ACFE318F5121B36F21 /* ConnectionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4FF1B05534082724FC972AB /* ConnectionStatus.swift */; };
+		67DC0ECB2DC8BB2191D28C43 /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4371B78D3A54361AC2D10C53 /* Shared.swift */; };
+		6987518A4402D29BB32374A9 /* Format.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62D2C9A2C8EA3C03FF5F21C /* Format.swift */; };
+		6D43DF12C9DAC338488F7321 /* Greeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21A1CB8F4B982AB90F295030 /* Greeting.swift */; };
+		6D7AE4F3CF73C9D65DC60B57 /* OverviewModules.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B8B87ED6893DB4F0DB44C6 /* OverviewModules.swift */; };
+		7A5079636E09A5E1FE9FB51E /* MarketComps.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2DF12ECBF442B9DCEC6F25 /* MarketComps.swift */; };
+		7E51507EED5827198C458102 /* Trends.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82BC53E481EB16D1E8231F78 /* Trends.swift */; };
+		820FEE290D9528A8D18EA2C4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 06D143EEE351A962F27FB16C /* Assets.xcassets */; };
+		82839048700AFC0FED12247C /* DeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = A573F2169A14F50B143BF1BC /* DeepLink.swift */; };
+		916DAE2FBD45B01968A8EBAA /* Kubera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84236A371F0E34921F109CED /* Kubera.swift */; };
+		92B115269293015DD0F9C23E /* MarketComps.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2DF12ECBF442B9DCEC6F25 /* MarketComps.swift */; };
+		92E54F0D5EE3F28CEDB13917 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = E37B79AEFE79A98112DC4E7E /* Components.swift */; };
+		9300EEFEC1A9F64D4A0E8621 /* HistoryLogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1308CC843D5CA6CB7CB688 /* HistoryLogTests.swift */; };
+		94DBE143B0B49E827B9411AE /* OverviewModulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B727CE373FC90971F37ECB15 /* OverviewModulesTests.swift */; };
+		97C516DDE6DB7F2E7B9A3E3B /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4371B78D3A54361AC2D10C53 /* Shared.swift */; };
+		9C7508839EF9CAB9E4D72EFE /* HistoryParseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA254F65547D5C22323323F1 /* HistoryParseTests.swift */; };
+		A29E19CF82290F7BC645D3C6 /* CagrWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C2233CECA1DE7F85E08A09D /* CagrWidget.swift */; };
+		A4DD033989FEDD9A29A90A2E /* DemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D3E541C3B55D4E373CEC8D /* DemoData.swift */; };
+		A6475BBCF80CD2E9198A6661 /* DeepLinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2125114FEF5FCDB896B0C932 /* DeepLinkTests.swift */; };
+		A6A888B32678FFD8EC6B31C7 /* Greeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21A1CB8F4B982AB90F295030 /* Greeting.swift */; };
+		AB2C7A65416BF1170E3820AB /* MarketCompsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B50ADE56F516456C469D290 /* MarketCompsTests.swift */; };
+		BBBC3FF9F8A63C4AF8A6E087 /* AppLockPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0A326EBD9A73EB29CAFBF1 /* AppLockPolicy.swift */; };
+		BC0A2C0919F88CF11F63F4C7 /* KuberaMobileApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2BAE1FE8F743BA95F3AB528 /* KuberaMobileApp.swift */; };
+		BC6AAE19FD3582AB71FCB301 /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4371B78D3A54361AC2D10C53 /* Shared.swift */; };
+		BD4DA85AA2B408EA0E371845 /* Kubera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84236A371F0E34921F109CED /* Kubera.swift */; };
+		BDF74668C6D73E21FCB153BD /* Trends.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82BC53E481EB16D1E8231F78 /* Trends.swift */; };
+		C45FDA3156CC5D7FA67A78B3 /* ConnectionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4FF1B05534082724FC972AB /* ConnectionStatus.swift */; };
+		C8A334B13F24B89B3551DC78 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABA9B085C294F0C24B394E8 /* WelcomeView.swift */; };
+		CB8E7EF253D219B482445630 /* FormatTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69365FDF8D17AE6E2A9298FD /* FormatTests.swift */; };
+		CEAD17FE047ACEE4F6C531A6 /* ConnectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86831DC47AA5CF361D180119 /* ConnectView.swift */; };
+		D31D944FDAE16E8A6A17B98C /* OverviewChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = B15F3F33FCB4524CE24573CA /* OverviewChart.swift */; };
+		D47A34586E26E563EB3F416E /* Monogram.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD5986C9B8661912BFBADCED /* Monogram.swift */; };
+		D801D783ACC856117DD948E7 /* KuberaMCPParseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 193FC1F93728F8E98BD7B350 /* KuberaMCPParseTests.swift */; };
+		D8BACF0D01BA5AAA812EB6D9 /* OverviewChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = B15F3F33FCB4524CE24573CA /* OverviewChart.swift */; };
+		DB411244A691A9EB0DC607D0 /* OverviewModules.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B8B87ED6893DB4F0DB44C6 /* OverviewModules.swift */; };
+		DCE49ECFBD900F74C7D3995A /* WidgetThemeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F91F1BEF91EC8D6BACAB1F96 /* WidgetThemeTests.swift */; };
+		DFA80B0F54CBD1150447F6C8 /* Monogram.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD5986C9B8661912BFBADCED /* Monogram.swift */; };
+		DFCAEB6AF51AF0B076A417BB /* WidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A4094BADFA93219D478173 /* WidgetViews.swift */; };
+		E7228C939901F8B3511D7F10 /* WidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A4094BADFA93219D478173 /* WidgetViews.swift */; };
+		EA00EC5E20359CCDEC50765F /* WidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A4094BADFA93219D478173 /* WidgetViews.swift */; };
+		EC6A7DA71F2CB28408BA6146 /* OverviewChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = B15F3F33FCB4524CE24573CA /* OverviewChart.swift */; };
+		EE9DAF5D7B766B395C94DEFA /* GlassBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92AB6CEDE006996CCF30CF04 /* GlassBackground.swift */; };
+		F2CE343D2F69D5E6B00B3E9D /* OverviewModules.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B8B87ED6893DB4F0DB44C6 /* OverviewModules.swift */; };
+		F6147AED11E08F8F76A240CB /* ConnectionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4FF1B05534082724FC972AB /* ConnectionStatus.swift */; };
+		F69D5E113A3AD2A3A7FCCA9E /* DemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D3E541C3B55D4E373CEC8D /* DemoData.swift */; };
+		F6BAF9958BAD4147A38A935F /* Format.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62D2C9A2C8EA3C03FF5F21C /* Format.swift */; };
+		F72E7A85D0E0B9869050BAA9 /* WidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8DD5DD1AD09262306983E /* WidgetBundle.swift */; };
+		FF149571782425A21E2C83C2 /* AssetsDebtsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3CB5C937926F2C8AACB2637 /* AssetsDebtsWidget.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0C7FE741A62489D2AD32D8D4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 11CBCFA3FB4290FC0222ECAA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C710D54732DBFAABD2FA0DBC;
+			remoteInfo = KuberaMobileExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BC856CCF722FF3A7BD95946C /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				1F1397DFF3832C27468FE791 /* KuberaMobileExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		01B8DD5DD1AD09262306983E /* WidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBundle.swift; sourceTree = "<group>"; };
+		06D143EEE351A962F27FB16C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0AC87E408EBA75707BF54758 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0CF5AEB0AE0934F98263045A /* WidgetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsView.swift; sourceTree = "<group>"; };
+		12C8B169FD2E6F0A8D11B453 /* KuberaMobile.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KuberaMobile.entitlements; sourceTree = "<group>"; };
+		182C59BC9F5733E349C3738E /* AppLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLock.swift; sourceTree = "<group>"; };
+		193FC1F93728F8E98BD7B350 /* KuberaMCPParseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KuberaMCPParseTests.swift; sourceTree = "<group>"; };
+		1B1308CC843D5CA6CB7CB688 /* HistoryLogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryLogTests.swift; sourceTree = "<group>"; };
+		1CFBD86EAEB690861ED4F2E3 /* GreetingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreetingTests.swift; sourceTree = "<group>"; };
+		2125114FEF5FCDB896B0C932 /* DeepLinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkTests.swift; sourceTree = "<group>"; };
+		21A1CB8F4B982AB90F295030 /* Greeting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Greeting.swift; sourceTree = "<group>"; };
+		262F1F7E2BF0FE1A9E47AB2E /* MonogramTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonogramTests.swift; sourceTree = "<group>"; };
+		264A04444F04E8F1B60B0DB4 /* NetWorthStatsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetWorthStatsWidget.swift; sourceTree = "<group>"; };
+		2A774FD619F8E5D25AF2DC81 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		328215AC2C45BB485D797BFB /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		3F72CF76C84828635CF98C48 /* KuberaSDKTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KuberaSDKTests.swift; sourceTree = "<group>"; };
+		4123FC98931FBF573BBC273C /* KuberaMobileExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KuberaMobileExtension.entitlements; sourceTree = "<group>"; };
+		4371B78D3A54361AC2D10C53 /* Shared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared.swift; sourceTree = "<group>"; };
+		69365FDF8D17AE6E2A9298FD /* FormatTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatTests.swift; sourceTree = "<group>"; };
+		6B50ADE56F516456C469D290 /* MarketCompsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketCompsTests.swift; sourceTree = "<group>"; };
+		6BBBC41CF7BE15CAF4F4FA1D /* TrendsCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendsCalculatorTests.swift; sourceTree = "<group>"; };
+		7C2233CECA1DE7F85E08A09D /* CagrWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CagrWidget.swift; sourceTree = "<group>"; };
+		7C7A9CED9DCBAB1A650BDEFF /* KuberaMobile.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = KuberaMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		82BC53E481EB16D1E8231F78 /* Trends.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trends.swift; sourceTree = "<group>"; };
+		831A39C7C3AF19152F9CA86C /* DemoDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoDataTests.swift; sourceTree = "<group>"; };
+		84236A371F0E34921F109CED /* Kubera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Kubera.swift; sourceTree = "<group>"; };
+		86831DC47AA5CF361D180119 /* ConnectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectView.swift; sourceTree = "<group>"; };
+		8B0A326EBD9A73EB29CAFBF1 /* AppLockPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockPolicy.swift; sourceTree = "<group>"; };
+		8EF6EEECC827E637397288F7 /* AppLockTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockTests.swift; sourceTree = "<group>"; };
+		92AB6CEDE006996CCF30CF04 /* GlassBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassBackground.swift; sourceTree = "<group>"; };
+		93F1725E177D1300E68CC37B /* OverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewView.swift; sourceTree = "<group>"; };
+		A4FF1B05534082724FC972AB /* ConnectionStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStatus.swift; sourceTree = "<group>"; };
+		A573F2169A14F50B143BF1BC /* DeepLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLink.swift; sourceTree = "<group>"; };
+		A84D4B8FC71F5E7D8DB0919A /* FormatUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatUnitTests.swift; sourceTree = "<group>"; };
+		AD8E4C28962AB77C22AD6A70 /* KuberaMobileExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = KuberaMobileExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B15F3F33FCB4524CE24573CA /* OverviewChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewChart.swift; sourceTree = "<group>"; };
+		B1A4094BADFA93219D478173 /* WidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetViews.swift; sourceTree = "<group>"; };
+		B1D3E541C3B55D4E373CEC8D /* DemoData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoData.swift; sourceTree = "<group>"; };
+		B3CB5C937926F2C8AACB2637 /* AssetsDebtsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetsDebtsWidget.swift; sourceTree = "<group>"; };
+		B727CE373FC90971F37ECB15 /* OverviewModulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewModulesTests.swift; sourceTree = "<group>"; };
+		B9DF0E332103430E59CD3A1F /* Provider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Provider.swift; sourceTree = "<group>"; };
+		BDF244FEF4E6972F4313382C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		C4AC441EF2E1AC60A27E6B67 /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
+		CA254F65547D5C22323323F1 /* HistoryParseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryParseTests.swift; sourceTree = "<group>"; };
+		D62D2C9A2C8EA3C03FF5F21C /* Format.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Format.swift; sourceTree = "<group>"; };
+		DA2DF12ECBF442B9DCEC6F25 /* MarketComps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketComps.swift; sourceTree = "<group>"; };
+		DD5986C9B8661912BFBADCED /* Monogram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Monogram.swift; sourceTree = "<group>"; };
+		E190BF6CD6AA93A88FDDCDFA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E2BAE1FE8F743BA95F3AB528 /* KuberaMobileApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KuberaMobileApp.swift; sourceTree = "<group>"; };
+		E37B79AEFE79A98112DC4E7E /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		F08126F91CADFD534EF56286 /* OverviewChartTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewChartTests.swift; sourceTree = "<group>"; };
+		F3ACDFDB5BD58DC3AA5A61D3 /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
+		F5B8B87ED6893DB4F0DB44C6 /* OverviewModules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewModules.swift; sourceTree = "<group>"; };
+		F91F1BEF91EC8D6BACAB1F96 /* WidgetThemeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetThemeTests.swift; sourceTree = "<group>"; };
+		F974E1419AD300DC593E6922 /* KuberaMobileTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = KuberaMobileTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FABA9B085C294F0C24B394E8 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		FDD427BFB87A3FC24F74C060 /* ConnectionStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStatusTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		21127C448F184284EF7F5300 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7C7A9CED9DCBAB1A650BDEFF /* KuberaMobile.app */,
+				AD8E4C28962AB77C22AD6A70 /* KuberaMobileExtension.appex */,
+				F974E1419AD300DC593E6922 /* KuberaMobileTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2EC54587BAB615A0AF178E37 /* Widgets */ = {
+			isa = PBXGroup;
+			children = (
+				0AC87E408EBA75707BF54758 /* Assets.xcassets */,
+				B3CB5C937926F2C8AACB2637 /* AssetsDebtsWidget.swift */,
+				7C2233CECA1DE7F85E08A09D /* CagrWidget.swift */,
+				E190BF6CD6AA93A88FDDCDFA /* Info.plist */,
+				4123FC98931FBF573BBC273C /* KuberaMobileExtension.entitlements */,
+				264A04444F04E8F1B60B0DB4 /* NetWorthStatsWidget.swift */,
+				B9DF0E332103430E59CD3A1F /* Provider.swift */,
+				01B8DD5DD1AD09262306983E /* WidgetBundle.swift */,
+			);
+			path = Widgets;
+			sourceTree = "<group>";
+		};
+		8AF0C1551D59D98E82C2709B /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				8B0A326EBD9A73EB29CAFBF1 /* AppLockPolicy.swift */,
+				A4FF1B05534082724FC972AB /* ConnectionStatus.swift */,
+				A573F2169A14F50B143BF1BC /* DeepLink.swift */,
+				B1D3E541C3B55D4E373CEC8D /* DemoData.swift */,
+				D62D2C9A2C8EA3C03FF5F21C /* Format.swift */,
+				21A1CB8F4B982AB90F295030 /* Greeting.swift */,
+				84236A371F0E34921F109CED /* Kubera.swift */,
+				DA2DF12ECBF442B9DCEC6F25 /* MarketComps.swift */,
+				DD5986C9B8661912BFBADCED /* Monogram.swift */,
+				B15F3F33FCB4524CE24573CA /* OverviewChart.swift */,
+				F5B8B87ED6893DB4F0DB44C6 /* OverviewModules.swift */,
+				4371B78D3A54361AC2D10C53 /* Shared.swift */,
+				82BC53E481EB16D1E8231F78 /* Trends.swift */,
+				B1A4094BADFA93219D478173 /* WidgetViews.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		CCD699126216C3E3459D386F /* App */ = {
+			isa = PBXGroup;
+			children = (
+				182C59BC9F5733E349C3738E /* AppLock.swift */,
+				F3ACDFDB5BD58DC3AA5A61D3 /* AppStore.swift */,
+				06D143EEE351A962F27FB16C /* Assets.xcassets */,
+				2A774FD619F8E5D25AF2DC81 /* Info.plist */,
+				12C8B169FD2E6F0A8D11B453 /* KuberaMobile.entitlements */,
+				E2BAE1FE8F743BA95F3AB528 /* KuberaMobileApp.swift */,
+				328215AC2C45BB485D797BFB /* Theme.swift */,
+				D9CB91E0E03B1ADC8491B523 /* Views */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		D5B3FADF3CE0C0B1B8C2FF1D /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				8EF6EEECC827E637397288F7 /* AppLockTests.swift */,
+				FDD427BFB87A3FC24F74C060 /* ConnectionStatusTests.swift */,
+				2125114FEF5FCDB896B0C932 /* DeepLinkTests.swift */,
+				831A39C7C3AF19152F9CA86C /* DemoDataTests.swift */,
+				69365FDF8D17AE6E2A9298FD /* FormatTests.swift */,
+				A84D4B8FC71F5E7D8DB0919A /* FormatUnitTests.swift */,
+				1CFBD86EAEB690861ED4F2E3 /* GreetingTests.swift */,
+				1B1308CC843D5CA6CB7CB688 /* HistoryLogTests.swift */,
+				CA254F65547D5C22323323F1 /* HistoryParseTests.swift */,
+				193FC1F93728F8E98BD7B350 /* KuberaMCPParseTests.swift */,
+				3F72CF76C84828635CF98C48 /* KuberaSDKTests.swift */,
+				6B50ADE56F516456C469D290 /* MarketCompsTests.swift */,
+				262F1F7E2BF0FE1A9E47AB2E /* MonogramTests.swift */,
+				F08126F91CADFD534EF56286 /* OverviewChartTests.swift */,
+				B727CE373FC90971F37ECB15 /* OverviewModulesTests.swift */,
+				6BBBC41CF7BE15CAF4F4FA1D /* TrendsCalculatorTests.swift */,
+				F91F1BEF91EC8D6BACAB1F96 /* WidgetThemeTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		D9CB91E0E03B1ADC8491B523 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				E37B79AEFE79A98112DC4E7E /* Components.swift */,
+				86831DC47AA5CF361D180119 /* ConnectView.swift */,
+				92AB6CEDE006996CCF30CF04 /* GlassBackground.swift */,
+				93F1725E177D1300E68CC37B /* OverviewView.swift */,
+				BDF244FEF4E6972F4313382C /* SettingsView.swift */,
+				C4AC441EF2E1AC60A27E6B67 /* SignInView.swift */,
+				FABA9B085C294F0C24B394E8 /* WelcomeView.swift */,
+				0CF5AEB0AE0934F98263045A /* WidgetsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		E6B242A2C5898308C75031EB = {
+			isa = PBXGroup;
+			children = (
+				CCD699126216C3E3459D386F /* App */,
+				8AF0C1551D59D98E82C2709B /* Shared */,
+				D5B3FADF3CE0C0B1B8C2FF1D /* Tests */,
+				2EC54587BAB615A0AF178E37 /* Widgets */,
+				21127C448F184284EF7F5300 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		092FB45726E937DB851A9C4E /* KuberaMobile */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AE1B23D5ADEA87D2F24FA0D7 /* Build configuration list for PBXNativeTarget "KuberaMobile" */;
+			buildPhases = (
+				38340AB64F25836A72A908EE /* Sources */,
+				5390C0533381404708FF57AE /* Resources */,
+				BC856CCF722FF3A7BD95946C /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CA7AB91CF3859660FB391466 /* PBXTargetDependency */,
+			);
+			name = KuberaMobile;
+			packageProductDependencies = (
+			);
+			productName = KuberaMobile;
+			productReference = 7C7A9CED9DCBAB1A650BDEFF /* KuberaMobile.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C710D54732DBFAABD2FA0DBC /* KuberaMobileExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9FA3183AC6AF4898863032EA /* Build configuration list for PBXNativeTarget "KuberaMobileExtension" */;
+			buildPhases = (
+				D050DCEDBC534DEA4E4A3AFA /* Sources */,
+				1B90C6CB1AEDF53476615E77 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KuberaMobileExtension;
+			packageProductDependencies = (
+			);
+			productName = KuberaMobileExtension;
+			productReference = AD8E4C28962AB77C22AD6A70 /* KuberaMobileExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		F14F460A6E6E73AD1ADE62EC /* KuberaMobileTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D23FF380445465AA40175E2D /* Build configuration list for PBXNativeTarget "KuberaMobileTests" */;
+			buildPhases = (
+				B98C5D22ED0FCF31FFC720B3 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KuberaMobileTests;
+			packageProductDependencies = (
+			);
+			productName = KuberaMobileTests;
+			productReference = F974E1419AD300DC593E6922 /* KuberaMobileTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		11CBCFA3FB4290FC0222ECAA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					092FB45726E937DB851A9C4E = {
+						DevelopmentTeam = TP8BN7C8C6;
+						ProvisioningStyle = Automatic;
+					};
+					C710D54732DBFAABD2FA0DBC = {
+						DevelopmentTeam = TP8BN7C8C6;
+						ProvisioningStyle = Automatic;
+					};
+					F14F460A6E6E73AD1ADE62EC = {
+						DevelopmentTeam = TP8BN7C8C6;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 5623B0256922735666287B39 /* Build configuration list for PBXProject "KuberaMobile" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = E6B242A2C5898308C75031EB;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 21127C448F184284EF7F5300 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				092FB45726E937DB851A9C4E /* KuberaMobile */,
+				F14F460A6E6E73AD1ADE62EC /* KuberaMobileTests */,
+				C710D54732DBFAABD2FA0DBC /* KuberaMobileExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1B90C6CB1AEDF53476615E77 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1CC824A5C9AED0B0C39D1557 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5390C0533381404708FF57AE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				820FEE290D9528A8D18EA2C4 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		38340AB64F25836A72A908EE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				299198589C471960C21E70C3 /* AppLock.swift in Sources */,
+				33634B50D45AFCBCC55B140C /* AppLockPolicy.swift in Sources */,
+				07755B550E10C0804ED651B7 /* AppStore.swift in Sources */,
+				92E54F0D5EE3F28CEDB13917 /* Components.swift in Sources */,
+				CEAD17FE047ACEE4F6C531A6 /* ConnectView.swift in Sources */,
+				F6147AED11E08F8F76A240CB /* ConnectionStatus.swift in Sources */,
+				12E4B8656B175FF4D361E3A2 /* DeepLink.swift in Sources */,
+				A4DD033989FEDD9A29A90A2E /* DemoData.swift in Sources */,
+				6987518A4402D29BB32374A9 /* Format.swift in Sources */,
+				EE9DAF5D7B766B395C94DEFA /* GlassBackground.swift in Sources */,
+				A6A888B32678FFD8EC6B31C7 /* Greeting.swift in Sources */,
+				5A20168EA40868E4AC5D1DE3 /* Kubera.swift in Sources */,
+				BC0A2C0919F88CF11F63F4C7 /* KuberaMobileApp.swift in Sources */,
+				33ABAC2D864C1400FEA641AD /* MarketComps.swift in Sources */,
+				D47A34586E26E563EB3F416E /* Monogram.swift in Sources */,
+				EC6A7DA71F2CB28408BA6146 /* OverviewChart.swift in Sources */,
+				DB411244A691A9EB0DC607D0 /* OverviewModules.swift in Sources */,
+				2E354EE157BDE7C048980095 /* OverviewView.swift in Sources */,
+				1B934284989416631EFE608D /* SettingsView.swift in Sources */,
+				97C516DDE6DB7F2E7B9A3E3B /* Shared.swift in Sources */,
+				140D39729BD485F33ACEE3EC /* SignInView.swift in Sources */,
+				0DE247DEAF0A1B581E9EF638 /* Theme.swift in Sources */,
+				BDF74668C6D73E21FCB153BD /* Trends.swift in Sources */,
+				C8A334B13F24B89B3551DC78 /* WelcomeView.swift in Sources */,
+				E7228C939901F8B3511D7F10 /* WidgetViews.swift in Sources */,
+				4BD6772C523118CFB10A3C60 /* WidgetsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B98C5D22ED0FCF31FFC720B3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				650EACC4071DA55BD6DE55B0 /* AppLockPolicy.swift in Sources */,
+				482C8CAA2E0FC846FBCE0BD4 /* AppLockTests.swift in Sources */,
+				66FE47ACFE318F5121B36F21 /* ConnectionStatus.swift in Sources */,
+				03AF9D20EEBED6BB22ED9BE8 /* ConnectionStatusTests.swift in Sources */,
+				82839048700AFC0FED12247C /* DeepLink.swift in Sources */,
+				A6475BBCF80CD2E9198A6661 /* DeepLinkTests.swift in Sources */,
+				F69D5E113A3AD2A3A7FCCA9E /* DemoData.swift in Sources */,
+				3EF7AFDE30E57864BA7620F6 /* DemoDataTests.swift in Sources */,
+				08D19863C3C0F8E847E017BE /* Format.swift in Sources */,
+				CB8E7EF253D219B482445630 /* FormatTests.swift in Sources */,
+				41E9D445727B6857D51867A5 /* FormatUnitTests.swift in Sources */,
+				08C0BE9F05AA7FB80BE77408 /* Greeting.swift in Sources */,
+				18BB7418A8D5FE21EDF0857E /* GreetingTests.swift in Sources */,
+				9300EEFEC1A9F64D4A0E8621 /* HistoryLogTests.swift in Sources */,
+				9C7508839EF9CAB9E4D72EFE /* HistoryParseTests.swift in Sources */,
+				BD4DA85AA2B408EA0E371845 /* Kubera.swift in Sources */,
+				D801D783ACC856117DD948E7 /* KuberaMCPParseTests.swift in Sources */,
+				52B959234BDB5654BFEE9C55 /* KuberaSDKTests.swift in Sources */,
+				92B115269293015DD0F9C23E /* MarketComps.swift in Sources */,
+				AB2C7A65416BF1170E3820AB /* MarketCompsTests.swift in Sources */,
+				0A6A878BB3BC7F85FD4F3FF9 /* Monogram.swift in Sources */,
+				1724B3204A6C092F6995A4E9 /* MonogramTests.swift in Sources */,
+				D8BACF0D01BA5AAA812EB6D9 /* OverviewChart.swift in Sources */,
+				0425A89C1465DB57A4B81C9F /* OverviewChartTests.swift in Sources */,
+				F2CE343D2F69D5E6B00B3E9D /* OverviewModules.swift in Sources */,
+				94DBE143B0B49E827B9411AE /* OverviewModulesTests.swift in Sources */,
+				67DC0ECB2DC8BB2191D28C43 /* Shared.swift in Sources */,
+				52B21BC6C65E2DC5E174D457 /* Trends.swift in Sources */,
+				0C5F8D178D6F7B825491BE7A /* TrendsCalculatorTests.swift in Sources */,
+				DCE49ECFBD900F74C7D3995A /* WidgetThemeTests.swift in Sources */,
+				DFCAEB6AF51AF0B076A417BB /* WidgetViews.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D050DCEDBC534DEA4E4A3AFA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BBBC3FF9F8A63C4AF8A6E087 /* AppLockPolicy.swift in Sources */,
+				FF149571782425A21E2C83C2 /* AssetsDebtsWidget.swift in Sources */,
+				A29E19CF82290F7BC645D3C6 /* CagrWidget.swift in Sources */,
+				C45FDA3156CC5D7FA67A78B3 /* ConnectionStatus.swift in Sources */,
+				3156D310CAB943642E972458 /* DeepLink.swift in Sources */,
+				18915210EB2CB22EBD7D0EFE /* DemoData.swift in Sources */,
+				F6BAF9958BAD4147A38A935F /* Format.swift in Sources */,
+				6D43DF12C9DAC338488F7321 /* Greeting.swift in Sources */,
+				916DAE2FBD45B01968A8EBAA /* Kubera.swift in Sources */,
+				7A5079636E09A5E1FE9FB51E /* MarketComps.swift in Sources */,
+				DFA80B0F54CBD1150447F6C8 /* Monogram.swift in Sources */,
+				062C090975C8940007D9D16D /* NetWorthStatsWidget.swift in Sources */,
+				D31D944FDAE16E8A6A17B98C /* OverviewChart.swift in Sources */,
+				6D7AE4F3CF73C9D65DC60B57 /* OverviewModules.swift in Sources */,
+				57E805002AF04E07109B1C0A /* Provider.swift in Sources */,
+				BC6AAE19FD3582AB71FCB301 /* Shared.swift in Sources */,
+				7E51507EED5827198C458102 /* Trends.swift in Sources */,
+				F72E7A85D0E0B9869050BAA9 /* WidgetBundle.swift in Sources */,
+				EA00EC5E20359CCDEC50765F /* WidgetViews.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CA7AB91CF3859660FB391466 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C710D54732DBFAABD2FA0DBC /* KuberaMobileExtension */;
+			targetProxy = 0C7FE741A62489D2AD32D8D4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		002AA326E75DA6E1861F50CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/KuberaMobile.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kubera.mobile;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		066A241732FFD2FED8AA9AC8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kubera.mobile.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		2E79F153D95E29497F4E1B81 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = Widgets/KuberaMobileExtension.entitlements;
+				INFOPLIST_FILE = Widgets/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kubera.mobile.widgets;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		37B5DABAA43CE5FEA22C630F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = Widgets/KuberaMobileExtension.entitlements;
+				INFOPLIST_FILE = Widgets/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kubera.mobile.widgets;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		679C4546F7F58BBA396370A6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kubera.mobile.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D64D7BAE2F8D9E88AD12DA39 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = TP8BN7C8C6;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		E057C9E3B41920AED07AD817 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/KuberaMobile.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kubera.mobile;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		EFD02A331FF3B5B5741641C8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = TP8BN7C8C6;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5623B0256922735666287B39 /* Build configuration list for PBXProject "KuberaMobile" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D64D7BAE2F8D9E88AD12DA39 /* Debug */,
+				EFD02A331FF3B5B5741641C8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9FA3183AC6AF4898863032EA /* Build configuration list for PBXNativeTarget "KuberaMobileExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2E79F153D95E29497F4E1B81 /* Debug */,
+				37B5DABAA43CE5FEA22C630F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		AE1B23D5ADEA87D2F24FA0D7 /* Build configuration list for PBXNativeTarget "KuberaMobile" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E057C9E3B41920AED07AD817 /* Debug */,
+				002AA326E75DA6E1861F50CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D23FF380445465AA40175E2D /* Build configuration list for PBXNativeTarget "KuberaMobileTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				679C4546F7F58BBA396370A6 /* Debug */,
+				066A241732FFD2FED8AA9AC8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 11CBCFA3FB4290FC0222ECAA /* Project object */;
+}
