@@ -18,3 +18,7 @@ xcuserdata/
 
 # local env files
 .env*.local
+
+# Build output
+*.xcarchive
+*.ipa

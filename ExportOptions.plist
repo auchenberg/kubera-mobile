@@ -6,8 +6,11 @@
 	<string>app-store-connect</string>
 	<key>destination</key>
 	<string>upload</string>
+	<!-- Must match DEVELOPMENT_TEAM in project.yml. The other team on this
+	     Apple ID has no account signed into Xcode, so no profile can be
+	     minted for it and -exportArchive fails outright. -->
 	<key>teamID</key>
-	<string>LFWWP8X7WA</string>
+	<string>TP8BN7C8C6</string>
 	<key>uploadSymbols</key>
 	<true/>
 	<key>manageAppVersionAndBuildNumber</key>
