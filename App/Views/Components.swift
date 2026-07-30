@@ -91,6 +91,57 @@ extension EdgeInsets {
     static let cardRows = EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16)
 }
 
+/// The heading every tab opens with.
+///
+/// Deliberately a view inside the scroll content rather than a
+/// `.navigationTitle`. A large title reserves its own bar above the content and
+/// sits it much lower down the screen, which made the Overview — whose greeting
+/// is drawn this way — start visibly higher than the other two tabs. Pair this
+/// with `.toolbar(.hidden, for: .navigationBar)` so nothing reserves that space.
+///
+/// The type matches the Overview greeting exactly: change one and change both,
+/// or the tabs drift apart again.
+struct ScreenHeader<Trailing: View>: View {
+    private let title: String
+    private let subtitle: String?
+    @ViewBuilder private let trailing: () -> Trailing
+
+    init(
+        _ title: String,
+        subtitle: String? = nil,
+        @ViewBuilder trailing: @escaping () -> Trailing = { EmptyView() }
+    ) {
+        self.title = title
+        self.subtitle = subtitle
+        self.trailing = trailing
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(title)
+                    .font(.system(.title, weight: .semibold))
+                    .kerning(-0.3)
+                    .foregroundStyle(Theme.text)
+                Spacer(minLength: 0)
+                trailing()
+            }
+
+            if let subtitle {
+                Text(subtitle)
+                    .font(.subheadline)
+                    .lineSpacing(4)
+                    .foregroundStyle(Theme.dim)
+                    // Explanatory copy takes the height it needs; without this
+                    // it renders as one truncated line.
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityAddTraits(.isHeader)
+    }
+}
+
 struct SectionTitle: View {
     private let title: String
 

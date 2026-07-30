@@ -14,6 +14,10 @@ struct SettingsView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
+                    ScreenHeader("Settings")
+                        .padding(.top, 8)
+                        .padding(.bottom, 16)
+
                     IdentityHeader(
                         profile: store.profile,
                         portfolioLine: portfolioLine,
@@ -22,7 +26,6 @@ struct SettingsView: View {
                         isChecking: checking,
                         onCheck: checkConnection
                     )
-                    .padding(.top, 4)
 
                     disconnectRow
                         .padding(.top, 12)
@@ -43,7 +46,10 @@ struct SettingsView: View {
             }
             .background(Theme.background)
             .softTopScrollEdge()
-            .navigationTitle("Settings")
+            // No nav title: `ScreenHeader` is this screen's heading, matching
+            // Overview. A large-title bar would reserve its own space above the
+            // scroll and push the first card down past where Overview's sits.
+            .toolbar(.hidden, for: .navigationBar)
             .confirmationDialog(
                 "Disconnect Kubera?",
                 isPresented: $confirmingDisconnect,
