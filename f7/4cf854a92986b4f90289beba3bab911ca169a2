@@ -1,0 +1,34 @@
+Tests/AppTabTests.swift
+  s_fd155dcb40d39e::t_7518dca7f6b2b6 1-82
+App/Views/WidgetsView.swift
+  s_fd155dcb40d39e::t_6b6773038e129c 38,99
+KuberaMobile.xcodeproj/project.pbxproj
+  s_fd155dcb40d39e::t_2635ef71d1da2b 29,31,93,106,145,185,233,273,454,492-493,537
+App/Views/AssetDetailView.swift
+  s_fd155dcb40d39e::t_6b6773038e129c 120,147-150
+Shared/AppTab.swift
+  s_fd155dcb40d39e::t_fbabb644f42552 1-52
+App/Views/OverviewView.swift
+  s_fd155dcb40d39e::t_6b6773038e129c 153-156,228
+App/Views/SettingsView.swift
+  s_fd155dcb40d39e::t_6b6773038e129c 18,54
+App/KuberaMobileApp.swift
+  s_fd155dcb40d39e::t_32253a883cfa41 92-107,111-115,120-135,137,140,142,162,168,174,177,202,215,218,230-289
+  s_fd155dcb40d39e::t_9712d51899f4e0 290
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.19",
+  "base_commit_sha": "f74cf854a92986b4f90289beba3bab911ca169a2",
+  "prompts": {},
+  "sessions": {
+    "s_fd155dcb40d39e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8e220d6c-3e9d-4372-a117-afcc24993fe6",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
