@@ -14,10 +14,22 @@ import UIKit
 /// All grouping, ranking and totalling is `AssetBook`'s; this file is layout,
 /// selection and disclosure state only.
 struct AssetDetailView: View {
+    /// Where the screen is being shown, which decides where its heading goes.
+    ///
+    /// Every tab root in this app hides the navigation bar and puts a
+    /// `ScreenHeader` in its content, so the four headings sit at the same
+    /// height; a pushed screen cannot do that, because hiding the bar would take
+    /// the back button with it.
+    enum Presentation {
+        case pushed
+        case tabRoot
+    }
+
     private let book: AssetBook
     private let currency: String
     private let masked: Bool
     private let compactNumbers: Bool
+    private let presentation: Presentation
 
     /// `initialSheetID` is where the switcher opens — the sheet a tap on the
     /// Overview asked for. It is a starting position, not a binding: once the
@@ -35,12 +47,14 @@ struct AssetDetailView: View {
         currency: String,
         masked: Bool,
         compactNumbers: Bool = true,
-        initialSheetID: String? = nil
+        initialSheetID: String? = nil,
+        presentation: Presentation = .pushed
     ) {
         self.book = book
         self.currency = currency
         self.masked = masked
         self.compactNumbers = compactNumbers
+        self.presentation = presentation
         _selectedSheetID = State(initialValue: initialSheetID)
     }
 
@@ -52,14 +66,16 @@ struct AssetDetailView: View {
         currency: String,
         masked: Bool,
         compactNumbers: Bool = true,
-        initialSheetID: String? = nil
+        initialSheetID: String? = nil,
+        presentation: Presentation = .pushed
     ) {
         self.init(
             book: AssetBook(detail),
             currency: currency,
             masked: masked,
             compactNumbers: compactNumbers,
-            initialSheetID: initialSheetID
+            initialSheetID: initialSheetID,
+            presentation: presentation
         )
     }
 
@@ -87,6 +103,14 @@ struct AssetDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
+                if presentation == .tabRoot {
+                    // Same padding as the Widgets and Settings headers, so the
+                    // four tabs open at one height.
+                    ScreenHeader("Assets")
+                        .padding(.top, 8)
+                        .padding(.bottom, 16)
+                }
+
                 if let sheet = selectedSheet {
                     sheetSwitcher
                         .padding(.horizontal, -Self.screenInset)
@@ -102,8 +126,7 @@ struct AssetDetailView: View {
         }
         .background(Theme.background)
         .softTopScrollEdge()
-        .navigationTitle("Assets")
-        .navigationBarTitleDisplayMode(.inline)
+        .modifier(AssetsChrome(presentation: presentation))
         .task { selectionHaptics.prepare() }
     }
 
@@ -381,6 +404,26 @@ struct AssetDetailView: View {
     }
 }
 
+/// The bar a pushed screen needs and a tab root must not have. Written as a
+/// modifier rather than two `if`s in the body because `.toolbar(.hidden,)` and
+/// `.navigationTitle` return different types.
+private struct AssetsChrome: ViewModifier {
+    let presentation: AssetDetailView.Presentation
+
+    func body(content: Content) -> some View {
+        switch presentation {
+        case .pushed:
+            // Inline, not large: the back button is the point of this bar, and a
+            // large title would restate the sheet name already under it.
+            content
+                .navigationTitle("Assets")
+                .navigationBarTitleDisplayMode(.inline)
+        case .tabRoot:
+            content.toolbar(.hidden, for: .navigationBar)
+        }
+    }
+}
+
 #if DEBUG
 #Preview("Assets") {
     NavigationStack {
@@ -391,6 +434,12 @@ struct AssetDetailView: View {
 #Preview("Assets — deep linked to Crypto") {
     NavigationStack {
         AssetDetailView(detail: DemoData.detail, currency: "USD", masked: false, initialSheetID: "Crypto")
+    }
+}
+
+#Preview("Assets — tab root") {
+    NavigationStack {
+        AssetDetailView(detail: DemoData.detail, currency: "USD", masked: false, presentation: .tabRoot)
     }
 }
 

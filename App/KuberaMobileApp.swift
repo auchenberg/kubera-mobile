@@ -90,7 +90,7 @@ private struct LockScreenView: View {
 
 private struct MainTabView: View {
     private enum Tab {
-        case dashboard, widgets, settings
+        case dashboard, assets, widgets, settings
 
         /// Always the dashboard, except in a debug run that asked for another
         /// tab. Opening straight onto a tab exists so screenshots can be taken
@@ -102,6 +102,7 @@ private struct MainTabView: View {
         static var initial: Tab {
             #if DEBUG
             switch UserDefaults.standard.string(forKey: "KuberaInitialTab") {
+            case "assets": return .assets
             case "widgets": return .widgets
             case "settings": return .settings
             default: return .dashboard
@@ -126,6 +127,26 @@ private struct MainTabView: View {
                 }
                 .tag(Tab.dashboard)
 
+            // Its own stack, and no `initialSheetID`: a tab is a place you go,
+            // not a link you followed, so it opens on the largest sheet. The
+            // Overview's composition rows still push their own copy — a push
+            // keeps the row you tapped behind the back button, where bouncing
+            // the reader to another tab would lose it.
+            NavigationStack {
+                AssetDetailView(
+                    detail: store.detail,
+                    currency: (store.snapshot ?? .sample).currency,
+                    masked: store.settings.privacyMode,
+                    compactNumbers: store.settings.compactNumbers,
+                    presentation: .tabRoot
+                )
+            }
+            .tint(Theme.text)
+            .tabItem {
+                Label("Assets", systemImage: icon(.assets))
+            }
+            .tag(Tab.assets)
+
             WidgetsView()
                 .tabItem {
                     Label("Widgets", systemImage: icon(.widgets))
@@ -143,12 +164,14 @@ private struct MainTabView: View {
             // The dashboard shows its own error state for a failed refresh.
             try? await store.refresh()
         }
-        // Deep links select a tab: kubera://widgets and
+        // Deep links select a tab: kubera://assets, kubera://widgets and
         // kubera://settings; anything else — including every widget's
         // plain kubera:// — lands on the dashboard rather than
         // whatever tab was open last.
         .onOpenURL { url in
             switch DeepLink(url: url) {
+            case .assets:
+                selection = .assets
             case .widgets:
                 selection = .widgets
             case .settings:
@@ -171,6 +194,11 @@ private struct MainTabView: View {
         let selected = selection == tab
         switch tab {
         case .dashboard: return "chart.line.uptrend.xyaxis"
+        // A stack of sheets, which is what the screen is. Deliberately not a
+        // grid symbol — the Widgets tab next to it is already a grid — and
+        // deliberately an old symbol, because this pair is guaranteed to
+        // resolve in both states.
+        case .assets: return selected ? "rectangle.stack.fill" : "rectangle.stack"
         case .widgets: return selected ? "square.grid.2x2.fill" : "square.grid.2x2"
         case .settings: return selected ? "gearshape.fill" : "gearshape"
         }

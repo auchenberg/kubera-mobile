@@ -6,11 +6,18 @@ import Foundation
 enum DeepLink: Equatable {
     /// A tab to show, and optionally a module on the Overview to bring into view.
     case overview(focus: OverviewFocus?)
+    /// The asset drill-down: sheets, sections and the rows inside them.
+    case assets
     case widgets
     case settings
 
     /// Which module on the Overview a widget corresponds to, so tapping a widget
     /// lands on the figure it was showing rather than the top of the screen.
+    ///
+    /// `assetsDebts` outlives the widget that used to send it: a widget already
+    /// on someone's Home Screen keeps handing over the URL it was built with
+    /// until its timeline reloads, and that URL has to keep landing somewhere
+    /// sensible. The Overview still anchors the module it names.
     enum OverviewFocus: String, Equatable, CaseIterable {
         case netWorth
         case growth
@@ -33,6 +40,7 @@ enum DeepLink: Equatable {
     var url: URL {
         switch self {
         case let .overview(focus): return Self.url(for: focus)
+        case .assets: return URL(string: "\(Self.scheme)://assets")!
         case .widgets: return URL(string: "\(Self.scheme)://widgets")!
         case .settings: return URL(string: "\(Self.scheme)://settings")!
         }
@@ -46,6 +54,8 @@ enum DeepLink: Equatable {
     /// rather than opening nothing.
     init(url: URL) {
         switch url.host()?.lowercased() {
+        case "assets":
+            self = .assets
         case "widgets":
             self = .widgets
         case "settings":

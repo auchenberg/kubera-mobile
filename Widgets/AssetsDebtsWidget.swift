@@ -27,7 +27,11 @@ struct AssetsDebtsView: View {
                 settings: entry.settings,
                 family: family
             )
-            .widgetURL(DeepLink.url(for: .assetsDebts))
+            // The one widget that itemizes rather than summarizes: it shows the
+            // asset side split up, so it opens the screen that lists the split.
+            // NetWorthStats and Cagr stay on their Overview foci — their figures
+            // live there and nowhere else.
+            .widgetURL(DeepLink.assets.url)
         }
     }
 }
