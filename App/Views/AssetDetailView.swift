@@ -100,15 +100,41 @@ struct AssetDetailView: View {
 
     private var selectedSheet: AssetBook.Sheet? { book.sheet(id: selectedSheetID) }
 
+    /// The heading both presentations print: the sheet the switcher is on, so
+    /// the screen says where you are rather than only what it is.
+    ///
+    /// "Assets" is the fallback for a book with no sheets, and is also the tab's
+    /// own name, so the heading is never blank and never a name the reader
+    /// cannot see anything behind.
+    ///
+    /// This reads `selectedSheet`, which is seeded in `init` — a deep-linked
+    /// open therefore carries the right name in its first frame. Moving that
+    /// seed to `onAppear` would put "Assets" on screen for a frame before the
+    /// real name replaced it.
+    private var title: String { selectedSheet?.name ?? "Assets" }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 if presentation == .tabRoot {
                     // Same padding as the Widgets and Settings headers, so the
                     // four tabs open at one height.
-                    ScreenHeader("Assets")
+                    //
+                    // Unlike those two it does not print the tab's own name. A
+                    // tab root usually is its tab, but this one is a switcher
+                    // over five or six books of figures, and "which one am I
+                    // looking at" is the question the top of the screen should
+                    // answer — the tab bar below still says Assets. The cost is
+                    // that the name also appears in the selected tab just under
+                    // it; the heading answers where you are, the row answers
+                    // where else you can go.
+                    ScreenHeader(title)
                         .padding(.top, 8)
                         .padding(.bottom, 16)
+                        // Crossfades instead of cutting when a tap changes it.
+                        // The tap already animates, so this costs nothing when
+                        // the title arrives with the first frame.
+                        .contentTransition(.opacity)
                 }
 
                 if let sheet = selectedSheet {
@@ -126,7 +152,7 @@ struct AssetDetailView: View {
         }
         .background(Theme.background)
         .softTopScrollEdge()
-        .modifier(AssetsChrome(presentation: presentation))
+        .modifier(AssetsChrome(presentation: presentation, title: title))
         .task { selectionHaptics.prepare() }
     }
 
@@ -409,14 +435,23 @@ struct AssetDetailView: View {
 /// `.navigationTitle` return different types.
 private struct AssetsChrome: ViewModifier {
     let presentation: AssetDetailView.Presentation
+    let title: String
 
     func body(content: Content) -> some View {
         switch presentation {
         case .pushed:
-            // Inline, not large: the back button is the point of this bar, and a
-            // large title would restate the sheet name already under it.
+            // The selected sheet's name, and the reason this bar earns its
+            // keep: it is the only part of the screen that stays put. The
+            // switcher scrolls away, so once the reader is a few rows down the
+            // bar is all that still says which book these figures belong to.
+            //
+            // Inline, not large: a large title takes a block of its own and
+            // pushes the switcher it names off the first screenful.
+            //
+            // VoiceOver announces this on push, which is why it is the same
+            // string the header shows rather than a separate wording.
             content
-                .navigationTitle("Assets")
+                .navigationTitle(title)
                 .navigationBarTitleDisplayMode(.inline)
         case .tabRoot:
             content.toolbar(.hidden, for: .navigationBar)
