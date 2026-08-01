@@ -150,6 +150,10 @@ struct OverviewView: View {
                     greeting
                         .padding(.top, 8)
                         .padding(.bottom, 16)
+                        // The greeting, not the hero card: a re-tap should land
+                        // where the screen starts, and the hero's own anchor is
+                        // a module a widget can ask for.
+                        .scrollTopAnchor()
 
                     if let errorMessage {
                         Card {
@@ -221,6 +225,7 @@ struct OverviewView: View {
                 engageHaptics.prepare()
                 await reload()
             }
+            .scrollsToTopOnReselect(of: .overview)
     }
 
     // MARK: - Greeting

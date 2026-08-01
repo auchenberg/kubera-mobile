@@ -15,6 +15,7 @@ struct SettingsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     ScreenHeader("Settings")
+                        .scrollTopAnchor()
                         .padding(.top, 8)
                         .padding(.bottom, 16)
 
@@ -50,6 +51,7 @@ struct SettingsView: View {
             // Overview. A large-title bar would reserve its own space above the
             // scroll and push the first card down past where Overview's sits.
             .toolbar(.hidden, for: .navigationBar)
+            .scrollsToTopOnReselect(of: .settings)
             .confirmationDialog(
                 "Disconnect Kubera?",
                 isPresented: $confirmingDisconnect,

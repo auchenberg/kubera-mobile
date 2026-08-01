@@ -89,43 +89,57 @@ private struct LockScreenView: View {
 }
 
 private struct MainTabView: View {
-    private enum Tab {
-        case dashboard, assets, widgets, settings
-
-        /// Always the dashboard, except in a debug run that asked for another
-        /// tab. Opening straight onto a tab exists so screenshots can be taken
-        /// without driving the UI: `simctl openurl` raises a system "Open in…"
-        /// confirmation that `simctl` has no way to dismiss.
-        ///
-        ///     xcrun simctl launch <device> com.kubera.mobile \
-        ///       -KuberaDemoMode -KuberaInitialTab widgets
-        static var initial: Tab {
-            #if DEBUG
-            switch UserDefaults.standard.string(forKey: "KuberaInitialTab") {
-            case "assets": return .assets
-            case "widgets": return .widgets
-            case "settings": return .settings
-            default: return .dashboard
-            }
-            #else
-            return .dashboard
-            #endif
-        }
+    /// Always the Overview, except in a debug run that asked for another tab.
+    /// Opening straight onto a tab exists so screenshots can be taken without
+    /// driving the UI: `simctl openurl` raises a system "Open in…" confirmation
+    /// that `simctl` has no way to dismiss.
+    ///
+    ///     xcrun simctl launch <device> com.kubera.mobile \
+    ///       -KuberaDemoMode -KuberaInitialTab widgets
+    ///
+    /// The mapping itself is `AppTab.initial(fromLaunchArgument:)`, which is
+    /// tested; this only reads the argument.
+    private static var initialTab: AppTab {
+        #if DEBUG
+        return AppTab.initial(fromLaunchArgument: UserDefaults.standard.string(forKey: "KuberaInitialTab"))
+        #else
+        return .overview
+        #endif
     }
 
     @Environment(AppStore.self) private var store
-    @State private var selection: Tab = Tab.initial
+    @State private var selection: AppTab = MainTabView.initialTab
+    /// The last "scroll back to the top" ask, handed down the environment so a
+    /// tab root can answer it without every screen taking a parameter it would
+    /// only pass through.
+    @State private var scrollToTop: ScrollToTopRequest?
     /// The Overview module a widget tap asked for, consumed and cleared by
     /// `OverviewView` once it has scrolled there.
     @State private var overviewFocus: DeepLink.OverviewFocus?
 
+    /// Tapping the tab bar item of the tab you are already on writes the same
+    /// value back to the binding, and that write is the only signal iOS gives
+    /// for a re-tap. Turning it into a scroll request here is what makes the
+    /// standard idiom work; a different value is an ordinary switch.
+    private var tabSelection: Binding<AppTab> {
+        Binding {
+            selection
+        } set: { tapped in
+            guard tapped != selection else {
+                scrollToTop = .next(after: scrollToTop, tab: tapped)
+                return
+            }
+            selection = tapped
+        }
+    }
+
     var body: some View {
-        TabView(selection: $selection) {
+        TabView(selection: tabSelection) {
             OverviewView(focus: $overviewFocus)
                 .tabItem {
-                    Label("Overview", systemImage: icon(.dashboard))
+                    Label("Overview", systemImage: icon(.overview))
                 }
-                .tag(Tab.dashboard)
+                .tag(AppTab.overview)
 
             // The only assets screen in the app. The Overview used to push a
             // second copy into its own stack, which is what left the tab bar
@@ -145,21 +159,22 @@ private struct MainTabView: View {
             .tabItem {
                 Label("Assets", systemImage: icon(.assets))
             }
-            .tag(Tab.assets)
+            .tag(AppTab.assets)
 
             WidgetsView()
                 .tabItem {
                     Label("Widgets", systemImage: icon(.widgets))
                 }
-                .tag(Tab.widgets)
+                .tag(AppTab.widgets)
 
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: icon(.settings))
                 }
-                .tag(Tab.settings)
+                .tag(AppTab.settings)
         }
         .modifier(MinimizingTabBar())
+        .environment(\.scrollToTopRequest, scrollToTop)
         .task {
             // The dashboard shows its own error state for a failed refresh.
             try? await store.refresh()
@@ -184,7 +199,7 @@ private struct MainTabView: View {
             case .settings:
                 selection = .settings
             case let .overview(focus):
-                selection = .dashboard
+                selection = .overview
                 // Carries the module a widget was showing, so the Overview can
                 // bring it into view. Re-set even when it matches the previous
                 // value so tapping the same widget twice scrolls again.
@@ -197,10 +212,10 @@ private struct MainTabView: View {
     /// Explicit pairs rather than appending ".fill": not every symbol has a
     /// filled variant, and a name that doesn't resolve renders as nothing —
     /// which is how the Overview tab lost its icon when selected.
-    private func icon(_ tab: Tab) -> String {
+    private func icon(_ tab: AppTab) -> String {
         let selected = selection == tab
         switch tab {
-        case .dashboard: return "chart.line.uptrend.xyaxis"
+        case .overview: return "chart.line.uptrend.xyaxis"
         // A stack of sheets, which is what the screen is. Deliberately not a
         // grid symbol — the Widgets tab next to it is already a grid — and
         // deliberately an old symbol, because this pair is guaranteed to
@@ -208,6 +223,67 @@ private struct MainTabView: View {
         case .assets: return selected ? "rectangle.stack.fill" : "rectangle.stack"
         case .widgets: return selected ? "square.grid.2x2.fill" : "square.grid.2x2"
         case .settings: return selected ? "gearshape.fill" : "gearshape"
+        }
+    }
+}
+
+// MARK: - Scroll to top
+
+extension EnvironmentValues {
+    /// The most recent ask to scroll a tab back to the top. Nil in previews and
+    /// anywhere outside the tab bar, where a screen simply never scrolls itself.
+    var scrollToTopRequest: ScrollToTopRequest? {
+        get { self[ScrollToTopRequestKey.self] }
+        set { self[ScrollToTopRequestKey.self] = newValue }
+    }
+}
+
+private struct ScrollToTopRequestKey: EnvironmentKey {
+    static let defaultValue: ScrollToTopRequest? = nil
+}
+
+extension View {
+    /// Marks this view as the top of its tab's scrolling content — the thing a
+    /// re-tap of the tab bar item scrolls back to. One per scroll view.
+    func scrollTopAnchor() -> some View {
+        id(ScrollAnchor.top)
+    }
+
+    /// Scrolls this scroll view back to its `scrollTopAnchor()` when `tab`'s tab
+    /// bar item is tapped while that tab is already showing.
+    ///
+    /// Applied to the `ScrollView` itself: the reader has to sit outside the
+    /// scroll view it drives, and the anchor inside it, so wrapping here is what
+    /// keeps both true without every screen growing a `ScrollViewReader` of its
+    /// own.
+    func scrollsToTopOnReselect(of tab: AppTab) -> some View {
+        modifier(ScrollToTopModifier(tab: tab))
+    }
+}
+
+private enum ScrollAnchor {
+    static let top = "scroll.top"
+}
+
+private struct ScrollToTopModifier: ViewModifier {
+    let tab: AppTab
+
+    @Environment(\.scrollToTopRequest) private var request
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func body(content: Content) -> some View {
+        ScrollViewReader { scroller in
+            content.onChange(of: request) { _, new in
+                guard let new, new.tab == tab else { return }
+                // The same easing as the Overview's widget-focus scroll, which
+                // is this app's other programmatic jump — and off under Reduce
+                // Motion, where a screen-height slide is exactly the movement
+                // that setting exists to stop. The content still arrives at the
+                // top, it just gets there without the travel.
+                withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.45)) {
+                    scroller.scrollTo(ScrollAnchor.top, anchor: .top)
+                }
+            }
         }
     }
 }

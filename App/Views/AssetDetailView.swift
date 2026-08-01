@@ -117,6 +117,7 @@ struct AssetDetailView: View {
                 // appears in the selected tab just under it; the heading answers
                 // where you are, the row answers where else you can go.
                 ScreenHeader(title)
+                    .scrollTopAnchor()
                     .padding(.top, 8)
                     .padding(.bottom, 16)
                     // Crossfades instead of cutting when a request or a tap
@@ -143,6 +144,10 @@ struct AssetDetailView: View {
         // the Widgets and Settings tabs, and there is no back button to keep —
         // the Overview no longer pushes this screen, it switches to its tab.
         .toolbar(.hidden, for: .navigationBar)
+        // The vertical list only. The switcher scrolls sideways and keeps its
+        // own position: a re-tap is about getting back to the top of what you
+        // are reading, not about undoing which sheet you chose.
+        .scrollsToTopOnReselect(of: .assets)
         .onChange(of: request) { _, new in
             // Only an explicit sheet moves the switcher. A bare "show me the
             // assets" — the ASSETS card, `kubera://assets` — leaves the reader
