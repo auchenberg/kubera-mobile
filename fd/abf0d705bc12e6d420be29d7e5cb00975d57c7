@@ -1,0 +1,35 @@
+Shared/DemoData.swift
+  s_fd155dcb40d39e::t_c2b1a3eb3ad009 45-48,50-52,54,113-125,127-142,144-157,160-165
+  s_fd155dcb40d39e::t_ccf5d314dd3d44 112,158-159
+Shared/AssetBook.swift
+  s_fd155dcb40d39e::t_0e06627b32d543 1-93,111-197
+  s_fd155dcb40d39e::t_32a14f509662e1 94-110
+App/Views/AssetDetailView.swift
+  s_fd155dcb40d39e::t_31e2706184394a 1-21,40-43,45-49,57-60,63-68,73-390,397-422
+  s_fd155dcb40d39e::t_32a14f509662e1 22-39,44,50-56,61-62,69-72
+  s_fd155dcb40d39e::t_0209dce7ed8400 391-396
+Tests/AssetBookTests.swift
+  s_fd155dcb40d39e::t_f2cf5d79bccc82 316-317
+  s_fd155dcb40d39e::t_0209dce7ed8400 401-481
+  s_fd155dcb40d39e::t_21405faa0e8e36 1-315,318-319
+  s_fd155dcb40d39e::t_9463f13c154f2b 320-400
+  s_fd155dcb40d39e::t_bace3b1833fb74 482-538
+KuberaMobile.xcodeproj/project.pbxproj
+  s_fd155dcb40d39e::t_07580a0955e43e 32,38,43,63,71,149,156,186,227,266,292,446-447,483-484,526
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.19",
+  "base_commit_sha": "fdabf0d705bc12e6d420be29d7e5cb00975d57c7",
+  "prompts": {},
+  "sessions": {
+    "s_fd155dcb40d39e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8e220d6c-3e9d-4372-a117-afcc24993fe6",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
