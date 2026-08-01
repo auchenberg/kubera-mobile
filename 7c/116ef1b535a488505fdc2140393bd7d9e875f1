@@ -1,0 +1,19 @@
+App/Views/OverviewView.swift
+  s_fd155dcb40d39e::t_f7fd0b21f530e0 224-235,993-1012,1017-1023,1598-1630,1648-1652,1660-1666,1676-1677,1696-1703,1705-1712,1714-1718,1720-1722
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.19",
+  "base_commit_sha": "7c116ef1b535a488505fdc2140393bd7d9e875f1",
+  "prompts": {},
+  "sessions": {
+    "s_fd155dcb40d39e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8e220d6c-3e9d-4372-a117-afcc24993fe6",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
