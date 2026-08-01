@@ -108,6 +108,37 @@ struct AssetBook: Hashable, Sendable {
         return matches.count == 1 ? matches[0].id : nil
     }
 
+    /// Where a composition row should land, by the level it was grouped at.
+    ///
+    /// The Overview hands over a row's name and nothing else, so this is the one
+    /// place a name becomes a destination:
+    ///
+    /// - At sheet level the name *is* a `Sheet.id`, including the unsorted
+    ///   group, which both modules spell the same way. No book is consulted: a
+    ///   name this book no longer has degrades through `sheet(id:)` anyway.
+    /// - At section level a name may belong to several sheets, so `book`
+    ///   answers only when exactly one holds it. It is optional because the
+    ///   caller need not pay for building a book at sheet level, where nothing
+    ///   would be looked up in it.
+    /// - The "Other" fold is nobody's sheet. Even where a sheet of that name
+    ///   exists the row has absorbed the remainder of the list, so landing on it
+    ///   would show a fraction of what was tapped.
+    ///
+    /// Every unknown comes back nil, which the screen reads as "open on the
+    /// largest sheet".
+    static func sheetID(
+        forGroup name: String,
+        at level: OverviewModules.CompositionLevel,
+        resolvingSectionsIn book: AssetBook?
+    ) -> String? {
+        let wanted = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !wanted.isEmpty, wanted != OverviewModules.otherGroupName else { return nil }
+        switch level {
+        case .sheet: return wanted
+        case .section: return book?.sheetID(forSection: wanted)
+        }
+    }
+
     // MARK: - Building
 
     /// Groups a portfolio's assets. A nil detail — the MCP fetch has not landed —

@@ -97,3 +97,47 @@ final class DeepLinkTests: XCTestCase {
         XCTAssertEqual(parse("kubera://overview/growth/"), .overview(focus: .growth))
     }
 }
+
+// MARK: - Asking for the assets tab
+
+/// `AssetsRequest` is what a widget URL and a tap on the Overview both turn
+/// into, so the app has one route to the assets tab rather than one per caller.
+/// Its whole job is to be *noticed*: the screen reacts to the request changing,
+/// which is why the serial exists and why these tests are about inequality.
+final class AssetsRequestTests: XCTestCase {
+    func testARequestCarriesTheSheetItWasMadeFor() {
+        XCTAssertEqual(AssetsRequest.next(after: nil, sheetID: "Crypto").sheetID, "Crypto")
+        XCTAssertNil(AssetsRequest.next(after: nil, sheetID: nil).sheetID, "a bare request names no sheet")
+    }
+
+    /// The bug this type exists to prevent: tapping "Crypto", going elsewhere,
+    /// and tapping "Crypto" again must move the screen the second time too.
+    /// Watching a bare sheet name would see no change and sit still.
+    func testTwoRequestsForTheSameSheetAreDifferentRequests() {
+        let first = AssetsRequest.next(after: nil, sheetID: "Crypto")
+        let second = AssetsRequest.next(after: first, sheetID: "Crypto")
+
+        XCTAssertEqual(first.sheetID, second.sheetID)
+        XCTAssertNotEqual(first, second)
+    }
+
+    func testSerialsAdvanceThroughASession() {
+        var request: AssetsRequest?
+        var seen: [AssetsRequest] = []
+        for sheet in ["Crypto", "Crypto", nil, "Investments", nil] {
+            request = AssetsRequest.next(after: request, sheetID: sheet)
+            seen.append(request!)
+        }
+
+        XCTAssertEqual(seen.map(\.serial), [1, 2, 3, 4, 5])
+        XCTAssertEqual(Set(seen).count, seen.count, "two requests in one session were indistinguishable")
+    }
+
+    /// Equality is still value equality — the serial is the only thing that
+    /// makes two same-sheet requests differ, not an identity that would make
+    /// every comparison false.
+    func testTwoRequestsWithTheSameSerialAndSheetAreEqual() {
+        XCTAssertEqual(AssetsRequest(sheetID: "Crypto", serial: 3), AssetsRequest(sheetID: "Crypto", serial: 3))
+        XCTAssertNotEqual(AssetsRequest(sheetID: "Crypto", serial: 3), AssetsRequest(sheetID: "Banks", serial: 3))
+    }
+}

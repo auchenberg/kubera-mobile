@@ -127,18 +127,18 @@ private struct MainTabView: View {
                 }
                 .tag(Tab.dashboard)
 
-            // Its own stack, and no `initialSheetID`: a tab is a place you go,
-            // not a link you followed, so it opens on the largest sheet. The
-            // Overview's composition rows still push their own copy — a push
-            // keeps the row you tapped behind the back button, where bouncing
-            // the reader to another tab would lose it.
+            // The only assets screen in the app. The Overview used to push a
+            // second copy into its own stack, which is what left the tab bar
+            // pointing at Overview while assets were on screen; now every route
+            // to assets — a row, the ASSETS card, `kubera://assets` — selects
+            // this tab and hands it the sheet to open on.
             NavigationStack {
                 AssetDetailView(
                     detail: store.detail,
                     currency: (store.snapshot ?? .sample).currency,
                     masked: store.settings.privacyMode,
                     compactNumbers: store.settings.compactNumbers,
-                    presentation: .tabRoot
+                    request: store.assetsRequest
                 )
             }
             .tint(Theme.text)
@@ -168,10 +168,17 @@ private struct MainTabView: View {
         // kubera://settings; anything else — including every widget's
         // plain kubera:// — lands on the dashboard rather than
         // whatever tab was open last.
+        // Every route to the assets tab goes through the store, so a widget URL
+        // and a tap on the Overview arrive the same way. Selecting the tab here
+        // instead would be a second path that could drift from the first.
+        .onChange(of: store.assetsRequest) { _, request in
+            guard request != nil else { return }
+            selection = .assets
+        }
         .onOpenURL { url in
             switch DeepLink(url: url) {
             case .assets:
-                selection = .assets
+                store.showAssets()
             case .widgets:
                 selection = .widgets
             case .settings:

@@ -3,6 +3,29 @@ import Foundation
 /// The URLs widgets open and the app routes. Shared so the two halves cannot
 /// disagree: a widget writing a host the app does not recognise would still open
 /// the app, just at the wrong place, and nothing would fail loudly.
+/// A request to show the assets tab, made either by a widget's `kubera://assets`
+/// or by a tap on the Overview. One type for both, so a tap and a widget cannot
+/// end up behaving differently — the URL simply arrives with no sheet.
+///
+/// The serial is what makes this a *request* rather than a value. Tapping
+/// "Crypto" on the Overview, wandering off, and tapping it again is two requests
+/// carrying the same sheet, and the second has to move the screen as surely as
+/// the first; anything watching a bare sheet name would see no change and sit
+/// still.
+struct AssetsRequest: Hashable, Sendable {
+    /// The sheet to open on, or nil for "just show me that screen", which leaves
+    /// whatever sheet is already selected alone.
+    let sheetID: String?
+    /// Distinguishes this request from the one before it, and nothing more.
+    let serial: Int
+
+    /// The next request in a session. A serial only has to differ from its
+    /// predecessor, so this counts rather than reaching for a UUID.
+    static func next(after previous: AssetsRequest?, sheetID: String?) -> AssetsRequest {
+        AssetsRequest(sheetID: sheetID, serial: (previous?.serial ?? 0) + 1)
+    }
+}
+
 enum DeepLink: Equatable {
     /// A tab to show, and optionally a module on the Overview to bring into view.
     case overview(focus: OverviewFocus?)

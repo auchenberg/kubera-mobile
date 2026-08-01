@@ -221,18 +221,6 @@ struct OverviewView: View {
                 engageHaptics.prepare()
                 await reload()
             }
-            .navigationDestination(for: AssetsRoute.self) { route in
-                AssetDetailView(
-                    detail: detail,
-                    currency: currency,
-                    masked: masked,
-                    compactNumbers: compactNumbers,
-                    initialSheetID: route.sheetID
-                )
-                // The stack has no tint of its own, so the pushed screen's back
-                // button would arrive system blue in a monochrome app.
-                .tint(Theme.text)
-            }
     }
 
     // MARK: - Greeting
@@ -996,7 +984,11 @@ struct OverviewView: View {
             // to push to but an empty state, and a card that answers a tap with
             // "nothing here" is worse than one that does not answer.
             if hasAssetDetail {
-                NavigationLink(value: AssetsRoute(sheetID: nil)) {
+                // No sheet: the card names the whole asset side, so it asks for
+                // the tab and leaves whatever sheet the reader last chose.
+                Button {
+                    store.showAssets()
+                } label: {
                     statCard("ASSETS", value: snapshot.assetTotal, series: assetSeries, metric: .asset)
                 }
                 .buttonStyle(.plain)
@@ -1595,37 +1587,13 @@ struct OverviewView: View {
         }
     }
 
-    /// Where a tapped composition row lands. A sheet id rather than the group
-    /// itself: `AssetDetailView` opens on a sheet, and a nil id opens it on the
-    /// largest one, which is the honest answer for a row that names no single
-    /// sheet.
-    private struct AssetsRoute: Hashable {
-        let sheetID: String?
-    }
-
-    /// The sheet a row should open, by what the row actually names.
-    ///
-    /// At sheet level the name *is* the sheet's id, so it deep-links directly —
-    /// including "Unsorted", which `AssetBook` parks under the same name this
-    /// module does. At section level a name can belong to several sheets, so
-    /// `AssetBook` answers only when exactly one holds it. "Other" is a fold of
-    /// the rows that did not make the cut rather than a group of its own: even
-    /// when a real sheet of that name exists it has absorbed the remainder, so
-    /// landing on it would show a fraction of what the row counted. All three
-    /// unknowns come out as nil and open the default view.
-    private func route(
+    /// The sheet a tapped row should open on. The rule lives in `AssetBook`,
+    /// where it can be tested; this is only the level the card is showing.
+    private func sheetID(
         for group: OverviewModules.CompositionGroup,
         in book: AssetBook?
-    ) -> AssetsRoute {
-        guard group.name != OverviewModules.otherGroupName else {
-            return AssetsRoute(sheetID: nil)
-        }
-        switch compositionLevel {
-        case .sheet:
-            return AssetsRoute(sheetID: group.name)
-        case .section:
-            return AssetsRoute(sheetID: book?.sheetID(forSection: group.name))
-        }
+    ) -> String? {
+        AssetBook.sheetID(forGroup: group.name, at: compositionLevel, resolvingSectionsIn: book)
     }
 
     private var compositionGroups: [OverviewModules.CompositionGroup] {
@@ -1662,7 +1630,7 @@ struct OverviewView: View {
                         group: group,
                         largest: largest,
                         unit: unit,
-                        route: route(for: group, in: book)
+                        sheetID: sheetID(for: group, in: book)
                     )
                 }
             }
@@ -1674,7 +1642,7 @@ struct OverviewView: View {
         group: OverviewModules.CompositionGroup,
         largest: Double,
         unit: Format.Unit,
-        route: AssetsRoute
+        sheetID: String?
     ) -> some View {
         // Scaled so the largest group fills the track, like the holdings rows —
         // scaled to 100% every bar but the first would read as empty.
@@ -1693,7 +1661,14 @@ struct OverviewView: View {
             ? AnyLayout(VStackLayout(alignment: .leading, spacing: 2))
             : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: 8))
 
-        return NavigationLink(value: route) {
+        // A button that switches tabs rather than a link that pushes: pushing
+        // put the assets screen inside the Overview's own stack, which left the
+        // tab bar highlighting Overview while the reader looked at assets — and
+        // made tapping the Overview tab from there do nothing at all, because
+        // they had never left it.
+        return Button {
+            store.showAssets(sheetID: sheetID)
+        } label: {
             VStack(alignment: .leading, spacing: 6) {
                 heading {
                     name

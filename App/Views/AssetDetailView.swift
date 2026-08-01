@@ -14,48 +14,40 @@ import UIKit
 /// All grouping, ranking and totalling is `AssetBook`'s; this file is layout,
 /// selection and disclosure state only.
 struct AssetDetailView: View {
-    /// Where the screen is being shown, which decides where its heading goes.
-    ///
-    /// Every tab root in this app hides the navigation bar and puts a
-    /// `ScreenHeader` in its content, so the four headings sit at the same
-    /// height; a pushed screen cannot do that, because hiding the bar would take
-    /// the back button with it.
-    enum Presentation {
-        case pushed
-        case tabRoot
-    }
-
     private let book: AssetBook
     private let currency: String
     private let masked: Bool
     private let compactNumbers: Bool
-    private let presentation: Presentation
-
-    /// `initialSheetID` is where the switcher opens — the sheet a tap on the
-    /// Overview asked for. It is a starting position, not a binding: once the
-    /// reader touches a tab their choice wins, and an id this book does not
-    /// have (a sheet renamed or emptied since the link was built) falls back to
-    /// the largest sheet through `AssetBook.sheet(id:)` rather than showing
-    /// nothing.
+    /// The latest request to show this screen, from `AppStore`.
     ///
-    /// SwiftUI seeds `@State` once per view identity, so a destination that is
-    /// rebuilt in place with a different id keeps the sheet it already had.
-    /// That is right for a pushed screen, where each link is its own identity,
-    /// and worth knowing for anything that reuses one.
+    /// It has two jobs, which is why it is both read and watched. Read once at
+    /// construction, it seeds the switcher — a request that arrives before this
+    /// tab has ever been shown *is* the screen's first frame rather than a
+    /// change to it, so the right sheet is up before anything is drawn. Watched
+    /// afterwards, it moves the switcher: tapping "Real estate" on the Overview
+    /// while this tab already sits on Crypto has to land on Real estate, and a
+    /// value seeded once could never do that.
+    ///
+    /// A request carrying no sheet leaves the selection alone, because "show me
+    /// the assets" is not "show me a particular book".
+    private let request: AssetsRequest?
+
+    /// A sheet this book does not have — one renamed or emptied since the
+    /// request was made — falls back to the largest sheet through
+    /// `AssetBook.sheet(id:)` rather than showing nothing.
     init(
         book: AssetBook,
         currency: String,
         masked: Bool,
         compactNumbers: Bool = true,
-        initialSheetID: String? = nil,
-        presentation: Presentation = .pushed
+        request: AssetsRequest? = nil
     ) {
         self.book = book
         self.currency = currency
         self.masked = masked
         self.compactNumbers = compactNumbers
-        self.presentation = presentation
-        _selectedSheetID = State(initialValue: initialSheetID)
+        self.request = request
+        _selectedSheetID = State(initialValue: request?.sheetID)
     }
 
     /// The form the Overview wires: a nil detail is the fetch not having landed,
@@ -66,26 +58,24 @@ struct AssetDetailView: View {
         currency: String,
         masked: Bool,
         compactNumbers: Bool = true,
-        initialSheetID: String? = nil,
-        presentation: Presentation = .pushed
+        request: AssetsRequest? = nil
     ) {
         self.init(
             book: AssetBook(detail),
             currency: currency,
             masked: masked,
             compactNumbers: compactNumbers,
-            initialSheetID: initialSheetID,
-            presentation: presentation
+            request: request
         )
     }
 
     @Environment(\.dynamicTypeSize) private var typeSize
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    /// The sheet on screen: seeded from `initialSheetID` and then owned by the
-    /// switcher. Nil means nobody has chosen, which `AssetBook.sheet(id:)`
-    /// reads as the largest sheet — as it does for an id a refetch has renamed
-    /// away.
+    /// The sheet on screen: seeded and re-seeded from `request`, and owned by
+    /// the switcher in between. Nil means nobody has chosen, which
+    /// `AssetBook.sheet(id:)` reads as the largest sheet — as it does for an id
+    /// a refetch has renamed away.
     @State private var selectedSheetID: String?
     /// Collapsed rather than expanded ids: sections open by default, so the
     /// empty set is the default state and a new section arrives open.
@@ -100,8 +90,8 @@ struct AssetDetailView: View {
 
     private var selectedSheet: AssetBook.Sheet? { book.sheet(id: selectedSheetID) }
 
-    /// The heading both presentations print: the sheet the switcher is on, so
-    /// the screen says where you are rather than only what it is.
+    /// The screen's heading: the sheet the switcher is on, so it says where you
+    /// are rather than only what it is.
     ///
     /// "Assets" is the fallback for a book with no sheets, and is also the tab's
     /// own name, so the heading is never blank and never a name the reader
@@ -116,26 +106,23 @@ struct AssetDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                if presentation == .tabRoot {
-                    // Same padding as the Widgets and Settings headers, so the
-                    // four tabs open at one height.
-                    //
-                    // Unlike those two it does not print the tab's own name. A
-                    // tab root usually is its tab, but this one is a switcher
-                    // over five or six books of figures, and "which one am I
-                    // looking at" is the question the top of the screen should
-                    // answer — the tab bar below still says Assets. The cost is
-                    // that the name also appears in the selected tab just under
-                    // it; the heading answers where you are, the row answers
-                    // where else you can go.
-                    ScreenHeader(title)
-                        .padding(.top, 8)
-                        .padding(.bottom, 16)
-                        // Crossfades instead of cutting when a tap changes it.
-                        // The tap already animates, so this costs nothing when
-                        // the title arrives with the first frame.
-                        .contentTransition(.opacity)
-                }
+                // Same padding as the Widgets and Settings headers, so the
+                // four tabs open at one height.
+                //
+                // Unlike those two it does not print the tab's own name. A tab
+                // root usually is its tab, but this one is a switcher over five
+                // or six books of figures, and "which one am I looking at" is
+                // the question the top of the screen should answer — the tab bar
+                // below still says Assets. The cost is that the name also
+                // appears in the selected tab just under it; the heading answers
+                // where you are, the row answers where else you can go.
+                ScreenHeader(title)
+                    .padding(.top, 8)
+                    .padding(.bottom, 16)
+                    // Crossfades instead of cutting when a request or a tap
+                    // changes it. Both animate, so this costs nothing on the
+                    // first frame, where there is no animation to join.
+                    .contentTransition(.opacity)
 
                 if let sheet = selectedSheet {
                     sheetSwitcher
@@ -152,7 +139,19 @@ struct AssetDetailView: View {
         }
         .background(Theme.background)
         .softTopScrollEdge()
-        .modifier(AssetsChrome(presentation: presentation, title: title))
+        // No navigation bar: `ScreenHeader` is this screen's heading, matching
+        // the Widgets and Settings tabs, and there is no back button to keep —
+        // the Overview no longer pushes this screen, it switches to its tab.
+        .toolbar(.hidden, for: .navigationBar)
+        .onChange(of: request) { _, new in
+            // Only an explicit sheet moves the switcher. A bare "show me the
+            // assets" — the ASSETS card, `kubera://assets` — leaves the reader
+            // on whatever they were last looking at.
+            guard let sheetID = new?.sheetID else { return }
+            withAnimation(reduceMotion ? nil : .snappy(duration: 0.25)) {
+                selectedSheetID = sheetID
+            }
+        }
         .task { selectionHaptics.prepare() }
     }
 
@@ -430,35 +429,6 @@ struct AssetDetailView: View {
     }
 }
 
-/// The bar a pushed screen needs and a tab root must not have. Written as a
-/// modifier rather than two `if`s in the body because `.toolbar(.hidden,)` and
-/// `.navigationTitle` return different types.
-private struct AssetsChrome: ViewModifier {
-    let presentation: AssetDetailView.Presentation
-    let title: String
-
-    func body(content: Content) -> some View {
-        switch presentation {
-        case .pushed:
-            // The selected sheet's name, and the reason this bar earns its
-            // keep: it is the only part of the screen that stays put. The
-            // switcher scrolls away, so once the reader is a few rows down the
-            // bar is all that still says which book these figures belong to.
-            //
-            // Inline, not large: a large title takes a block of its own and
-            // pushes the switcher it names off the first screenful.
-            //
-            // VoiceOver announces this on push, which is why it is the same
-            // string the header shows rather than a separate wording.
-            content
-                .navigationTitle(title)
-                .navigationBarTitleDisplayMode(.inline)
-        case .tabRoot:
-            content.toolbar(.hidden, for: .navigationBar)
-        }
-    }
-}
-
 #if DEBUG
 #Preview("Assets") {
     NavigationStack {
@@ -466,15 +436,14 @@ private struct AssetsChrome: ViewModifier {
     }
 }
 
-#Preview("Assets — deep linked to Crypto") {
+#Preview("Assets — requested on Crypto") {
     NavigationStack {
-        AssetDetailView(detail: DemoData.detail, currency: "USD", masked: false, initialSheetID: "Crypto")
-    }
-}
-
-#Preview("Assets — tab root") {
-    NavigationStack {
-        AssetDetailView(detail: DemoData.detail, currency: "USD", masked: false, presentation: .tabRoot)
+        AssetDetailView(
+            detail: DemoData.detail,
+            currency: "USD",
+            masked: false,
+            request: AssetsRequest(sheetID: "Crypto", serial: 1)
+        )
     }
 }
 

@@ -536,3 +536,85 @@ extension AssetBookTests {
         }
     }
 }
+
+// MARK: - Where a composition row lands
+
+/// `AssetBook.sheetID(forGroup:at:resolvingSectionsIn:)` is the whole of the
+/// Overview's routing decision. It used to live in the view, where the test
+/// bundle could not reach it; the rules it encodes are the kind that break
+/// quietly — a row that opens the wrong sheet still opens *a* sheet — so they
+/// are pinned here.
+extension AssetBookTests {
+    func testASheetRowNamesItsOwnSheet() {
+        XCTAssertEqual(
+            AssetBook.sheetID(forGroup: "Crypto", at: .sheet, resolvingSectionsIn: nil),
+            "Crypto"
+        )
+    }
+
+    /// The laziness the caller depends on: at sheet level no book is consulted,
+    /// so the Overview need not build one on a screen that re-renders through
+    /// every frame of a scrub.
+    func testASheetRowResolvesWithoutABook() {
+        for name in ["Investments", OverviewModules.unsortedGroupName] {
+            XCTAssertEqual(
+                AssetBook.sheetID(forGroup: name, at: .sheet, resolvingSectionsIn: nil),
+                name,
+                "\(name) needed a book it should not have needed"
+            )
+        }
+    }
+
+    func testASectionRowResolvesThroughTheBook() {
+        let book = AssetBook(detail(sample))
+
+        XCTAssertEqual(
+            AssetBook.sheetID(forGroup: "Taxable", at: .section, resolvingSectionsIn: book),
+            "Investments"
+        )
+        XCTAssertNil(AssetBook.sheetID(forGroup: "Taxable", at: .section, resolvingSectionsIn: nil))
+    }
+
+    /// The fold is nobody's sheet, at either level — including the case that
+    /// makes it a rule rather than a spelling: a portfolio that really does have
+    /// a sheet named "Other", whose row has still absorbed the rest of the list.
+    func testTheOtherFoldNeverResolves() {
+        let book = AssetBook(assets: [
+            asset("A", 100, sheet: OverviewModules.otherGroupName, section: "Bits"),
+            asset("B", 900, sheet: "Investments", section: "Taxable"),
+        ])
+
+        XCTAssertNotNil(book.sheets.first { $0.id == OverviewModules.otherGroupName })
+        for level in OverviewModules.CompositionLevel.allCases {
+            XCTAssertNil(
+                AssetBook.sheetID(forGroup: OverviewModules.otherGroupName, at: level, resolvingSectionsIn: book),
+                "the fold resolved at \(level)"
+            )
+        }
+    }
+
+    func testAmbiguousAndBlankGroupsResolveToNothing() {
+        let book = AssetBook(assets: [
+            asset("A", 100, sheet: "Investments", section: "Misc"),
+            asset("B", 50, sheet: "Collectibles", section: "Misc"),
+        ])
+
+        XCTAssertNil(AssetBook.sheetID(forGroup: "Misc", at: .section, resolvingSectionsIn: book))
+        for level in OverviewModules.CompositionLevel.allCases {
+            XCTAssertNil(AssetBook.sheetID(forGroup: "", at: level, resolvingSectionsIn: book))
+            XCTAssertNil(AssetBook.sheetID(forGroup: "   ", at: level, resolvingSectionsIn: book))
+        }
+    }
+
+    /// Whatever the rule answers, the screen can open it — nil included.
+    func testEveryAnswerOpensASheet() {
+        let book = AssetBook(detail(sample))
+
+        for level in OverviewModules.CompositionLevel.allCases {
+            for group in OverviewModules.composition(sample, by: level) {
+                let resolved = AssetBook.sheetID(forGroup: group.name, at: level, resolvingSectionsIn: book)
+                XCTAssertNotNil(book.sheet(id: resolved), "\(group.name) at \(level)")
+            }
+        }
+    }
+}
