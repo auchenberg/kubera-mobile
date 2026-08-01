@@ -1,0 +1,29 @@
+Tests/DeepLinkTests.swift
+  s_fd155dcb40d39e::t_9682235dfa4183 20,24-41,49-59,85-93
+Widgets/AssetsDebtsWidget.swift
+  s_fd155dcb40d39e::t_909d456864d62d 30-34
+Shared/DeepLink.swift
+  s_fd155dcb40d39e::t_909d456864d62d 9-10,16-20,43,57-58
+App/KuberaMobileApp.swift
+  s_fd155dcb40d39e::t_909d456864d62d 93,105,130-139,142-149,167,173-174,197-201
+  s_fd155dcb40d39e::t_e3f1d7adad8f68 140-141
+App/Views/AssetDetailView.swift
+  s_fd155dcb40d39e::t_e3f1d7adad8f68 17-27,32,50-51,57,69-70,77-78,106-113,129,407-426,440-443
+  s_fd155dcb40d39e::t_3c393583af9653 444-445
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.19",
+  "base_commit_sha": "f14a2b26f5303f2372517ea3198b1b3a94cdd439",
+  "prompts": {},
+  "sessions": {
+    "s_fd155dcb40d39e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8e220d6c-3e9d-4372-a117-afcc24993fe6",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
