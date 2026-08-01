@@ -1,0 +1,36 @@
+Shared/DeepLink.swift
+  s_fd155dcb40d39e::t_3b5a5f649c2c84 6-14,16-28
+  s_fd155dcb40d39e::t_8b08aec2a5f8e4 15
+Tests/DeepLinkTests.swift
+  s_fd155dcb40d39e::t_0dcf82aa7ca893 100-143
+Tests/AssetBookTests.swift
+  s_fd155dcb40d39e::t_0dcf82aa7ca893 539-620
+App/AppStore.swift
+  s_fd155dcb40d39e::t_3b5a5f649c2c84 39-47,222-231
+  s_fd155dcb40d39e::t_3be6d5b0907fd0 232-233
+App/KuberaMobileApp.swift
+  s_fd155dcb40d39e::t_f52831f2904642 130-134,141,171-177,181
+Shared/AssetBook.swift
+  s_fd155dcb40d39e::t_3b5a5f649c2c84 111-141
+App/Views/AssetDetailView.swift
+  s_fd155dcb40d39e::t_f72a2a92580801 21,23-37,43,49-50,61,68,109-125,142-154,439,441-446
+  s_fd155dcb40d39e::t_989141feb55359 75-78,93-94
+App/Views/OverviewView.swift
+  s_fd155dcb40d39e::t_f9a4f05c3401c3 987-991,1590-1592,1595-1596,1633,1645,1664-1671
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.19",
+  "base_commit_sha": "a737a62b4a337e4e06fda5d7b716e0efb6af7d6b",
+  "prompts": {},
+  "sessions": {
+    "s_fd155dcb40d39e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8e220d6c-3e9d-4372-a117-afcc24993fe6",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
