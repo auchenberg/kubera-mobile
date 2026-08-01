@@ -4,6 +4,11 @@ import XCTest
 /// tab a debug launch opens on, and what a tap on an already-selected tab bar
 /// item turns into. Both used to live inside `MainTabView`, where the test
 /// bundle could not reach them.
+///
+/// What each tab *does* with a reset is view state — a selection cleared, a
+/// scroll offset — and is not reachable from here. What is reachable, and what
+/// these pin, is that every tap produces a request its own tab can tell apart
+/// from the one before it.
 final class AppTabTests: XCTestCase {
     // MARK: - The launch argument
 
@@ -40,19 +45,19 @@ final class AppTabTests: XCTestCase {
         XCTAssertEqual(AppTab.allCases.map(\.rawValue), ["overview", "assets", "widgets", "settings"])
     }
 
-    // MARK: - Scrolling back to the top
+    // MARK: - Putting a tab back
 
     func testARequestNamesTheTabThatAskedForIt() {
-        XCTAssertEqual(ScrollToTopRequest.next(after: nil, tab: .settings).tab, .settings)
+        XCTAssertEqual(TabResetRequest.next(after: nil, tab: .settings).tab, .settings)
     }
 
     /// The point of the serial: three taps on the Overview's tab bar item are
-    /// three requests naming one tab, and each has to move the screen. A watcher
-    /// looking at a bare tab name would see no change after the first.
+    /// three requests naming one tab, and each has to reset the screen again. A
+    /// watcher looking at a bare tab name would see no change after the first.
     func testRepeatedTapsOnOneTabAreDistinctRequests() {
-        let first = ScrollToTopRequest.next(after: nil, tab: .overview)
-        let second = ScrollToTopRequest.next(after: first, tab: .overview)
-        let third = ScrollToTopRequest.next(after: second, tab: .overview)
+        let first = TabResetRequest.next(after: nil, tab: .overview)
+        let second = TabResetRequest.next(after: first, tab: .overview)
+        let third = TabResetRequest.next(after: second, tab: .overview)
 
         XCTAssertEqual(Set([first, second, third]).count, 3)
         XCTAssertEqual([first, second, third].map(\.serial), [1, 2, 3])
@@ -62,8 +67,8 @@ final class AppTabTests: XCTestCase {
     /// Serials advance across tabs rather than per tab, so a request is never
     /// mistaken for an earlier one made somewhere else.
     func testSerialsAdvanceAcrossTabs() {
-        var request: ScrollToTopRequest?
-        var seen: [ScrollToTopRequest] = []
+        var request: TabResetRequest?
+        var seen: [TabResetRequest] = []
         for tab in [AppTab.overview, .assets, .assets, .widgets, .overview] {
             request = .next(after: request, tab: tab)
             seen.append(request!)
@@ -76,7 +81,7 @@ final class AppTabTests: XCTestCase {
     /// Equality stays value equality: the serial is what separates two requests
     /// for one tab, not an identity that would make every comparison false.
     func testTwoRequestsWithTheSameTabAndSerialAreEqual() {
-        XCTAssertEqual(ScrollToTopRequest(tab: .assets, serial: 2), ScrollToTopRequest(tab: .assets, serial: 2))
-        XCTAssertNotEqual(ScrollToTopRequest(tab: .assets, serial: 2), ScrollToTopRequest(tab: .widgets, serial: 2))
+        XCTAssertEqual(TabResetRequest(tab: .assets, serial: 2), TabResetRequest(tab: .assets, serial: 2))
+        XCTAssertNotEqual(TabResetRequest(tab: .assets, serial: 2), TabResetRequest(tab: .widgets, serial: 2))
     }
 }

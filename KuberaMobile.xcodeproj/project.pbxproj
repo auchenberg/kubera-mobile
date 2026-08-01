@@ -71,6 +71,7 @@
 		AB2C7A65416BF1170E3820AB /* MarketCompsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B50ADE56F516456C469D290 /* MarketCompsTests.swift */; };
 		AD33958405990DD5D6EFA150 /* Sankey.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99607DBC46CABA3ADD40322 /* Sankey.swift */; };
 		B5886D7B80C052C671AE284A /* AssetBookTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44492822EFF614D9A14DE0D9 /* AssetBookTests.swift */; };
+		B7099F0786AACDB8FCC7B2DF /* TabReset.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B695B123D60A43A5759A55 /* TabReset.swift */; };
 		BBBC3FF9F8A63C4AF8A6E087 /* AppLockPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0A326EBD9A73EB29CAFBF1 /* AppLockPolicy.swift */; };
 		BC0A2C0919F88CF11F63F4C7 /* KuberaMobileApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2BAE1FE8F743BA95F3AB528 /* KuberaMobileApp.swift */; };
 		BC6AAE19FD3582AB71FCB301 /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4371B78D3A54361AC2D10C53 /* Shared.swift */; };
@@ -196,6 +197,7 @@
 		F5B8B87ED6893DB4F0DB44C6 /* OverviewModules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewModules.swift; sourceTree = "<group>"; };
 		F91F1BEF91EC8D6BACAB1F96 /* WidgetThemeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetThemeTests.swift; sourceTree = "<group>"; };
 		F974E1419AD300DC593E6922 /* KuberaMobileTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = KuberaMobileTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F9B695B123D60A43A5759A55 /* TabReset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabReset.swift; sourceTree = "<group>"; };
 		FABA9B085C294F0C24B394E8 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		FDD427BFB87A3FC24F74C060 /* ConnectionStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStatusTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -305,6 +307,7 @@
 				37FEBFD189174283636C98CF /* SankeyView.swift */,
 				BDF244FEF4E6972F4313382C /* SettingsView.swift */,
 				C4AC441EF2E1AC60A27E6B67 /* SignInView.swift */,
+				F9B695B123D60A43A5759A55 /* TabReset.swift */,
 				FABA9B085C294F0C24B394E8 /* WelcomeView.swift */,
 				0CF5AEB0AE0934F98263045A /* WidgetsView.swift */,
 			);
@@ -475,6 +478,7 @@
 				1B934284989416631EFE608D /* SettingsView.swift in Sources */,
 				97C516DDE6DB7F2E7B9A3E3B /* Shared.swift in Sources */,
 				140D39729BD485F33ACEE3EC /* SignInView.swift in Sources */,
+				B7099F0786AACDB8FCC7B2DF /* TabReset.swift in Sources */,
 				0DE247DEAF0A1B581E9EF638 /* Theme.swift in Sources */,
 				BDF74668C6D73E21FCB153BD /* Trends.swift in Sources */,
 				C8A334B13F24B89B3551DC78 /* WelcomeView.swift in Sources */,

@@ -33,20 +33,27 @@ extension AppTab {
     }
 }
 
-/// A request to scroll a tab's content back to the top, made by tapping the tab
-/// bar item of the tab you are already on.
+/// A request to put a tab back the way it was first seen, made by tapping the
+/// tab bar item of the tab you are already on.
+///
+/// What "back the way it was" means is each tab's own business. This type says
+/// only that someone asked and which tab they asked about; the screens declare
+/// what they do about it, one participant at a time, next to the state each one
+/// owns (`TabReset.swift` in the app target). Nothing that publishes a request
+/// knows what will answer it, which is what keeps a new tab or a new piece of
+/// resettable state from touching any of this.
 ///
 /// The serial is here for the same reason it is on `AssetsRequest`: the ask is
 /// an event, not a state. Tapping Overview's tab item three times is three
-/// requests naming the same tab, and each one has to move the screen — anything
-/// watching a bare tab name would see no change after the first.
-struct ScrollToTopRequest: Hashable, Sendable {
+/// requests naming the same tab, and each one has to answer — anything watching
+/// a bare tab name would see no change after the first.
+struct TabResetRequest: Hashable, Sendable {
     let tab: AppTab
     let serial: Int
 
     /// The next request in a session. A serial only has to differ from its
     /// predecessor, so this counts rather than reaching for a UUID.
-    static func next(after previous: ScrollToTopRequest?, tab: AppTab) -> ScrollToTopRequest {
-        ScrollToTopRequest(tab: tab, serial: (previous?.serial ?? 0) + 1)
+    static func next(after previous: TabResetRequest?, tab: AppTab) -> TabResetRequest {
+        TabResetRequest(tab: tab, serial: (previous?.serial ?? 0) + 1)
     }
 }

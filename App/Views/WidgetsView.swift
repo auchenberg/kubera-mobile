@@ -35,7 +35,7 @@ struct WidgetsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     ScreenHeader("Widgets")
-                        .scrollTopAnchor()
+                        .tabTopAnchor()
                         .padding(.horizontal, margin)
                         .padding(.top, 8)
                         .padding(.bottom, 16)
@@ -96,7 +96,10 @@ struct WidgetsView: View {
             // opens at the same height as the Overview. A large title would
             // reserve a bar above the content and start the page lower.
             .toolbar(.hidden, for: .navigationBar)
-            .scrollsToTopOnReselect(of: .widgets)
+            // Scrolling only: the status line carries the result of the last
+            // refresh, including its errors, and a reset that swallowed a
+            // failure would be a reset that hides it.
+            .scrollsToTopOnTabReset(of: .widgets)
             // iOS offers no API to open the widget gallery, so the button
             // walks through the manual steps instead.
             .sheet(isPresented: $showingAddSheet) {

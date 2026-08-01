@@ -117,7 +117,7 @@ struct AssetDetailView: View {
                 // appears in the selected tab just under it; the heading answers
                 // where you are, the row answers where else you can go.
                 ScreenHeader(title)
-                    .scrollTopAnchor()
+                    .tabTopAnchor()
                     .padding(.top, 8)
                     .padding(.bottom, 16)
                     // Crossfades instead of cutting when a request or a tap
@@ -144,10 +144,25 @@ struct AssetDetailView: View {
         // the Widgets and Settings tabs, and there is no back button to keep —
         // the Overview no longer pushes this screen, it switches to its tab.
         .toolbar(.hidden, for: .navigationBar)
-        // The vertical list only. The switcher scrolls sideways and keeps its
-        // own position: a re-tap is about getting back to the top of what you
-        // are reading, not about undoing which sheet you chose.
-        .scrollsToTopOnReselect(of: .assets)
+        .scrollsToTopOnTabReset(of: .assets)
+        // This screen's own share of a reset: the state above, put back the way
+        // it is on a fresh build. Declared here rather than known anywhere
+        // central — the scroll above is a separate participant, and neither
+        // knows about the other.
+        //
+        // Clearing the selection rather than naming the first sheet is what
+        // makes "as first seen" literally true: nil is "nobody has chosen",
+        // which `AssetBook` reads as the largest sheet, exactly as it does when
+        // the screen is built. Which sections were folded is transient too, so
+        // they come back open.
+        //
+        // It composes with `request` rather than fighting it: a later deep link
+        // carries a new serial, so it still wins after a reset, and the request
+        // already spent does not re-apply itself.
+        .onTabReset(of: .assets) {
+            selectedSheetID = nil
+            collapsed = []
+        }
         .onChange(of: request) { _, new in
             // Only an explicit sheet moves the switcher. A bare "show me the
             // assets" — the ASSETS card, `kubera://assets` — leaves the reader
@@ -183,7 +198,10 @@ struct AssetDetailView: View {
                 }
                 .padding(.horizontal, Self.screenInset)
             }
-            .onChange(of: selectedSheetID) { _, new in
+            // Watches the *resolved* sheet, not the raw selection: a reset
+            // clears the selection to nil, and it is the sheet that stands in
+            // for nil — the leading one — that the row has to travel back to.
+            .onChange(of: selectedSheet?.id) { _, new in
                 guard let new else { return }
                 withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.25)) {
                     scroller.scrollTo(new, anchor: .center)

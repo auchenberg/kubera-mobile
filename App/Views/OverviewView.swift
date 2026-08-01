@@ -153,7 +153,7 @@ struct OverviewView: View {
                         // The greeting, not the hero card: a re-tap should land
                         // where the screen starts, and the hero's own anchor is
                         // a module a widget can ask for.
-                        .scrollTopAnchor()
+                        .tabTopAnchor()
 
                     if let errorMessage {
                         Card {
@@ -225,7 +225,12 @@ struct OverviewView: View {
                 engageHaptics.prepare()
                 await reload()
             }
-            .scrollsToTopOnReselect(of: .overview)
+            // Scrolling is this tab's whole reset. The range pill and the
+            // sheet/section toggle are picks the reader made and expects to
+            // find where they left them, and `errorMessage` reports a refresh
+            // that actually failed — a gesture for getting back to the top has
+            // no business silencing it.
+            .scrollsToTopOnTabReset(of: .overview)
     }
 
     // MARK: - Greeting

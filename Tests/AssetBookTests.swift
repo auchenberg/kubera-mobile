@@ -618,3 +618,34 @@ extension AssetBookTests {
         }
     }
 }
+
+// MARK: - What a reset lands on
+
+/// Re-tapping the Assets tab puts the screen back the way it was first seen, and
+/// it does that by *clearing* the sheet selection rather than naming a sheet.
+/// That only produces the leading tab of the switcher because nil and "the first
+/// sheet" are the same answer here — which is this book's promise, not the
+/// screen's, so it is pinned here.
+extension AssetBookTests {
+    func testClearingTheSelectionLandsOnTheLeadingSheet() {
+        let book = AssetBook(detail(sample))
+
+        XCTAssertEqual(book.sheet(id: nil)?.id, book.sheets.first?.id)
+        XCTAssertEqual(book.sheet(id: nil)?.name, "Investments", "the leftmost tab is the largest sheet")
+    }
+
+    /// The same on the fixture the previews and the demo run use, where the
+    /// switcher has six tabs to walk back to the start of.
+    func testTheDemoBooksResetLandsOnItsFirstTab() {
+        let book = AssetBook(DemoData.detail)
+
+        XCTAssertEqual(book.sheet(id: nil)?.name, book.sheets.first?.name)
+        XCTAssertEqual(book.sheet(id: nil)?.name, "Investments")
+    }
+
+    /// A reset on an empty book has nothing to land on and must not invent
+    /// something to show.
+    func testAResetOnAnEmptyBookStillHasNoSheet() {
+        XCTAssertNil(AssetBook(assets: []).sheet(id: nil))
+    }
+}

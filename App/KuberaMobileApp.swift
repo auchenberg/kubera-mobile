@@ -109,24 +109,25 @@ private struct MainTabView: View {
 
     @Environment(AppStore.self) private var store
     @State private var selection: AppTab = MainTabView.initialTab
-    /// The last "scroll back to the top" ask, handed down the environment so a
-    /// tab root can answer it without every screen taking a parameter it would
-    /// only pass through.
-    @State private var scrollToTop: ScrollToTopRequest?
+    /// The last "put this tab back" ask. Published into the environment and
+    /// nothing more: what a reset means belongs to the screens, which declare it
+    /// themselves — see `TabReset.swift`. This view has no idea what any of them
+    /// will do about it.
+    @State private var tabReset: TabResetRequest?
     /// The Overview module a widget tap asked for, consumed and cleared by
     /// `OverviewView` once it has scrolled there.
     @State private var overviewFocus: DeepLink.OverviewFocus?
 
     /// Tapping the tab bar item of the tab you are already on writes the same
     /// value back to the binding, and that write is the only signal iOS gives
-    /// for a re-tap. Turning it into a scroll request here is what makes the
+    /// for a re-tap. Turning it into a reset request here is what makes the
     /// standard idiom work; a different value is an ordinary switch.
     private var tabSelection: Binding<AppTab> {
         Binding {
             selection
         } set: { tapped in
             guard tapped != selection else {
-                scrollToTop = .next(after: scrollToTop, tab: tapped)
+                tabReset = .next(after: tabReset, tab: tapped)
                 return
             }
             selection = tapped
@@ -174,7 +175,7 @@ private struct MainTabView: View {
                 .tag(AppTab.settings)
         }
         .modifier(MinimizingTabBar())
-        .environment(\.scrollToTopRequest, scrollToTop)
+        .environment(\.tabResetRequest, tabReset)
         .task {
             // The dashboard shows its own error state for a failed refresh.
             try? await store.refresh()
@@ -223,67 +224,6 @@ private struct MainTabView: View {
         case .assets: return selected ? "rectangle.stack.fill" : "rectangle.stack"
         case .widgets: return selected ? "square.grid.2x2.fill" : "square.grid.2x2"
         case .settings: return selected ? "gearshape.fill" : "gearshape"
-        }
-    }
-}
-
-// MARK: - Scroll to top
-
-extension EnvironmentValues {
-    /// The most recent ask to scroll a tab back to the top. Nil in previews and
-    /// anywhere outside the tab bar, where a screen simply never scrolls itself.
-    var scrollToTopRequest: ScrollToTopRequest? {
-        get { self[ScrollToTopRequestKey.self] }
-        set { self[ScrollToTopRequestKey.self] = newValue }
-    }
-}
-
-private struct ScrollToTopRequestKey: EnvironmentKey {
-    static let defaultValue: ScrollToTopRequest? = nil
-}
-
-extension View {
-    /// Marks this view as the top of its tab's scrolling content — the thing a
-    /// re-tap of the tab bar item scrolls back to. One per scroll view.
-    func scrollTopAnchor() -> some View {
-        id(ScrollAnchor.top)
-    }
-
-    /// Scrolls this scroll view back to its `scrollTopAnchor()` when `tab`'s tab
-    /// bar item is tapped while that tab is already showing.
-    ///
-    /// Applied to the `ScrollView` itself: the reader has to sit outside the
-    /// scroll view it drives, and the anchor inside it, so wrapping here is what
-    /// keeps both true without every screen growing a `ScrollViewReader` of its
-    /// own.
-    func scrollsToTopOnReselect(of tab: AppTab) -> some View {
-        modifier(ScrollToTopModifier(tab: tab))
-    }
-}
-
-private enum ScrollAnchor {
-    static let top = "scroll.top"
-}
-
-private struct ScrollToTopModifier: ViewModifier {
-    let tab: AppTab
-
-    @Environment(\.scrollToTopRequest) private var request
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    func body(content: Content) -> some View {
-        ScrollViewReader { scroller in
-            content.onChange(of: request) { _, new in
-                guard let new, new.tab == tab else { return }
-                // The same easing as the Overview's widget-focus scroll, which
-                // is this app's other programmatic jump — and off under Reduce
-                // Motion, where a screen-height slide is exactly the movement
-                // that setting exists to stop. The content still arrives at the
-                // top, it just gets there without the travel.
-                withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.45)) {
-                    scroller.scrollTo(ScrollAnchor.top, anchor: .top)
-                }
-            }
         }
     }
 }
