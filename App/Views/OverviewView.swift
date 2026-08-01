@@ -186,7 +186,7 @@ struct OverviewView: View {
                         allocationCard
                     }
 
-                    if shows(.assetFlow), Sankey.isWorthDrawing(assetFlowBranches) {
+                    if shows(.assetFlow), assetFlow.isMeaningful {
                         SectionTitle("Asset flow")
                         assetFlowCard
                     }
@@ -1265,9 +1265,9 @@ struct OverviewView: View {
     // that neither an API key nor the MCP token reaches. The spec puts it out of
     // scope, and an empty slot would be worse than no slot.
     //
-    // The Sankey is replaced rather than omitted — see the Composition module,
-    // which tells the same "where is the money" story from `detail.assets`
-    // without the custom Path drawing a faithful flow diagram would need.
+    // The Sankey is no longer among them: "Asset flow" above is the real thing,
+    // drawn from `detail.assets` with the same four stages Kubera's web app
+    // shows. See `SankeyView` for why it is allowed to be wider than the card.
 
     // MARK: - CAGR • YTD
 
@@ -1520,27 +1520,40 @@ struct OverviewView: View {
 
     // MARK: - Composition
 
-    /// The Sankey's bands. Follows the composition card's sheet/section toggle,
-    /// so switching level moves both rather than leaving the two disagreeing
-    /// about what a group is while sitting one above the other.
-    private var assetFlowBranches: [Sankey.Branch] {
-        Sankey.branches(from: detail?.assets ?? [], by: compositionLevel)
+    /// The Sankey's flow: sections into sheets, sheets into Assets, Assets out
+    /// into net worth and debts.
+    ///
+    /// It no longer follows the composition card's sheet/section toggle, and
+    /// must not: the toggle picks *one* of the two levels, and this diagram now
+    /// shows both at once with the ribbons between them. Nothing is left for the
+    /// toggle to change here. The Composition card keeps it — a list can only
+    /// show one level at a time.
+    ///
+    /// The debt figure is the snapshot's, the same one the DEBTS card prints two
+    /// blocks up. Note that the Assets node is the sum of the assets actually in
+    /// the detail fetch rather than `snapshot.assetTotal`, because a Sankey's
+    /// one claim is that its columns balance; if the two ever disagree it is the
+    /// diagram that stays internally consistent, and the cards that carry the
+    /// authoritative totals.
+    private var assetFlow: Sankey.Flow {
+        Sankey.assetFlow(from: detail?.assets ?? [], debtTotal: snapshot.debtTotal)
     }
 
-    /// Assets, not net worth. The bands sum to the asset side, so that is what
-    /// the trunk has to be called — labelling it "net worth" would print the
-    /// asset total under the wrong word. A real net-worth flow would need debts
-    /// as an outflow, which is a different diagram.
+    /// The diagram is wider than the card and slides sideways, so it bleeds past
+    /// the card's padding and puts that padding back as its own content inset:
+    /// at rest the labels line up with everything else on the screen, and a drag
+    /// carries them out under the card's edge instead of clipping them mid-word.
     private var assetFlowCard: some View {
         Card {
             SankeyView(
-                source: "Assets",
-                branches: assetFlowBranches,
+                flow: assetFlow,
                 currency: currency,
                 masked: masked,
                 compact: compactNumbers,
-                accessibilityTitle: "Assets by \(compositionLevel.rawValue)"
+                contentInset: Self.cardInset,
+                accessibilityTitle: "Asset flow"
             )
+            .padding(.horizontal, -Self.cardInset)
         }
     }
 
