@@ -42,12 +42,16 @@ enum DemoData {
         debtTotal: 370_000,
         costBasis: 1_026_000,
         unrealizedGain: 214_000,
+        // The five largest rows of `demoAssets`, named identically: the Overview's
+        // top-holdings card and the asset detail screen are two views of one
+        // portfolio, and a holding that appears in only one of them reads as a
+        // bug in whichever the reader looked at second.
         topHoldings: [
-            Holding(name: "Index funds", value: 620_000, sheet: "Investments"),
-            Holding(name: "Home", value: 450_000, sheet: "Real estate"),
-            Holding(name: "Retirement", value: 240_000, sheet: "Investments"),
+            Holding(name: "Family home", value: 385_000, sheet: "Real estate"),
+            Holding(name: "US index fund", value: 268_000, sheet: "Investments"),
+            Holding(name: "401(k) target date", value: 168_000, sheet: "Investments"),
             Holding(name: "Bitcoin", value: 96_000, sheet: "Crypto"),
-            Holding(name: "Cash", value: 74_000, sheet: "Banks"),
+            Holding(name: "Total international fund", value: 94_000, sheet: "Investments"),
         ],
         allocation: ["Investable": 58, "Real estate": 28, "Crypto": 6, "Cash": 5, "Collectibles": 3],
         updatedAt: Date().timeIntervalSince1970
@@ -105,19 +109,60 @@ enum DemoData {
         updatedAt: Date().timeIntervalSince1970
     )
 
-    /// Spread across enough sheets and sections that the composition breakdown
-    /// has something to group, rank, and fold into "Other".
+    /// The demo book: six sheets, thirteen sections, twenty-five rows.
+    ///
+    /// Deep enough to exercise every path the asset detail screen has — several
+    /// sections under a sheet, several rows under a section, a row with no
+    /// section that parks under `OverviewModules.unsortedGroupName`, and a
+    /// closed account sitting at zero — while staying spread widely enough for
+    /// the composition breakdown to group, rank and fold into "Other".
+    ///
+    /// The six sheet totals are fixed: Investments 860K, Real estate 450K,
+    /// Crypto 130K, Banks 74K, Vehicles 62K and Collectibles 34K, summing to the
+    /// snapshot's 1,610,000 asset total. Sections and rows may be reshaped
+    /// underneath them freely, but moving a sheet total moves the Sankey's bands
+    /// and the composition breakdown's bars, which are asserted against these
+    /// figures.
     private static let demoAssets: [PortfolioDetail.Asset] = [
-        .init(name: "Index funds", value: 430_000, assetClass: "Investment", ticker: "VTI", sheet: "Investments", section: "Taxable"),
-        .init(name: "Retirement", value: 240_000, assetClass: "Investment", ticker: nil, sheet: "Investments", section: "Retirement"),
-        .init(name: "Growth fund", value: 190_000, assetClass: "Fund", ticker: nil, sheet: "Investments", section: "Taxable"),
-        .init(name: "Home", value: 450_000, assetClass: "Real estate", ticker: nil, sheet: "Real estate", section: "Primary"),
+        // Investments — 860,000
+        .init(name: "US index fund", value: 268_000, assetClass: "Investment", ticker: "VTI", sheet: "Investments", section: "Taxable"),
+        .init(name: "Total international fund", value: 94_000, assetClass: "Investment", ticker: "VXUS", sheet: "Investments", section: "Taxable"),
+        .init(name: "Growth fund", value: 84_000, assetClass: "Fund", ticker: nil, sheet: "Investments", section: "Taxable"),
+        .init(name: "Brokerage cash sweep", value: 72_000, assetClass: "Cash", ticker: nil, sheet: "Investments", section: "Taxable"),
+        .init(name: "Treasury ladder", value: 62_000, assetClass: "Bond", ticker: nil, sheet: "Investments", section: "Taxable"),
+        .init(name: "401(k) target date", value: 168_000, assetClass: "Investment", ticker: nil, sheet: "Investments", section: "Retirement"),
+        .init(name: "Roth IRA", value: 52_000, assetClass: "Investment", ticker: nil, sheet: "Investments", section: "Retirement"),
+        .init(name: "Rollover IRA", value: 20_000, assetClass: "Investment", ticker: nil, sheet: "Investments", section: "Retirement"),
+        .init(name: "529 plan", value: 40_000, assetClass: "Investment", ticker: nil, sheet: "Investments", section: "Education"),
+
+        // Real estate — 450,000
+        .init(name: "Family home", value: 385_000, assetClass: "Real estate", ticker: nil, sheet: "Real estate", section: "Primary"),
+        .init(name: "Duplex share", value: 65_000, assetClass: "Real estate", ticker: nil, sheet: "Real estate", section: "Rental"),
+
+        // Crypto — 130,000
         .init(name: "Bitcoin", value: 96_000, assetClass: "Crypto", ticker: "BTC", sheet: "Crypto", section: "Wallets"),
-        .init(name: "Ethereum", value: 34_000, assetClass: "Crypto", ticker: "ETH", sheet: "Crypto", section: "Wallets"),
-        .init(name: "Checking", value: 48_000, assetClass: "Cash", ticker: nil, sheet: "Banks", section: "Everyday"),
-        .init(name: "Savings", value: 26_000, assetClass: "Cash", ticker: nil, sheet: "Banks", section: "Reserve"),
-        .init(name: "Car", value: 62_000, assetClass: "Vehicle", ticker: nil, sheet: "Vehicles", section: nil),
-        .init(name: "Watch", value: 34_000, assetClass: "Collectible", ticker: nil, sheet: "Collectibles", section: nil),
+        .init(name: "Ethereum", value: 28_000, assetClass: "Crypto", ticker: "ETH", sheet: "Crypto", section: "Wallets"),
+        .init(name: "Stablecoin balance", value: 6_000, assetClass: "Crypto", ticker: "USDC", sheet: "Crypto", section: "Exchange"),
+
+        // Banks — 74,000
+        .init(name: "Checking", value: 31_000, assetClass: "Cash", ticker: nil, sheet: "Banks", section: "Everyday"),
+        .init(name: "Joint checking", value: 9_000, assetClass: "Cash", ticker: nil, sheet: "Banks", section: "Everyday"),
+        // A closed account Kubera still lists. It is here so the asset table's
+        // handling of a zero row is something the demo actually shows.
+        .init(name: "Closed student account", value: 0, assetClass: "Cash", ticker: nil, sheet: "Banks", section: "Everyday"),
+        .init(name: "High-yield savings", value: 26_000, assetClass: "Cash", ticker: nil, sheet: "Banks", section: "Reserve"),
+        .init(name: "Emergency fund", value: 8_000, assetClass: "Cash", ticker: nil, sheet: "Banks", section: "Reserve"),
+
+        // Vehicles — 62,000. The motorcycle carries no section, so a filed sheet
+        // with an unfiled row inside it is on screen next to a filed one.
+        .init(name: "Estate car", value: 27_000, assetClass: "Vehicle", ticker: nil, sheet: "Vehicles", section: "Cars"),
+        .init(name: "City runabout", value: 14_000, assetClass: "Vehicle", ticker: nil, sheet: "Vehicles", section: "Cars"),
+        .init(name: "Motorcycle", value: 21_000, assetClass: "Vehicle", ticker: nil, sheet: "Vehicles", section: nil),
+
+        // Collectibles — 34,000
+        .init(name: "Dive watch", value: 19_000, assetClass: "Collectible", ticker: nil, sheet: "Collectibles", section: "Watches"),
+        .init(name: "Field watch", value: 7_500, assetClass: "Collectible", ticker: nil, sheet: "Collectibles", section: "Watches"),
+        .init(name: "Camera kit", value: 7_500, assetClass: "Collectible", ticker: nil, sheet: "Collectibles", section: "Misc"),
     ]
 
     /// A first name, so the greeting has something to use in the demo. Chosen to

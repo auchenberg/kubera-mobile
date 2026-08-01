@@ -29,15 +29,18 @@
 		3156D310CAB943642E972458 /* DeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = A573F2169A14F50B143BF1BC /* DeepLink.swift */; };
 		33634B50D45AFCBCC55B140C /* AppLockPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0A326EBD9A73EB29CAFBF1 /* AppLockPolicy.swift */; };
 		33ABAC2D864C1400FEA641AD /* MarketComps.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2DF12ECBF442B9DCEC6F25 /* MarketComps.swift */; };
+		36F88CF337ECC06F48643488 /* AssetBook.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9434EE4582A64656C99224D /* AssetBook.swift */; };
 		3EF7AFDE30E57864BA7620F6 /* DemoDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 831A39C7C3AF19152F9CA86C /* DemoDataTests.swift */; };
 		41E9D445727B6857D51867A5 /* FormatUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A84D4B8FC71F5E7D8DB0919A /* FormatUnitTests.swift */; };
 		43CA5C2ECC049EBBCD4E7E45 /* Sankey.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99607DBC46CABA3ADD40322 /* Sankey.swift */; };
 		482C8CAA2E0FC846FBCE0BD4 /* AppLockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EF6EEECC827E637397288F7 /* AppLockTests.swift */; };
 		4BD6772C523118CFB10A3C60 /* WidgetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CF5AEB0AE0934F98263045A /* WidgetsView.swift */; };
+		4F5273FD01640EFB6E6046C9 /* AssetBook.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9434EE4582A64656C99224D /* AssetBook.swift */; };
 		52B21BC6C65E2DC5E174D457 /* Trends.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82BC53E481EB16D1E8231F78 /* Trends.swift */; };
 		52B959234BDB5654BFEE9C55 /* KuberaSDKTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F72CF76C84828635CF98C48 /* KuberaSDKTests.swift */; };
 		57E805002AF04E07109B1C0A /* Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DF0E332103430E59CD3A1F /* Provider.swift */; };
 		5A20168EA40868E4AC5D1DE3 /* Kubera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84236A371F0E34921F109CED /* Kubera.swift */; };
+		625EA9AF7646E0A4A70C1EF9 /* AssetDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82917727BD08B1CF73537DE4 /* AssetDetailView.swift */; };
 		650EACC4071DA55BD6DE55B0 /* AppLockPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0A326EBD9A73EB29CAFBF1 /* AppLockPolicy.swift */; };
 		65B3F8F13898358E2B3B9DF0 /* SankeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37FEBFD189174283636C98CF /* SankeyView.swift */; };
 		66FE47ACFE318F5121B36F21 /* ConnectionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4FF1B05534082724FC972AB /* ConnectionStatus.swift */; };
@@ -57,6 +60,7 @@
 		94DBE143B0B49E827B9411AE /* OverviewModulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B727CE373FC90971F37ECB15 /* OverviewModulesTests.swift */; };
 		97C516DDE6DB7F2E7B9A3E3B /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4371B78D3A54361AC2D10C53 /* Shared.swift */; };
 		9C7508839EF9CAB9E4D72EFE /* HistoryParseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA254F65547D5C22323323F1 /* HistoryParseTests.swift */; };
+		9E4BA72D4A9F1A09B71E3FDE /* AssetBook.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9434EE4582A64656C99224D /* AssetBook.swift */; };
 		9F9AEC33CC1F22F6EB04C6C8 /* SankeyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67559031FA36E38AB378BA26 /* SankeyTests.swift */; };
 		A29E19CF82290F7BC645D3C6 /* CagrWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C2233CECA1DE7F85E08A09D /* CagrWidget.swift */; };
 		A4DD033989FEDD9A29A90A2E /* DemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D3E541C3B55D4E373CEC8D /* DemoData.swift */; };
@@ -64,6 +68,7 @@
 		A6A888B32678FFD8EC6B31C7 /* Greeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21A1CB8F4B982AB90F295030 /* Greeting.swift */; };
 		AB2C7A65416BF1170E3820AB /* MarketCompsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B50ADE56F516456C469D290 /* MarketCompsTests.swift */; };
 		AD33958405990DD5D6EFA150 /* Sankey.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99607DBC46CABA3ADD40322 /* Sankey.swift */; };
+		B5886D7B80C052C671AE284A /* AssetBookTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44492822EFF614D9A14DE0D9 /* AssetBookTests.swift */; };
 		BBBC3FF9F8A63C4AF8A6E087 /* AppLockPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0A326EBD9A73EB29CAFBF1 /* AppLockPolicy.swift */; };
 		BC0A2C0919F88CF11F63F4C7 /* KuberaMobileApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2BAE1FE8F743BA95F3AB528 /* KuberaMobileApp.swift */; };
 		BC6AAE19FD3582AB71FCB301 /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4371B78D3A54361AC2D10C53 /* Shared.swift */; };
@@ -141,12 +146,14 @@
 		3F72CF76C84828635CF98C48 /* KuberaSDKTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KuberaSDKTests.swift; sourceTree = "<group>"; };
 		4123FC98931FBF573BBC273C /* KuberaMobileExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KuberaMobileExtension.entitlements; sourceTree = "<group>"; };
 		4371B78D3A54361AC2D10C53 /* Shared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared.swift; sourceTree = "<group>"; };
+		44492822EFF614D9A14DE0D9 /* AssetBookTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetBookTests.swift; sourceTree = "<group>"; };
 		67559031FA36E38AB378BA26 /* SankeyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SankeyTests.swift; sourceTree = "<group>"; };
 		69365FDF8D17AE6E2A9298FD /* FormatTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatTests.swift; sourceTree = "<group>"; };
 		6B50ADE56F516456C469D290 /* MarketCompsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketCompsTests.swift; sourceTree = "<group>"; };
 		6BBBC41CF7BE15CAF4F4FA1D /* TrendsCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendsCalculatorTests.swift; sourceTree = "<group>"; };
 		7C2233CECA1DE7F85E08A09D /* CagrWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CagrWidget.swift; sourceTree = "<group>"; };
 		7C7A9CED9DCBAB1A650BDEFF /* KuberaMobile.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = KuberaMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		82917727BD08B1CF73537DE4 /* AssetDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetDetailView.swift; sourceTree = "<group>"; };
 		82BC53E481EB16D1E8231F78 /* Trends.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trends.swift; sourceTree = "<group>"; };
 		831A39C7C3AF19152F9CA86C /* DemoDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoDataTests.swift; sourceTree = "<group>"; };
 		84236A371F0E34921F109CED /* Kubera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Kubera.swift; sourceTree = "<group>"; };
@@ -176,6 +183,7 @@
 		E190BF6CD6AA93A88FDDCDFA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E2BAE1FE8F743BA95F3AB528 /* KuberaMobileApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KuberaMobileApp.swift; sourceTree = "<group>"; };
 		E37B79AEFE79A98112DC4E7E /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		E9434EE4582A64656C99224D /* AssetBook.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetBook.swift; sourceTree = "<group>"; };
 		F08126F91CADFD534EF56286 /* OverviewChartTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewChartTests.swift; sourceTree = "<group>"; };
 		F3ACDFDB5BD58DC3AA5A61D3 /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
 		F3D2A157E194AB456C2EC532 /* OverviewModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewModuleTests.swift; sourceTree = "<group>"; };
@@ -216,6 +224,7 @@
 			isa = PBXGroup;
 			children = (
 				8B0A326EBD9A73EB29CAFBF1 /* AppLockPolicy.swift */,
+				E9434EE4582A64656C99224D /* AssetBook.swift */,
 				A4FF1B05534082724FC972AB /* ConnectionStatus.swift */,
 				A573F2169A14F50B143BF1BC /* DeepLink.swift */,
 				B1D3E541C3B55D4E373CEC8D /* DemoData.swift */,
@@ -254,6 +263,7 @@
 			isa = PBXGroup;
 			children = (
 				8EF6EEECC827E637397288F7 /* AppLockTests.swift */,
+				44492822EFF614D9A14DE0D9 /* AssetBookTests.swift */,
 				FDD427BFB87A3FC24F74C060 /* ConnectionStatusTests.swift */,
 				2125114FEF5FCDB896B0C932 /* DeepLinkTests.swift */,
 				831A39C7C3AF19152F9CA86C /* DemoDataTests.swift */,
@@ -279,6 +289,7 @@
 		D9CB91E0E03B1ADC8491B523 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				82917727BD08B1CF73537DE4 /* AssetDetailView.swift */,
 				E37B79AEFE79A98112DC4E7E /* Components.swift */,
 				86831DC47AA5CF361D180119 /* ConnectView.swift */,
 				92AB6CEDE006996CCF30CF04 /* GlassBackground.swift */,
@@ -432,6 +443,8 @@
 				299198589C471960C21E70C3 /* AppLock.swift in Sources */,
 				33634B50D45AFCBCC55B140C /* AppLockPolicy.swift in Sources */,
 				07755B550E10C0804ED651B7 /* AppStore.swift in Sources */,
+				36F88CF337ECC06F48643488 /* AssetBook.swift in Sources */,
+				625EA9AF7646E0A4A70C1EF9 /* AssetDetailView.swift in Sources */,
 				92E54F0D5EE3F28CEDB13917 /* Components.swift in Sources */,
 				CEAD17FE047ACEE4F6C531A6 /* ConnectView.swift in Sources */,
 				F6147AED11E08F8F76A240CB /* ConnectionStatus.swift in Sources */,
@@ -467,6 +480,8 @@
 			files = (
 				650EACC4071DA55BD6DE55B0 /* AppLockPolicy.swift in Sources */,
 				482C8CAA2E0FC846FBCE0BD4 /* AppLockTests.swift in Sources */,
+				9E4BA72D4A9F1A09B71E3FDE /* AssetBook.swift in Sources */,
+				B5886D7B80C052C671AE284A /* AssetBookTests.swift in Sources */,
 				66FE47ACFE318F5121B36F21 /* ConnectionStatus.swift in Sources */,
 				03AF9D20EEBED6BB22ED9BE8 /* ConnectionStatusTests.swift in Sources */,
 				82839048700AFC0FED12247C /* DeepLink.swift in Sources */,
@@ -508,6 +523,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BBBC3FF9F8A63C4AF8A6E087 /* AppLockPolicy.swift in Sources */,
+				4F5273FD01640EFB6E6046C9 /* AssetBook.swift in Sources */,
 				FF149571782425A21E2C83C2 /* AssetsDebtsWidget.swift in Sources */,
 				A29E19CF82290F7BC645D3C6 /* CagrWidget.swift in Sources */,
 				C45FDA3156CC5D7FA67A78B3 /* ConnectionStatus.swift in Sources */,
