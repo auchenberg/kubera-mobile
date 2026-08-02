@@ -413,8 +413,13 @@ enum Sankey {
         var sheetTotals: [String: Double] = [:]
         var sectionTotals: [String: [String: Double]] = [:]
         for asset in assets where asset.value > 0 && asset.value.isFinite {
-            let sheet = label(asset.sheet, fallback: unsortedName)
-            let section = label(asset.section, fallback: unsortedName)
+            // An aggregate row summarises holdings the payload did not list, so
+            // it belongs in the tail band rather than in "Unsorted", which means
+            // money nobody filed. `fold` merges it with whatever else lands
+            // there, and the columns still balance because its value is kept.
+            let aggregate = PortfolioBook.isAggregateRow(asset.name)
+            let sheet = aggregate ? otherName : label(asset.sheet, fallback: unsortedName)
+            let section = aggregate ? otherName : label(asset.section, fallback: unsortedName)
             sheetTotals[sheet, default: 0] += asset.value
             sectionTotals[sheet, default: [:]][section, default: 0] += asset.value
         }

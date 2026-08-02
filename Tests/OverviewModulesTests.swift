@@ -561,3 +561,57 @@ final class OverviewModulesTests: XCTestCase {
         )
     }
 }
+
+// MARK: - Kubera's aggregate row
+
+/// When Kubera answers with a ranked, cut-off holdings table, the last row is an
+/// aggregate like "Others (12 positions)". It arrives with no sheet and no
+/// section, so it used to be grouped as unfiled money — a bar claiming that much
+/// of the portfolio had never been filed. It belongs in the folded tail instead.
+extension OverviewModulesTests {
+    /// The measured shape from the audit: one real holding plus the aggregate.
+    private var rankedTableRows: [PortfolioDetail.Asset] {
+        [
+            asset("Index funds", 620_000, sheet: "Investments", section: "Taxable"),
+            asset("Others (12 positions)", 44_000),
+        ]
+    }
+
+    func testTheAggregateJoinsTheFoldedTailRatherThanUnsorted() {
+        for level in OverviewModules.CompositionLevel.allCases {
+            let groups = OverviewModules.composition(rankedTableRows, by: level)
+
+            XCTAssertFalse(
+                groups.contains { $0.name == OverviewModules.unsortedGroupName },
+                "\(level): an aggregate is not unfiled money"
+            )
+            XCTAssertEqual(
+                groups.first { $0.name == OverviewModules.otherGroupName }?.value,
+                44_000,
+                "\(level): the aggregate's value belongs to the tail"
+            )
+        }
+    }
+
+    /// Conservation: the bars are read against the asset total, so nothing may
+    /// be lost on the way into the tail.
+    func testTheAggregatesValueSurvivesGrouping() {
+        for level in OverviewModules.CompositionLevel.allCases {
+            let total = OverviewModules.composition(rankedTableRows, by: level)
+                .reduce(0) { $0 + $1.value }
+            XCTAssertEqual(total, 664_000, accuracy: 0.01, "\(level)")
+        }
+    }
+
+    /// A real "Other" sheet and the aggregate are the same money either way, so
+    /// they sum into one row rather than producing two with one name.
+    func testTheAggregateMergesWithAnExistingOtherGroup() {
+        let groups = OverviewModules.composition(
+            rankedTableRows + [asset("Odds and ends", 6_000, sheet: OverviewModules.otherGroupName)],
+            by: .sheet
+        )
+
+        XCTAssertEqual(groups.filter { $0.name == OverviewModules.otherGroupName }.count, 1)
+        XCTAssertEqual(groups.first { $0.name == OverviewModules.otherGroupName }?.value, 50_000)
+    }
+}

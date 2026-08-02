@@ -231,6 +231,17 @@ enum Kubera {
         /// Tool names, none of which Kubera documents. `history` and
         /// `defaultPortfolio` are verified live; `portfolio` and `profile` are
         /// probed and logged.
+        ///
+        /// **Not implemented: pagination.** Kubera's help article 166 documents a
+        /// `cursor` argument on `get_default_portfolio`, and this client never
+        /// sends one, so a portfolio large enough to be paged is silently
+        /// truncated at whatever the first page holds. No response shape for the
+        /// continuation is published and nothing in this repo has ever captured
+        /// one — not the tool payloads, not `structuredContent`, which is decoded
+        /// as free-form JSON and has never been seen carrying a marker. Following
+        /// the cursor needs one live capture of a paged reply first; guessing the
+        /// field name would produce a client that silently stops at page one in a
+        /// different way.
         private enum Tool {
             static let history = "get_portfolio_history"
             static let portfolio = "get_portfolio"
@@ -798,11 +809,24 @@ extension Kubera.Parse {
 
     // MARK: - Assets
 
-    /// Holdings, taken from the ranked `## Top Holdings` table and falling back
-    /// to `## Investable Assets` and then the full `## Assets` table, which is
-    /// the only one that splits Sheet and Section into separate columns.
+    /// Holdings, preferring the complete `## Assets` table and falling back to
+    /// the partial ones.
+    ///
+    /// The order is the point. `## Assets` is the whole book — every row, with
+    /// Sheet and Section in columns of their own. The other two are summaries:
+    /// `## Top Holdings` is ranked and cut off, ending in an aggregate row like
+    /// "Others (12 positions)", and `## Investable Assets` is a subset by
+    /// definition, holding only what Kubera counts as investable. Reading a
+    /// summary while the full table sat further down the same document is what
+    /// made the Assets screen show a top-N and call it the portfolio.
+    ///
+    /// The fallbacks are still needed rather than vestigial: the payload shape
+    /// this repo has captured carries Top Holdings and Investable Assets and no
+    /// `## Assets` section at all, so on that shape a partial list is the only
+    /// list there is. `PortfolioBook` recognises the aggregate row that comes
+    /// with it and marks such a book partial rather than pretending otherwise.
     static func assets(in markdown: String) -> [PortfolioDetail.Asset] {
-        for name in ["Top Holdings", "Investable Assets", "Assets"] {
+        for name in ["Assets", "Top Holdings", "Investable Assets"] {
             guard let scope = section(name, in: markdown),
                   let table = table(matching: ["Name", "Value"], in: scope) else { continue }
             let assets = table.rows.compactMap { asset(fromRow: $0, in: table) }

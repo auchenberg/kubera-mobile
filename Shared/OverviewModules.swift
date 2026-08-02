@@ -70,6 +70,24 @@ enum OverviewModules {
         return change(from: reference(in: points, before: startOfYear), to: current)?.percent
     }
 
+    /// The CAGR the growth block prints: Kubera's own figure when the
+    /// `get_portfolio_cagr` tool has answered, and the rate computed from this
+    /// device's series when it has not.
+    ///
+    /// Kubera's wins because it is the number Kubera's own dashboard shows,
+    /// measured over the portfolio's whole recorded life rather than over
+    /// whatever slice of history this device holds — the same reason
+    /// `investable(detail:series:…)` prefers the served figure over the series.
+    /// Every way the fetch can fail arrives here as nil, so the fallback is the
+    /// same code path as having never asked.
+    static func cagrPercent(
+        kubera: Double?,
+        in points: [ChartPoint],
+        minimumYears: Double = 1
+    ) -> Double? {
+        kubera ?? cagrPercent(in: points, minimumYears: minimumYears)
+    }
+
     /// Compound annual growth rate over the whole series, as a percent.
     ///
     /// Nil unless the series spans at least `minimumYears`: annualizing a
@@ -190,6 +208,15 @@ enum OverviewModules {
     ) -> [CompositionGroup] {
         var totals: [String: Double] = [:]
         for asset in assets {
+            // Kubera's own "Others (12 positions)" is a summary of a dozen
+            // holdings, not an unfiled one, so it joins the folded tail instead
+            // of the unsorted bucket — where it would have claimed that much
+            // money had simply never been filed. Its value is kept either way:
+            // these bars are read against the asset total.
+            guard !PortfolioBook.isAggregateRow(asset.name) else {
+                totals[otherName, default: 0] += asset.value
+                continue
+            }
             let label = (level == .sheet ? asset.sheet : asset.section)?
                 .trimmingCharacters(in: .whitespacesAndNewlines)
             let name = (label?.isEmpty ?? true) ? unsortedName : label!

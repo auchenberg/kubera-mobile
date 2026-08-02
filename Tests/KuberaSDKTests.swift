@@ -173,6 +173,96 @@ final class KuberaSDKTests: XCTestCase {
         XCTAssertEqual(home.section, "Primary")
     }
 
+    // MARK: - Which holdings table wins
+
+    /// The bug this order fixes: with both tables in one document the app read
+    /// the ranked, cut-off one and called it the portfolio. `## Assets` is the
+    /// whole book and has to win.
+    func testTheFullAssetsTableBeatsTheRankedOne() throws {
+        let markdown = """
+        ## Summary
+
+        | Metric | Value |
+        | ---- | ---: |
+        | Net Worth | 1,200,000 |
+
+        ## Top Holdings
+
+        | Name | Value (USD) | % | Asset Class | Ticker | Sheet > Section |
+        | ---- | ---: | ---: | ---- | ---- | ---- |
+        | Index funds | 620,000 | 38.5 | investment | VTI | Investments > Brokerage |
+        | Others (12 positions) | 44,000 | 2.7 | - | - | - |
+
+        ## Assets
+
+        | ID | Name | Value | Ticker | Asset Class | Sheet | Section |
+        | ---- | ---- | ---: | ---- | ---- | ---- | ---- |
+        | a-1 | Index funds | 620,000 | VTI | investment | Investments | Brokerage |
+        | a-2 | Savings | 26,000 | | cash | Banks | Reserve |
+        | a-3 | Watch | 18,000 | | collectible | Collectibles | Watches |
+        """
+        let detail = try XCTUnwrap(detail(markdown))
+
+        XCTAssertEqual(detail.assets.map(\.name), ["Index funds", "Savings", "Watch"])
+        XCTAssertFalse(
+            detail.assets.contains { $0.name.hasPrefix("Others") },
+            "reading the full table means never seeing the ranked table's aggregate"
+        )
+    }
+
+    /// `## Investable Assets` is a subset by definition, so it loses to the full
+    /// table too — and is still used when it is the only table there is.
+    func testInvestableAssetsLosesToTheFullTableAndIsUsedAlone() throws {
+        let both = """
+        ## Summary
+
+        | Metric | Value |
+        | Net Worth | 1,200,000 |
+
+        ## Investable Assets
+
+        | Name | Value (USD) | Asset Class | Sheet > Section |
+        | ---- | ---: | ---- | ---- |
+        | Index funds | 620,000 | investment | Investments > Brokerage |
+
+        ## Assets
+
+        | Name | Value | Sheet | Section |
+        | ---- | ---: | ---- | ---- |
+        | Index funds | 620,000 | Investments | Brokerage |
+        | Home | 450,000 | Real Estate | Primary |
+        """
+        XCTAssertEqual(try XCTUnwrap(detail(both)).assets.map(\.name), ["Index funds", "Home"])
+
+        let alone = """
+        ## Summary
+
+        | Metric | Value |
+        | Net Worth | 1,200,000 |
+
+        ## Investable Assets
+
+        | Name | Value (USD) | Asset Class | Sheet > Section |
+        | ---- | ---: | ---- | ---- |
+        | Index funds | 620,000 | investment | Investments > Brokerage |
+        """
+        XCTAssertEqual(try XCTUnwrap(detail(alone)).assets.map(\.name), ["Index funds"])
+    }
+
+    /// The shape this repo has actually captured has no `## Assets` section, so
+    /// the ranked table is the only list available and its aggregate row comes
+    /// with it. The parser keeps that row — losing it would break the sum
+    /// against Total Assets — and `PortfolioBook` is what knows it is not a
+    /// holding.
+    func testThePartialTableIsStillUsedWhenItIsTheOnlyOne() throws {
+        let detail = try XCTUnwrap(detail(portfolioMarkdown))
+
+        XCTAssertEqual(
+            detail.assets.map(\.name),
+            ["Index funds", "Home", "Bitcoin", "Others (12 positions)"]
+        )
+    }
+
     /// The separate `Sheet` and `Section` columns of the full `## Assets` table,
     /// used when there is no ranked Top Holdings section.
     func testSeparateSheetAndSectionColumns() throws {

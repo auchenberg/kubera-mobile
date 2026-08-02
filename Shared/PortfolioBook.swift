@@ -81,6 +81,13 @@ struct PortfolioBook: Hashable, Sendable {
 
     /// Sheets, largest total first.
     let sheets: [Sheet]
+    /// Whether this book stands in for a longer list.
+    ///
+    /// True when the rows carried one of Kubera's own aggregate entries — the
+    /// "Others (12 positions)" that ends a ranked, cut-off table. The book keeps
+    /// that row's value, so its totals still reconcile with the portfolio's, but
+    /// a screen showing this book is showing a top-N and can say so.
+    let isPartial: Bool
     /// Every asset in the book, summed. This is the portfolio's asset side, so a
     /// screen may print it beside `PortfolioDetail.assetTotal` without the two
     /// disagreeing.
@@ -160,14 +167,31 @@ struct PortfolioBook: Hashable, Sendable {
         self.init(rows: detail?.rows(side) ?? [], unsortedName: unsortedName)
     }
 
-    init(rows: [PortfolioDetail.Asset], unsortedName: String = OverviewModules.unsortedGroupName) {
+    init(
+        rows: [PortfolioDetail.Asset],
+        unsortedName: String = OverviewModules.unsortedGroupName,
+        otherName: String = OverviewModules.otherGroupName
+    ) {
         // Grouped through dictionaries and ranked afterwards rather than sorted
         // in place: the input order is Kubera's ranking of the whole portfolio,
         // which says nothing about the order inside a section.
         var grouped: [String: [String: [PortfolioDetail.Asset]]] = [:]
+        var sawAggregate = false
         for asset in rows {
-            let sheet = Self.label(asset.sheet, fallback: unsortedName)
-            let section = Self.label(asset.section, fallback: unsortedName)
+            // An aggregate is not a holding, so it is not filed like one. Its
+            // own labels are noise — Kubera leaves them blank — and parking it
+            // under "Unsorted" would present a summary of a dozen positions as
+            // one unfiled asset. It goes to the same "Other" name the
+            // composition breakdown uses for a folded tail, where a row reading
+            // "Others (12 positions)" is exactly what the reader expects.
+            //
+            // Kept rather than dropped: its value is part of the total the
+            // portfolio states, and a book that quietly stopped summing to that
+            // total would be a worse lie than a badly filed row.
+            let aggregate = Self.isAggregateRow(asset.name)
+            sawAggregate = sawAggregate || aggregate
+            let sheet = aggregate ? otherName : Self.label(asset.sheet, fallback: unsortedName)
+            let section = aggregate ? otherName : Self.label(asset.section, fallback: unsortedName)
             grouped[sheet, default: [:]][section, default: []].append(asset)
         }
 
@@ -204,12 +228,37 @@ struct PortfolioBook: Hashable, Sendable {
         sheets.sort(by: Self.precedes)
 
         self.sheets = sheets
-        // Summed from the sheets rather than from `assets`, so the figure the
+        isPartial = sawAggregate
+        // Summed from the sheets rather than from `rows`, so the figure the
         // screen prints at the top is arithmetically the one its rows add up to.
         total = sheets.reduce(0) { $0 + $1.total }
     }
 
     // MARK: - Grouping rules
+
+    /// Whether a row is one of Kubera's aggregates rather than a holding —
+    /// the "Others (12 positions)" that closes a ranked, truncated table.
+    ///
+    /// Matched tightly, against the generated wording and nothing looser, and
+    /// the asymmetry is deliberate: a false positive files somebody's real
+    /// holding — a person may legitimately own something called "Others" — under
+    /// a name they never chose, while a false negative only leaves the row
+    /// showing the way it did before this existed. If Kubera rewords the label,
+    /// this stops matching and the old behaviour returns; it does not start
+    /// swallowing holdings.
+    static func isAggregateRow(_ name: String) -> Bool {
+        // Lowercased and matched against a lowercase pattern rather than using
+        // `.caseInsensitive`: whether that option combines with
+        // `.regularExpression` has proven to differ between Foundation
+        // versions, and this rule must not depend on which one is linked.
+        name
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+            .range(
+                of: #"^others?\s+\(\d+\s+positions?\)$"#,
+                options: .regularExpression
+            ) != nil
+    }
 
     /// Splits the id levels. A control character rather than a glyph: a sheet
     /// really can be called "Cars › Watches", and an id that collided with

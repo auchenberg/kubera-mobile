@@ -972,3 +972,44 @@ final class SankeyTests: XCTestCase {
         XCTAssertEqual(Sankey.fold(branches, into: 4), branches)
     }
 }
+
+// MARK: - Kubera's aggregate row
+
+/// The diagram consumes the same rows the composition card does, so it inherited
+/// the same bug: a ranked, cut-off holdings table ends in an aggregate that has
+/// no sheet, and a band labelled "Unsorted" claimed that money had never been
+/// filed. It belongs in the tail band.
+extension SankeyTests {
+    /// The measured shape from the audit.
+    private var rankedTableRows: [PortfolioDetail.Asset] {
+        [
+            asset("Index funds", 620_000, sheet: "Investments", section: "Taxable"),
+            asset("Others (12 positions)", 44_000),
+        ]
+    }
+
+    func testTheAggregateBecomesTheTailBandNotAnUnsortedOne() {
+        for level in OverviewModules.CompositionLevel.allCases {
+            let branches = Sankey.branches(from: rankedTableRows, by: level)
+
+            XCTAssertFalse(branches.contains { $0.name == OverviewModules.unsortedGroupName }, "\(level)")
+            XCTAssertEqual(branches.first { $0.name == Sankey.otherBandName }?.value, 44_000, "\(level)")
+            XCTAssertEqual(branches.reduce(0) { $0 + $1.value }, 664_000, accuracy: epsilon, "\(level)")
+        }
+    }
+
+    /// The flow groups rows itself rather than through `branches`, so it needs
+    /// its own proof — at both levels it builds, and with the columns still
+    /// balancing, which is the diagram's one claim.
+    func testTheFlowFilesTheAggregateInTheTailBand() {
+        let flow = Sankey.assetFlow(from: rankedTableRows, debtTotal: 100_000)
+        let sheets = flow.stages[1].items.map(\.name)
+        let leaves = flow.stages[0].items.map(\.name)
+
+        XCTAssertTrue(sheets.contains(Sankey.otherBandName))
+        XCTAssertFalse(sheets.contains(OverviewModules.unsortedGroupName))
+        XCTAssertFalse(leaves.contains(OverviewModules.unsortedGroupName))
+        XCTAssertEqual(columnSums(flow)[0], 664_000, accuracy: epsilon)
+        XCTAssertEqual(columnSums(flow)[2], 664_000, accuracy: epsilon, "the Assets node still sums its rows")
+    }
+}

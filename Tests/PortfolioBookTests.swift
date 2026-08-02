@@ -753,3 +753,89 @@ extension PortfolioBookTests {
         XCTAssertTrue(book.sheets.allSatisfy { $0.total > 0 })
     }
 }
+
+
+// MARK: - Kubera's own aggregate row
+
+/// A ranked, cut-off holdings table ends in an entry like "Others (12
+/// positions)". It has a name and a value, which is all a row needs to be
+/// grouped, ranked and totalled as though somebody owned a thing called that.
+/// These pin what the book does about it.
+extension PortfolioBookTests {
+    func testTheAggregateRowIsRecognised() {
+        for name in [
+            "Others (12 positions)",
+            "others (12 positions)",
+            "Other (1 position)",
+            "  Others  (3  positions)  ",
+            "OTHERS (250 POSITIONS)",
+        ] {
+            XCTAssertTrue(PortfolioBook.isAggregateRow(name), name)
+        }
+    }
+
+    /// Deliberately tight. Somebody may own a thing called "Others", and filing
+    /// their holding under a name they never chose is a worse failure than
+    /// leaving Kubera's aggregate looking like a row.
+    func testARealHoldingIsNotMistakenForTheAggregate() {
+        for name in [
+            "Others",
+            "Other assets",
+            "Others (twelve positions)",
+            "Others (12 positions) fund",
+            "Vanguard Other (International)",
+            "",
+        ] {
+            XCTAssertFalse(PortfolioBook.isAggregateRow(name), name)
+        }
+    }
+
+    func testTheAggregateIsFiledApartFromTheHoldings() {
+        let book = PortfolioBook(rows: [
+            asset("Index funds", 620_000, sheet: "Investments", section: "Taxable"),
+            asset("Others (12 positions)", 44_000),
+        ])
+
+        XCTAssertTrue(book.isPartial)
+        XCTAssertEqual(book.sheets.map(\.name), ["Investments", OverviewModules.otherGroupName])
+        XCTAssertFalse(
+            book.sheets.contains { $0.name == OverviewModules.unsortedGroupName },
+            "an aggregate is not an unfiled holding"
+        )
+        XCTAssertEqual(
+            book.sheets.last?.sections.map(\.name),
+            [OverviewModules.otherGroupName]
+        )
+    }
+
+    /// The value stays in the book, so its totals still reconcile with the
+    /// portfolio's. Dropping the row would make every figure on the screen
+    /// quietly disagree with the ASSETS card.
+    func testTheAggregatesValueIsStillCounted() {
+        let book = PortfolioBook(rows: [
+            asset("Index funds", 620_000, sheet: "Investments", section: "Taxable"),
+            asset("Others (12 positions)", 44_000),
+        ])
+
+        XCTAssertEqual(book.total, 664_000, accuracy: 0.01)
+        XCTAssertEqual(book.sheets.reduce(0) { $0 + $1.total }, 664_000, accuracy: 0.01)
+    }
+
+    /// Its own labels are noise — Kubera leaves them blank, and where it does
+    /// not, they describe a dozen positions rather than one place.
+    func testTheAggregateIgnoresAnyLabelsItArrivesWith() {
+        let book = PortfolioBook(rows: [
+            asset("Others (5 positions)", 10_000, sheet: "Investments", section: "Taxable"),
+        ])
+
+        XCTAssertEqual(book.sheets.map(\.name), [OverviewModules.otherGroupName])
+    }
+
+    /// A complete book says so, which is what lets a screen decide whether to
+    /// tell the reader the list is a top-N.
+    func testACompleteBookIsNotPartial() {
+        XCTAssertFalse(PortfolioBook(rows: sample).isPartial)
+        XCTAssertFalse(PortfolioBook(.assets, in: DemoData.detail).isPartial)
+        XCTAssertFalse(PortfolioBook(rows: []).isPartial)
+    }
+}

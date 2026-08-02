@@ -142,6 +142,7 @@ struct BookDetailView: View {
                     sheetSwitcher
                         .padding(.horizontal, -Self.screenInset)
                         .padding(.bottom, 4)
+                    if book.isPartial { partialNote }
                     sections(of: sheet)
                 } else {
                     emptyState
@@ -452,6 +453,22 @@ struct BookDetailView: View {
     }
 
     // MARK: - Empty
+
+    /// Said once, above the tables, when Kubera sent a ranked list rather than
+    /// the whole book — before the reader has had a chance to read the rows as
+    /// the complete set. Sits in the explanatory-copy idiom the rest of the app
+    /// uses for a caveat: a footnote in `Theme.dim`, not a badge.
+    ///
+    /// It names "Other" because that is the group the missing positions were
+    /// summed into, which is visible in the switcher and the tables.
+    private var partialNote: some View {
+        Text("Kubera sent its top holdings only. Everything else is summed under Other.")
+            .font(.footnote)
+            .foregroundStyle(Theme.dim)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+    }
 
     /// Shown when the detail fetch has not landed, or landed with nothing on
     /// this side. It explains an absence rather than pretending to be a table.
