@@ -264,6 +264,16 @@ cover it.
 
 ### Ideas, unranked
 
+- **Move the Widgets screen under Settings** (maintainer request, 2026-08-01).
+  Settings → Widgets, where the previews live and the Add-widgets walkthrough
+  is reached from — instead of Widgets holding a tab of its own. The tab bar
+  earned this question the day it grew to five: Overview, Assets and Debts are
+  places you check your money, Settings is where you configure the app, and the
+  gallery is closer to configuration than to checking. History to respect when
+  building it: item 3 already moved the widget *options* into Settings and made
+  the tab purely a gallery, and the tab's reset/scroll wiring (`AppTab.widgets`)
+  would need retiring, along with `kubera://widgets` and `-KuberaInitialTab
+  widgets` growing a redirect rather than a dead end.
 - Net worth sparkline widget (the history series can now feed it).
 - Per-widget portfolio selection via AppIntents configuration.
 - A real Sankey flow diagram — needs custom `Path` ribbon drawing; the grouped
