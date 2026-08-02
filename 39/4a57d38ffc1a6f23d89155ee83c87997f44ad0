@@ -1,0 +1,19 @@
+specs/backlog.md
+  s_fd155dcb40d39e::t_7d3cc5f45d73ec 272-340
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "394a57d38ffc1a6f23d89155ee83c87997f44ad0",
+  "prompts": {},
+  "sessions": {
+    "s_fd155dcb40d39e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8e220d6c-3e9d-4372-a117-afcc24993fe6",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
