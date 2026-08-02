@@ -1,0 +1,45 @@
+App/AppStore.swift
+  s_fd155dcb40d39e::t_a42c72be66eaf0 225
+  s_fd155dcb40d39e::t_d1684135ed557b 38-41,72,93,216,224,371-377,387-389
+  s_fd155dcb40d39e::t_b46910abebec10 390
+Tests/KuberaCAGRTests.swift
+  s_fd155dcb40d39e::t_cef75667069a87 208-260
+  s_fd155dcb40d39e::t_ec5a925808733b 1-88,92-207,261-268,278-282
+  s_fd155dcb40d39e::t_529c0795fd279b 269-277
+  s_fd155dcb40d39e::t_7fef550bf8d161 89-91
+Shared/DemoData.swift
+  s_fd155dcb40d39e::t_2b81820906e25d 187-200
+Shared/Shared.swift
+  s_fd155dcb40d39e::t_a42c72be66eaf0 24-26,268-283
+  s_fd155dcb40d39e::t_ee3e822b650148 20-23,256-267
+  s_fd155dcb40d39e::t_d69dfa880be59f 284
+Widgets/CagrWidget.swift
+  s_fd155dcb40d39e::t_fa837785fa2c23 8-15
+Shared/KuberaCAGR.swift
+  s_fd155dcb40d39e::t_6123adfc48061e 370-371,378-382
+  s_fd155dcb40d39e::t_f573ddc954cb7b 27-45,51-53,71-98,100-115,126-128,133-141,143-146,148-158,160,177
+  s_fd155dcb40d39e::t_0dd309faa8c167 257-259,261-264
+  s_fd155dcb40d39e::t_30c5402ba772d4 61-63,167,171,273,294-297,339,343,350-351,365,376-377,383-390
+  s_fd155dcb40d39e::t_d25214bfb330f7 1-26,54-60,64-70,99,116-125,142,147,159,161-166,168-170,172-176,178-256,260,265-272,274-293,298-338,340-342,344-349,352-364,366-369,372-375,391-432
+  s_fd155dcb40d39e::t_66736be2f557bc 46-50,129-132
+App/Views/OverviewView.swift
+  s_fd155dcb40d39e::t_210aac84bc4663 1324-1325,1335-1344,1357,1373
+KuberaMobile.xcodeproj/project.pbxproj
+  s_fd155dcb40d39e::t_5ea40845469e9d 22,39-40,54,154,183,248,291,476,521-522,561
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "ec201cf9e1145c959b8b75aee08a7171c0595727",
+  "prompts": {},
+  "sessions": {
+    "s_fd155dcb40d39e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8e220d6c-3e9d-4372-a117-afcc24993fe6",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
