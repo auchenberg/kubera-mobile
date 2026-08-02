@@ -17,6 +17,13 @@ enum SharedKeys {
     /// REST snapshot does not carry.
     static let portfolioDetail = "kubera.portfolioDetail"
     static let profile = "kubera.profile"
+    /// Kubera's own CAGR, from the `get_portfolio_cagr` tool. Its own key
+    /// rather than a field on the detail blob: it comes from a separate tool
+    /// with a separate failure, and one refresh may land without the other.
+    static let portfolioCagr = "kubera.portfolioCagr"
+    /// Which way of asking for the CAGR answered last time, so the argument
+    /// probe is paid for once per device rather than once per refresh.
+    static let cagrProbe = "kubera.cagrProbe"
     static let localHistory = "kubera.localHistory"
     /// Human-readable outcome of the last history fetch, for the Settings card.
     static let historyStatus = "kubera.historyStatus"
@@ -244,6 +251,35 @@ enum SharedStore {
 
     static func clearDetail() {
         defaults?.removeObject(forKey: SharedKeys.portfolioDetail)
+    }
+
+    // MARK: - CAGR cache
+
+    static func cachedCAGR() -> PortfolioCAGR? {
+        decode(PortfolioCAGR.self, forKey: SharedKeys.portfolioCagr)
+    }
+
+    static func cache(cagr: PortfolioCAGR) {
+        encode(cagr, forKey: SharedKeys.portfolioCagr)
+    }
+
+    static func clearCAGR() {
+        defaults?.removeObject(forKey: SharedKeys.portfolioCagr)
+    }
+
+    static func cagrProbe() -> KuberaCAGRProbe? {
+        decode(KuberaCAGRProbe.self, forKey: SharedKeys.cagrProbe)
+    }
+
+    static func save(cagrProbe probe: KuberaCAGRProbe) {
+        encode(probe, forKey: SharedKeys.cagrProbe)
+    }
+
+    /// Forgets what the probe learned. Called when the credentials go away: a
+    /// different account may have a different answer, and one stale memory
+    /// would cost that account its figure until the memo aged out.
+    static func clearCAGRProbe() {
+        defaults?.removeObject(forKey: SharedKeys.cagrProbe)
     }
 
     // MARK: - Profile cache

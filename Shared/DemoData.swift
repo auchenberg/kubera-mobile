@@ -184,6 +184,20 @@ enum DemoData {
         .init(name: "Store card", value: 2_500, assetClass: "Credit card", ticker: nil, sheet: "Cards", section: "Everyday"),
     ]
 
+    /// The CAGR the demo portfolio's growth block prints, standing in for what
+    /// Kubera's `get_portfolio_cagr` tool serves.
+    ///
+    /// Deliberately not the rate `history` implies: that series covers 400 days
+    /// of a portfolio Kubera would have been tracking for years, so a served
+    /// figure that agreed with it exactly would be showing the demo reader a
+    /// coincidence rather than the point — the number on the card is Kubera's,
+    /// not one this device worked out.
+    static let cagr = PortfolioCAGR(
+        netWorth: 14.2,
+        investable: 16.8,
+        updatedAt: Date().timeIntervalSince1970
+    )
+
     /// A first name, so the greeting has something to use in the demo. Chosen to
     /// be obviously a placeholder rather than anyone's real name.
     static let profile = KuberaProfile(name: "Sam Rivera", email: nil)

@@ -1321,7 +1321,8 @@ struct OverviewView: View {
     // MARK: - CAGR • YTD
 
     /// One line of the growth block. Both figures are optional: YTD needs the
-    /// series to reach into last year, CAGR needs a full year of span.
+    /// series to reach into last year, and CAGR needs either a full year of span
+    /// on this device or a figure from Kubera, which knows the whole span.
     private struct GrowthRow: Identifiable {
         let id: String
         let label: String
@@ -1330,6 +1331,16 @@ struct OverviewView: View {
 
         var isEmpty: Bool { ytd == nil && cagr == nil }
     }
+
+    /// Kubera's own CAGR figures, when the `get_portfolio_cagr` fetch has landed.
+    ///
+    /// Shown without a badge or a footnote saying where the number came from.
+    /// The card is already three dense columns of percentages, provenance chrome
+    /// would be the only text on it that is not a figure, and the app prints
+    /// every other Kubera-served number — net worth, cash on hand, investable —
+    /// without marking it either. What the reader is owed is the authoritative
+    /// figure, which is exactly what this is.
+    private var kuberaCAGR: PortfolioCAGR? { store.cagr }
 
     private var growthRows: [GrowthRow] {
         let now = Date()
@@ -1343,7 +1354,7 @@ struct OverviewView: View {
                     now: now,
                     calendar: .current
                 ),
-                cagr: OverviewModules.cagrPercent(in: netWorthSeries)
+                cagr: OverviewModules.cagrPercent(kubera: kuberaCAGR?.netWorth, in: netWorthSeries)
             ),
         ]
         if !investableSeries.isEmpty {
@@ -1359,7 +1370,7 @@ struct OverviewView: View {
                     now: now,
                     calendar: .current
                 ),
-                cagr: OverviewModules.cagrPercent(in: investableSeries)
+                cagr: OverviewModules.cagrPercent(kubera: kuberaCAGR?.investable, in: investableSeries)
             ))
         }
         return rows.filter { !$0.isEmpty }

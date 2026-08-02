@@ -5,6 +5,14 @@ import WidgetKit
 /// dashboard: the portfolio's own year-to-date growth over the market
 /// benchmarks it is competing with. Shows no absolute amounts, which also
 /// makes it a natural fit for privacy mode.
+///
+/// Despite the name, nothing here is a CAGR: the big figure is `trends.ytd` and
+/// the small ones are the benchmarks' YTD. The name comes from the dashboard
+/// block this mirrors, whose heading reads "CAGR • YTD". So when Kubera's own
+/// CAGR arrived (`Kubera.MCP.fetchCAGR`), there was no computed rate here to
+/// replace — a small widget has room for one headline figure, and YTD is the one
+/// it was built around. Wiring the served rate in would mean deciding which of
+/// the two this widget is for, not swapping a number.
 struct CagrWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "NetWorthCagrWidget", provider: KuberaProvider()) { entry in

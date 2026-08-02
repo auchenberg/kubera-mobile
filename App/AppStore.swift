@@ -35,6 +35,10 @@ final class AppStore {
     /// nil whenever no MCP token is stored or the endpoint declined to answer.
     private(set) var detail: PortfolioDetail?
     private(set) var profile: KuberaProfile?
+    /// Kubera's own CAGR, which the growth block prefers over the rate it can
+    /// compute from history. Same contract as `detail`: nil means nobody has an
+    /// answer, and the screen falls back rather than showing a gap.
+    private(set) var cagr: PortfolioCAGR?
 
     /// The last request to show one side of the portfolio. `MainTabView` watches
     /// it to select that side's tab and the screen watches it to pick a sheet,
@@ -65,6 +69,7 @@ final class AppStore {
             comps = DemoData.comps
             detail = DemoData.detail
             profile = DemoData.profile
+            cagr = DemoData.cagr
             connection = ConnectionStatus(
                 rest: .connected(at: Date(timeIntervalSince1970: DemoData.snapshot.updatedAt)),
                 history: .connected(points: DemoData.history.count)
@@ -85,6 +90,7 @@ final class AppStore {
         comps = SharedStore.cachedMarketComps()
         detail = SharedStore.cachedDetail()
         profile = SharedStore.cachedProfile()
+        cagr = SharedStore.cachedCAGR()
 
         // Seed the status from what is on disk, so Settings has something true
         // to show before the first refresh lands: a cached snapshot means REST
@@ -207,6 +213,7 @@ final class AppStore {
         comps = nil
         detail = nil
         profile = nil
+        cagr = nil
         connection = ConnectionStatus()
         SharedStore.clearCredentials()
         SharedStore.setSelectedPortfolioId(nil)
@@ -214,6 +221,8 @@ final class AppStore {
         SharedStore.clearTrends()
         SharedStore.clearDetail()
         SharedStore.clearProfile()
+        SharedStore.clearCAGR()
+        SharedStore.clearCAGRProbe()
         SharedStore.clearLocalHistory()
         SharedStore.clearHistoryStatus()
         reloadWidgets()
@@ -359,9 +368,13 @@ final class AppStore {
         reloadWidgets()
     }
 
-    /// Pulls the MCP-only summary metrics and the account profile. Both are
-    /// decoration: a failure leaves the cached values in place and must never
-    /// fail the refresh that called it.
+    /// Pulls the MCP-only summary metrics, the account profile, and Kubera's
+    /// own CAGR. All three are decoration: a failure leaves the cached values in
+    /// place and must never fail the refresh that called it.
+    ///
+    /// One more MCP round trip per refresh. Kubera's MCP limit is three times
+    /// the REST one, and these run in sequence rather than together so a refresh
+    /// spends its budget the way the rest of the app already does.
     private func refreshDetail(creds: KuberaCredentials, portfolioId: String) async {
         if let fetched = await Kubera.MCP.fetchDetail(creds: creds, portfolioId: portfolioId) {
             detail = fetched
@@ -370,6 +383,10 @@ final class AppStore {
         if let fetched = await Kubera.MCP.fetchProfile(creds: creds) {
             profile = fetched
             SharedStore.cache(profile: fetched)
+        }
+        if let fetched = await Kubera.MCP.fetchCAGR(creds: creds, portfolioId: portfolioId) {
+            cagr = fetched
+            SharedStore.cache(cagr: fetched)
         }
     }
 
