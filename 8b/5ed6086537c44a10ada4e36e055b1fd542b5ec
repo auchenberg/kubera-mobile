@@ -1,0 +1,59 @@
+App/KuberaMobileApp.swift
+  s_fd155dcb40d39e::t_d40c8e4c505b0f 145-164,185-186,189-194,198-199,223,227-229
+Tests/AppTabTests.swift
+  s_fd155dcb40d39e::t_5fc2ac059a92ed 38,46
+Shared/PortfolioBook.swift
+  s_fd155dcb40d39e::t_9c49a2b7a0864a 263-271
+  s_fd155dcb40d39e::t_8e5d5f4b080222 1-262,272-292
+Shared/AppTab.swift
+  s_fd155dcb40d39e::t_d40c8e4c505b0f 17
+Tests/OverviewModulesTests.swift
+  s_fd155dcb40d39e::t_5e46d34663bf03 78-80
+Widgets/AssetsDebtsWidget.swift
+  s_fd155dcb40d39e::t_47f312eed9df1c 32-35
+Tests/PortfolioBookTests.swift
+  s_fd155dcb40d39e::t_fefdb10f484133 656-739,741-743,745-753
+  s_fd155dcb40d39e::t_dc1e47adfcb352 740,744
+  s_fd155dcb40d39e::t_1562f52a602fe9 5,334,491,546,554,565,576,579,594,606,608-609,619
+  s_fd155dcb40d39e::t_8e5d5f4b080222 17,37-40,52,69,76,87,100,110,118,134,141,157,168,172,182,192,204,214,218,230,246,253,265,275,290,302,310,316,333,414,416,426,437,443,451,456,462,468,479,495,503,518,529,551,573,586,601,615,633,635,644,653-655
+Shared/Kubera.swift
+  s_fd155dcb40d39e::t_6fa4b939df0232 37-51,712,817-830
+  s_fd155dcb40d39e::t_c6bd920c34254b 831-833
+Shared/DeepLink.swift
+  s_fd155dcb40d39e::t_47f312eed9df1c 6-10,17-20,29-34,41-42,75,89-92
+KuberaMobile.xcodeproj/project.pbxproj
+  s_fd155dcb40d39e::t_dc1e47adfcb352 22,36,45,82,100,159,188,193,247,291,302,458,475,524-525,556
+App/AppStore.swift
+  s_fd155dcb40d39e::t_47f312eed9df1c 39-41,46,224,226-231
+Shared/DemoData.swift
+  s_fd155dcb40d39e::t_4aae44e4cb0981 109,169-184
+  s_fd155dcb40d39e::t_2f47324bd56296 185-186
+Tests/DeepLinkTests.swift
+  s_fd155dcb40d39e::t_5fc2ac059a92ed 20-21,32-33,51-53,60-62,64-72,98-99,106,109,119-120,123-142,149-150,157-163,175-182
+App/Views/BookDetailView.swift
+  s_fd155dcb40d39e::t_7fc044ef0e18c4 380
+  s_fd155dcb40d39e::t_cb9be56b956b0a 4-10,19,21-23,27-28,40,44,46-47,51,53,59-61,68,73,76-77,90,104,109-111,117,129,160,168,175,183,226,266,282,316,400,428,456-461,464-466,477-483,489-490,494,501,505,507,514,519,521
+Tests/DemoDataTests.swift
+  s_fd155dcb40d39e::t_fefdb10f484133 272-288
+App/Views/OverviewView.swift
+  s_fd155dcb40d39e::t_ff0ae8cc37568d 991-996,999-1001,1005-1032,1689
+  s_fd155dcb40d39e::t_8e5d5f4b080222 1609,1613,1615,1639
+Tests/KuberaSDKTests.swift
+  s_fd155dcb40d39e::t_5e46d34663bf03 200-289
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.19",
+  "base_commit_sha": "8b5ed6086537c44a10ada4e36e055b1fd542b5ec",
+  "prompts": {},
+  "sessions": {
+    "s_fd155dcb40d39e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8e220d6c-3e9d-4372-a117-afcc24993fe6",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
