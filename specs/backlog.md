@@ -286,6 +286,11 @@ cover it.
   demo book need payload-order expectations; and the boundary must be stated —
   the composition breakdown, allocation bar, top holdings and Sankey keep
   ranking by size on purpose, since they answer "where is the money".
+  One thing the reverted attempt established and is worth keeping: the parser
+  side needs no work. `Parse.table(matching:)` walks the document in line order
+  and nothing downstream sorts, so `PortfolioDetail.assets`/`.debts` already
+  arrive in Kubera's order today — the whole change is stopping
+  `PortfolioBook` from re-sorting them.
 - **Hide the placeholder section in single-section sheets** (maintainer
   request, 2026-08-01). A sheet like Cash often holds exactly one section, and
   Kubera's default name for it is the placeholder "Section 1" — which the web
