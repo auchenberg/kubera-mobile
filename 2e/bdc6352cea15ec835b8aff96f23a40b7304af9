@@ -1,0 +1,37 @@
+Tests/OverviewModulesTests.swift
+  s_fd155dcb40d39e::t_6e66c106f2d9a5 564-617
+App/Views/BookDetailView.swift
+  s_fd155dcb40d39e::t_6bcfc5efc39d4b 145,457-471
+  s_fd155dcb40d39e::t_c704c273ebbf24 472
+Shared/OverviewModules.swift
+  s_fd155dcb40d39e::t_aafd5a0cd252b0 73-90
+  s_fd155dcb40d39e::t_6bcfc5efc39d4b 211-219
+Tests/KuberaSDKTests.swift
+  s_fd155dcb40d39e::t_33d67cb5400e3c 176-265
+Tests/SankeyTests.swift
+  s_fd155dcb40d39e::t_6e66c106f2d9a5 975-1015
+Tests/PortfolioBookTests.swift
+  s_fd155dcb40d39e::t_33d67cb5400e3c 756-841
+Shared/Sankey.swift
+  s_fd155dcb40d39e::t_6bcfc5efc39d4b 416-422
+Shared/Kubera.swift
+  s_fd155dcb40d39e::t_b8a794ffccde1a 234-244,812-827,829
+Shared/PortfolioBook.swift
+  s_fd155dcb40d39e::t_9a90c4bbbb9511 84-90,170-174,179,181-194,231-232,238-256
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "2ebdc6352cea15ec835b8aff96f23a40b7304af9",
+  "prompts": {},
+  "sessions": {
+    "s_fd155dcb40d39e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8e220d6c-3e9d-4372-a117-afcc24993fe6",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Kenneth Auchenberg <kenneth@auchenberg.dk>"
+    }
+  }
+}
