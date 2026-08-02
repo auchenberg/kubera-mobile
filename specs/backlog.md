@@ -269,3 +269,72 @@ cover it.
 - A real Sankey flow diagram — needs custom `Path` ribbon drawing; the grouped
   composition breakdown is the phone-sized stand-in.
 - Moving the cached snapshot into the Keychain for maximal hardening.
+
+---
+
+## Potential items from the API gap analysis (2026-08-01)
+
+A two-sided audit — what Kubera's payloads serve versus what this app consumes,
+and what the documented API/MCP surface offers versus what it calls. Sources:
+help.kubera.com articles 171 (REST v3), 133 (limits), 166 (MCP tools), plus a
+file-by-file inventory of `Kubera.Parse` against the fixtures. The full surface
+is recorded in the session memory note "kubera-api-surface"; two findings from
+the audit already shipped (the truncated-table preference fix and Kubera's own
+CAGR on the growth card). The rest, unranked and uncommitted:
+
+**From data the app already fetches but never shows**
+
+- **Cost basis and unrealized gain** — parsed from both transports, cached on
+  the snapshot, rendered nowhere. A gain view costs no new fetch.
+- **REST `debt[]` for API-key-only accounts** — the Debts tab fills only via
+  MCP today. Article 171 documents a parallel debt array in the REST portfolio
+  response; wiring it means one property on `PortfolioData` and a preference
+  rule when both transports answer. Needs one live response verified first.
+- **Documents and insurance inventory** — the REST response carries
+  `document[]` (`{id, name, fileType, size}` — metadata only, no download
+  endpoint) and `insurance[]`, both currently discarded at decode.
+- Per-asset `assetClass` and `ticker` are parsed and unused; the MCP payload's
+  own allocation and concentration tables, the per-debt `Since` dates (the only
+  date any row carries), and the per-holding percent columns are all dropped.
+
+**Read-only features needing calls the app has never made**
+
+- **Cost and IRR columns on the asset tables** — the desktop-parity feature.
+  REST serves `irr` and `cost` per item; the current decoder keeps only
+  name/value/sheetName. This is the reason those columns were dropped from the
+  drill-down screens, and the reason no longer holds.
+- **Tax view** — per-item `taxability` / `taxRate` / `taxOnUnrealizedGain`
+  would let the Tax Estimate card explain itself.
+- **`get_top_movers`** (MCP) — top 10 changes over 1 day / 1 month; a natural
+  Overview module or widget.
+- **Liquidity cut** — per-item `investable` classifies easy-convert vs cash vs
+  non-investable, a truer "what could I actually spend" than the current
+  investable total.
+- **Account drill-down** — `parent` / `holdingsCount` give the account→holding
+  hierarchy the flat sheet/section view collapses.
+- **Per-account freshness** — `connection.lastUpdatedTimestamp` answers the
+  stale-data question (item C above) at the row level, not just the snapshot
+  level.
+- **Cash-flow history** for private investments — `GET /data/item/{id}/cashFlow`.
+
+**A category jump: writes**
+
+REST documents create/update/archive for manual items and cash-flow entries;
+MCP has `update_portfolio_item`. Updating a car's value from the phone is
+documented and possible. The app is read-only by design today, and the write
+path carries a real trap — item `value` means *quantity* when a ticker is set
+and money otherwise — so this is a deliberate decision, not a feature to slip
+in.
+
+**Known constraints and open verifications**
+
+- No webhooks, no push, no refresh trigger anywhere in the API — polling is the
+  only freshness mechanism. Rate limits: 30 req/min, daily caps by plan, MCP
+  counted separately at 3×.
+- `get_default_portfolio` documents a pagination `cursor` this client never
+  sends; a large portfolio is silently page one. Following it needs a live
+  capture of a paged reply — the response shape is unpublished and a guessed
+  field name would truncate more subtly than not paging does.
+- `get_portfolio_cagr`'s response shape and argument spelling are still
+  inferred, not observed; the client logs every probe outcome so one real
+  refresh settles them.
