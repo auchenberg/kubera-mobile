@@ -274,6 +274,30 @@ cover it.
   the tab purely a gallery, and the tab's reset/scroll wiring (`AppTab.widgets`)
   would need retiring, along with `kubera://widgets` and `-KuberaInitialTab
   widgets` growing a redirect rather than a dead end.
+- **Respect Kubera's own ordering in the Assets/Debts books** (maintainer
+  request, 2026-08-01 — NOT implemented; an attempt was started and reverted,
+  so the books still rank by value). The web app lets you arrange sheets,
+  sections and rows by hand, and the payload's tables arrive in that order;
+  `PortfolioBook` then re-sorts everything largest-first, which is our
+  invention. The change: preserve payload order at all three levels, so a
+  re-arrangement on the web shows up on the phone. Ripples to handle when
+  built: "the first sheet" (tab default, reset target, deep-link fallback)
+  comes to mean Kubera's first rather than the largest; ordering tests and the
+  demo book need payload-order expectations; and the boundary must be stated —
+  the composition breakdown, allocation bar, top holdings and Sankey keep
+  ranking by size on purpose, since they answer "where is the money".
+- **Hide the placeholder section in single-section sheets** (maintainer
+  request, 2026-08-01). A sheet like Cash often holds exactly one section, and
+  Kubera's default name for it is the placeholder "Section 1" — which the web
+  app doesn't render, but our drill-down does: "Cash" over a card titled
+  "Section 1" says nothing twice. Proposal: when a sheet has a single section
+  whose name is a placeholder (or matches the sheet), inherit the sheet's name —
+  the screen says "Cash", once. To settle when building: what counts as a
+  placeholder ("Section 1" exactly? any "Section N"? a section named like its
+  sheet?), whether the collapse affordance survives on the merged card, and
+  that section-level deep-link resolution (`sheetID(forSection:)`) still
+  answers for the hidden name. The captured fixture's Debts table carries a
+  real "Section 1", so the demo book can exercise it honestly.
 - Net worth sparkline widget (the history series can now feed it).
 - Per-widget portfolio selection via AppIntents configuration.
 - A real Sankey flow diagram — needs custom `Path` ribbon drawing; the grouped
