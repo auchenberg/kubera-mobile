@@ -36,14 +36,14 @@ final class AppStore {
     private(set) var detail: PortfolioDetail?
     private(set) var profile: KuberaProfile?
 
-    /// The last request to show the assets tab. `MainTabView` watches it to
-    /// select the tab and the assets screen watches it to pick a sheet, so a
-    /// widget URL and a tap on the Overview travel the same road.
+    /// The last request to show one side of the portfolio. `MainTabView` watches
+    /// it to select that side's tab and the screen watches it to pick a sheet,
+    /// so a widget URL and a tap on the Overview travel the same road.
     ///
     /// Never cleared. Both watchers act on the *change*, not on the value being
     /// present, and the serial inside makes even a repeat of the same sheet a
     /// change — clearing it would only add a second write for them to react to.
-    private(set) var assetsRequest: AssetsRequest?
+    private(set) var bookRequest: BookRequest?
 
     /// In-flight refresh, so the launch refresh and a pull-to-refresh don't
     /// both hit the API — the second caller awaits the first one's result.
@@ -221,14 +221,14 @@ final class AppStore {
 
     // MARK: - Navigation
 
-    /// Ask for the assets tab, optionally on a named sheet.
+    /// Ask for one side's tab, optionally on a named sheet.
     ///
-    /// The single entry point: `kubera://assets`, the Overview's composition
-    /// rows and its ASSETS card all call this, so there is one behaviour to
-    /// reason about rather than one per caller. A nil sheet means "show me that
-    /// screen" and leaves the selection it already had.
-    func showAssets(sheetID: String? = nil) {
-        assetsRequest = .next(after: assetsRequest, sheetID: sheetID)
+    /// The single entry point: both `kubera://` hosts, the Overview's
+    /// composition rows and its ASSETS and DEBTS cards all call this, so there
+    /// is one behaviour to reason about rather than one per caller. A nil sheet
+    /// means "show me that screen" and leaves the selection it already had.
+    func showBook(_ side: PortfolioSide, sheetID: String? = nil) {
+        bookRequest = .next(after: bookRequest, side: side, sheetID: sheetID)
     }
 
     // MARK: - Data

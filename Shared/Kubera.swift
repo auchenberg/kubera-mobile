@@ -34,6 +34,21 @@ struct PortfolioDetail: Codable, Equatable {
     let costBasis: Double?
     let unrealizedGain: Double?
     let assets: [Asset]
+    /// The rows behind `debtTotal`, from the payload's own `## Debts` table.
+    ///
+    /// The same `Asset` shape rather than a near-identical twin: a debt row
+    /// carries the same name, value, sheet and section columns, and every
+    /// consumer of these rows — the grouping model, the screen — treats them as
+    /// rows of a book either way.
+    ///
+    /// Values are the positive magnitudes Kubera states, matching `debtTotal`
+    /// and the app's DEBTS card; a book of negated debts would print totals that
+    /// disagree with both.
+    ///
+    /// Optional, unlike `assets`, because a cache written before this was parsed
+    /// has no such key: nil means "nobody looked", which is not the claim that a
+    /// portfolio has no debts.
+    let debts: [Asset]?
     let updatedAt: Double
 }
 
@@ -694,6 +709,7 @@ extension Kubera.Parse {
             costBasis: summaryValue("Cost Basis", in: summary),
             unrealizedGain: summaryValue("Unrealized Gain", in: summary),
             assets: assets(in: document),
+            debts: debts(in: document),
             updatedAt: generatedAt(in: document) ?? Date().timeIntervalSince1970
         )
     }
@@ -795,6 +811,23 @@ extension Kubera.Parse {
         // No recognizable section headings: take the first table anywhere in the
         // document that looks like a holdings table.
         guard let table = table(matching: ["Name", "Value", "Asset Class"], in: markdown) else { return [] }
+        return table.rows.compactMap { asset(fromRow: $0, in: table) }
+    }
+
+    /// Debt rows, from the `## Debts` table Kubera serves beside the asset ones.
+    ///
+    /// Read through the same row reader as `assets(in:)`, which already tolerates
+    /// the ways the two tables differ: Debts carries its own `Sheet` and
+    /// `Section` columns rather than the combined `Sheet > Section` cell, has no
+    /// `Asset Class`, and adds columns of its own (`ID`, `Since`) that are
+    /// ignored. Scoped to the heading so the asset tables above it cannot stand
+    /// in for a payload that omits this one.
+    ///
+    /// Empty rather than nil when the section is missing: this returns what was
+    /// found, and `detail(fromToolText:)` is where "nobody looked" is expressed.
+    static func debts(in markdown: String) -> [PortfolioDetail.Asset] {
+        guard let scope = section("Debts", in: markdown),
+              let table = table(matching: ["Name", "Value"], in: scope) else { return [] }
         return table.rows.compactMap { asset(fromRow: $0, in: table) }
     }
 

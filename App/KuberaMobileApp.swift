@@ -142,25 +142,27 @@ private struct MainTabView: View {
                 }
                 .tag(AppTab.overview)
 
-            // The only assets screen in the app. The Overview used to push a
-            // second copy into its own stack, which is what left the tab bar
-            // pointing at Overview while assets were on screen; now every route
-            // to assets — a row, the ASSETS card, `kubera://assets` — selects
-            // this tab and hands it the sheet to open on.
-            NavigationStack {
-                AssetDetailView(
-                    detail: store.detail,
-                    currency: (store.snapshot ?? .sample).currency,
-                    masked: store.settings.privacyMode,
-                    compactNumbers: store.settings.compactNumbers,
-                    request: store.assetsRequest
-                )
+            // Two tabs, one screen. Every route into either — a composition row,
+            // the ASSETS or DEBTS card, `kubera://assets`, `kubera://debts` —
+            // selects the side's tab and hands it the sheet to open on; the
+            // screen ignores requests naming the other side.
+            ForEach(PortfolioSide.allCases, id: \.self) { side in
+                NavigationStack {
+                    BookDetailView(
+                        side: side,
+                        detail: store.detail,
+                        currency: (store.snapshot ?? .sample).currency,
+                        masked: store.settings.privacyMode,
+                        compactNumbers: store.settings.compactNumbers,
+                        request: store.bookRequest
+                    )
+                }
+                .tint(Theme.text)
+                .tabItem {
+                    Label(side.title, systemImage: icon(side.tab))
+                }
+                .tag(side.tab)
             }
-            .tint(Theme.text)
-            .tabItem {
-                Label("Assets", systemImage: icon(.assets))
-            }
-            .tag(AppTab.assets)
 
             WidgetsView()
                 .tabItem {
@@ -180,21 +182,21 @@ private struct MainTabView: View {
             // The dashboard shows its own error state for a failed refresh.
             try? await store.refresh()
         }
-        // Deep links select a tab: kubera://assets, kubera://widgets and
-        // kubera://settings; anything else — including every widget's
+        // Deep links select a tab: kubera://assets, kubera://debts,
+        // kubera://widgets and kubera://settings; anything else — including every widget's
         // plain kubera:// — lands on the dashboard rather than
         // whatever tab was open last.
-        // Every route to the assets tab goes through the store, so a widget URL
-        // and a tap on the Overview arrive the same way. Selecting the tab here
-        // instead would be a second path that could drift from the first.
-        .onChange(of: store.assetsRequest) { _, request in
-            guard request != nil else { return }
-            selection = .assets
+        // Every route to a book goes through the store, so a widget URL and a tap
+        // on the Overview arrive the same way. Selecting the tab here instead
+        // would be a second path that could drift from the first.
+        .onChange(of: store.bookRequest) { _, request in
+            guard let request else { return }
+            selection = request.side.tab
         }
         .onOpenURL { url in
             switch DeepLink(url: url) {
-            case .assets:
-                store.showAssets()
+            case let .book(side):
+                store.showBook(side)
             case .widgets:
                 selection = .widgets
             case .settings:
@@ -218,10 +220,13 @@ private struct MainTabView: View {
         switch tab {
         case .overview: return "chart.line.uptrend.xyaxis"
         // A stack of sheets, which is what the screen is. Deliberately not a
-        // grid symbol — the Widgets tab next to it is already a grid — and
+        // grid symbol — the Widgets tab further along is already a grid — and
         // deliberately an old symbol, because this pair is guaranteed to
         // resolve in both states.
         case .assets: return selected ? "rectangle.stack.fill" : "rectangle.stack"
+        // What you owe, as the thing most of it is borrowed on. Same vintage,
+        // same guarantee about the filled variant.
+        case .debts: return selected ? "creditcard.fill" : "creditcard"
         case .widgets: return selected ? "square.grid.2x2.fill" : "square.grid.2x2"
         case .settings: return selected ? "gearshape.fill" : "gearshape"
         }

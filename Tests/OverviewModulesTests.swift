@@ -75,6 +75,9 @@ final class OverviewModulesTests: XCTestCase {
             costBasis: nil,
             unrealizedGain: nil,
             assets: assets,
+            // This suite is about the Overview's asset-side modules; the debt
+            // rows are another screen's input.
+            debts: nil,
             updatedAt: 0
         )
     }

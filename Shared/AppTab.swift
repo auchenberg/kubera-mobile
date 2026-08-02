@@ -14,6 +14,7 @@ import Foundation
 enum AppTab: String, CaseIterable, Hashable, Sendable {
     case overview
     case assets
+    case debts
     case widgets
     case settings
 }

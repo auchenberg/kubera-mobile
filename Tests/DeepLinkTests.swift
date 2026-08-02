@@ -17,7 +17,8 @@ final class DeepLinkTests: XCTestCase {
     func testTabsRoundTrip() {
         XCTAssertEqual(DeepLink(url: DeepLink.widgets.url), .widgets)
         XCTAssertEqual(DeepLink(url: DeepLink.settings.url), .settings)
-        XCTAssertEqual(DeepLink(url: DeepLink.assets.url), .assets)
+        XCTAssertEqual(DeepLink(url: DeepLink.book(.assets).url), .book(.assets))
+        XCTAssertEqual(DeepLink(url: DeepLink.book(.debts).url), .book(.debts))
         XCTAssertEqual(DeepLink(url: DeepLink.overview(focus: nil).url), .overview(focus: nil))
     }
 
@@ -28,7 +29,8 @@ final class DeepLinkTests: XCTestCase {
         let destinations: [DeepLink] = [
             .overview(focus: nil),
             .overview(focus: .netWorth),
-            .assets,
+            .book(.assets),
+            .book(.debts),
             .widgets,
             .settings,
         ]
@@ -46,17 +48,28 @@ final class DeepLinkTests: XCTestCase {
             XCTAssertEqual(DeepLink.url(for: focus).scheme, DeepLink.scheme)
         }
         XCTAssertEqual(DeepLink.widgets.url.scheme, DeepLink.scheme)
-        XCTAssertEqual(DeepLink.assets.url.scheme, DeepLink.scheme)
+        for side in PortfolioSide.allCases {
+            XCTAssertEqual(DeepLink.book(side).url.scheme, DeepLink.scheme)
+        }
     }
 
     /// The Assets vs Debts widget now sends this instead of the Overview focus.
     /// The focus itself is deliberately still routable: a widget already on a
     /// Home Screen keeps sending the URL it was built with until its timeline
     /// reloads, and that URL must keep landing on the module it names.
-    func testTheAssetsLinkAndTheOldAssetsDebtsFocusBothStillRoute() {
-        XCTAssertEqual(parse("kubera://assets"), .assets)
+    func testTheBookLinksAndTheOldAssetsDebtsFocusAllStillRoute() {
+        XCTAssertEqual(parse("kubera://assets"), .book(.assets))
+        XCTAssertEqual(parse("kubera://debts"), .book(.debts))
         XCTAssertEqual(parse("kubera://overview/assetsDebts"), .overview(focus: .assetsDebts))
-        XCTAssertNotEqual(DeepLink.assets.url, DeepLink.url(for: .assetsDebts))
+        XCTAssertNotEqual(DeepLink.book(.assets).url, DeepLink.url(for: .assetsDebts))
+    }
+
+    /// Every side the model knows is routable by name, so a side added to
+    /// `PortfolioSide` cannot end up with a URL nothing answers.
+    func testEverySideIsRoutableByItsOwnName() {
+        for side in PortfolioSide.allCases {
+            XCTAssertEqual(parse("kubera://\(side.rawValue)"), .book(side), side.rawValue)
+        }
     }
 
     func testAnchorsAreDistinctSoModulesCannotCollide() {
@@ -82,15 +95,18 @@ final class DeepLinkTests: XCTestCase {
     func testHostMatchingIgnoresCase() {
         XCTAssertEqual(parse("kubera://Settings"), .settings)
         XCTAssertEqual(parse("kubera://WIDGETS"), .widgets)
-        XCTAssertEqual(parse("kubera://Assets"), .assets)
+        XCTAssertEqual(parse("kubera://Assets"), .book(.assets))
+        XCTAssertEqual(parse("kubera://DEBTS"), .book(.debts))
     }
 
     /// The new host must not have opened a hole in the fallback: anything that
     /// merely looks like it still lands on the Overview rather than nowhere.
     func testNearMissesForTheAssetsHostStillFallBack() {
         XCTAssertEqual(parse("kubera://asset"), .overview(focus: nil))
+        XCTAssertEqual(parse("kubera://debt"), .overview(focus: nil))
         XCTAssertEqual(parse("kubera://assetsdebts"), .overview(focus: nil))
         XCTAssertEqual(parse("kubera://overview/assets"), .overview(focus: nil))
+        XCTAssertEqual(parse("kubera://overview/debts"), .overview(focus: nil))
     }
 
     func testTrailingSlashDoesNotHideTheFocus() {
@@ -100,32 +116,51 @@ final class DeepLinkTests: XCTestCase {
 
 // MARK: - Asking for the assets tab
 
-/// `AssetsRequest` is what a widget URL and a tap on the Overview both turn
-/// into, so the app has one route to the assets tab rather than one per caller.
+/// `BookRequest` is what a widget URL and a tap on the Overview both turn into,
+/// so the app has one route into either book screen rather than one per caller.
 /// Its whole job is to be *noticed*: the screen reacts to the request changing,
 /// which is why the serial exists and why these tests are about inequality.
-final class AssetsRequestTests: XCTestCase {
-    func testARequestCarriesTheSheetItWasMadeFor() {
-        XCTAssertEqual(AssetsRequest.next(after: nil, sheetID: "Crypto").sheetID, "Crypto")
-        XCTAssertNil(AssetsRequest.next(after: nil, sheetID: nil).sheetID, "a bare request names no sheet")
+final class BookRequestTests: XCTestCase {
+    func testARequestCarriesTheSideAndSheetItWasMadeFor() {
+        let request = BookRequest.next(after: nil, side: .debts, sheetID: "Loans")
+
+        XCTAssertEqual(request.side, .debts)
+        XCTAssertEqual(request.sheetID, "Loans")
+        XCTAssertNil(
+            BookRequest.next(after: nil, side: .assets, sheetID: nil).sheetID,
+            "a bare request names no sheet"
+        )
+    }
+
+    /// The two screens share one channel, so a request has to be refusable: the
+    /// Debts screen must not move because somebody asked for Crypto.
+    func testARequestNamesOneSideOnly() {
+        let assets = BookRequest.next(after: nil, side: .assets, sheetID: "Crypto")
+        let debts = BookRequest.next(after: assets, side: .debts, sheetID: "Loans")
+
+        XCTAssertNotEqual(assets.side, debts.side)
+        XCTAssertEqual(Set([assets, debts]).count, 2)
     }
 
     /// The bug this type exists to prevent: tapping "Crypto", going elsewhere,
     /// and tapping "Crypto" again must move the screen the second time too.
     /// Watching a bare sheet name would see no change and sit still.
     func testTwoRequestsForTheSameSheetAreDifferentRequests() {
-        let first = AssetsRequest.next(after: nil, sheetID: "Crypto")
-        let second = AssetsRequest.next(after: first, sheetID: "Crypto")
+        let first = BookRequest.next(after: nil, side: .assets, sheetID: "Crypto")
+        let second = BookRequest.next(after: first, side: .assets, sheetID: "Crypto")
 
         XCTAssertEqual(first.sheetID, second.sheetID)
         XCTAssertNotEqual(first, second)
     }
 
     func testSerialsAdvanceThroughASession() {
-        var request: AssetsRequest?
-        var seen: [AssetsRequest] = []
-        for sheet in ["Crypto", "Crypto", nil, "Investments", nil] {
-            request = AssetsRequest.next(after: request, sheetID: sheet)
+        var request: BookRequest?
+        var seen: [BookRequest] = []
+        for (side, sheet) in [
+            (PortfolioSide.assets, "Crypto"), (.assets, "Crypto"), (.debts, nil),
+            (.assets, "Investments"), (.debts, nil),
+        ] as [(PortfolioSide, String?)] {
+            request = BookRequest.next(after: request, side: side, sheetID: sheet)
             seen.append(request!)
         }
 
@@ -137,7 +172,13 @@ final class AssetsRequestTests: XCTestCase {
     /// makes two same-sheet requests differ, not an identity that would make
     /// every comparison false.
     func testTwoRequestsWithTheSameSerialAndSheetAreEqual() {
-        XCTAssertEqual(AssetsRequest(sheetID: "Crypto", serial: 3), AssetsRequest(sheetID: "Crypto", serial: 3))
-        XCTAssertNotEqual(AssetsRequest(sheetID: "Crypto", serial: 3), AssetsRequest(sheetID: "Banks", serial: 3))
+        XCTAssertEqual(
+            BookRequest(side: .assets, sheetID: "Crypto", serial: 3),
+            BookRequest(side: .assets, sheetID: "Crypto", serial: 3)
+        )
+        XCTAssertNotEqual(
+            BookRequest(side: .assets, sheetID: "Crypto", serial: 3),
+            BookRequest(side: .debts, sheetID: "Crypto", serial: 3)
+        )
     }
 }

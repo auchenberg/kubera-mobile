@@ -106,6 +106,7 @@ enum DemoData {
         costBasis: snapshot.costBasis,
         unrealizedGain: snapshot.unrealizedGain,
         assets: demoAssets,
+        debts: demoDebts,
         updatedAt: Date().timeIntervalSince1970
     )
 
@@ -163,6 +164,24 @@ enum DemoData {
         .init(name: "Dive watch", value: 19_000, assetClass: "Collectible", ticker: nil, sheet: "Collectibles", section: "Watches"),
         .init(name: "Field watch", value: 7_500, assetClass: "Collectible", ticker: nil, sheet: "Collectibles", section: "Watches"),
         .init(name: "Camera kit", value: 7_500, assetClass: "Collectible", ticker: nil, sheet: "Collectibles", section: "Misc"),
+    ]
+
+    /// The other side of the book: two sheets, four sections, five rows, summing
+    /// to the snapshot's 370,000 debt total so the Debts screen totals the same
+    /// figure the DEBTS card prints.
+    ///
+    /// Positive magnitudes, the way Kubera states debts and the way the parser
+    /// keeps them — a demo of negative debts would be a demo of a screen the app
+    /// does not draw.
+    private static let demoDebts: [PortfolioDetail.Asset] = [
+        // Loans — 361,000
+        .init(name: "Mortgage", value: 300_000, assetClass: "Loan", ticker: nil, sheet: "Loans", section: "Property"),
+        .init(name: "Auto loan", value: 41_000, assetClass: "Loan", ticker: nil, sheet: "Loans", section: "Vehicles"),
+        .init(name: "Student loan", value: 20_000, assetClass: "Loan", ticker: nil, sheet: "Loans", section: "Education"),
+
+        // Cards — 9,000
+        .init(name: "Rewards card", value: 6_500, assetClass: "Credit card", ticker: nil, sheet: "Cards", section: "Everyday"),
+        .init(name: "Store card", value: 2_500, assetClass: "Credit card", ticker: nil, sheet: "Cards", section: "Everyday"),
     ]
 
     /// A first name, so the greeting has something to use in the demo. Chosen to

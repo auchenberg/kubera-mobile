@@ -3,16 +3,21 @@ import Foundation
 /// The URLs widgets open and the app routes. Shared so the two halves cannot
 /// disagree: a widget writing a host the app does not recognise would still open
 /// the app, just at the wrong place, and nothing would fail loudly.
-/// A request to show the assets tab, made either by a widget's `kubera://assets`
-/// or by a tap on the Overview. One type for both, so a tap and a widget cannot
-/// end up behaving differently — the URL simply arrives with no sheet.
+/// A request to show one side of the portfolio — the Assets tab or the Debts one
+/// — made either by a widget's `kubera://assets` / `kubera://debts` or by a tap
+/// on the Overview. One type for every route into either screen, so a tap and a
+/// widget cannot end up behaving differently; the URL simply arrives with no
+/// sheet.
 ///
 /// The serial is what makes this a *request* rather than a value. Tapping
 /// "Crypto" on the Overview, wandering off, and tapping it again is two requests
 /// carrying the same sheet, and the second has to move the screen as surely as
 /// the first; anything watching a bare sheet name would see no change and sit
 /// still.
-struct AssetsRequest: Hashable, Sendable {
+struct BookRequest: Hashable, Sendable {
+    /// Which screen is being asked for. A screen answers only requests naming
+    /// its own side, so one channel serves both without either eavesdropping.
+    let side: PortfolioSide
     /// The sheet to open on, or nil for "just show me that screen", which leaves
     /// whatever sheet is already selected alone.
     let sheetID: String?
@@ -21,16 +26,20 @@ struct AssetsRequest: Hashable, Sendable {
 
     /// The next request in a session. A serial only has to differ from its
     /// predecessor, so this counts rather than reaching for a UUID.
-    static func next(after previous: AssetsRequest?, sheetID: String?) -> AssetsRequest {
-        AssetsRequest(sheetID: sheetID, serial: (previous?.serial ?? 0) + 1)
+    static func next(
+        after previous: BookRequest?,
+        side: PortfolioSide,
+        sheetID: String?
+    ) -> BookRequest {
+        BookRequest(side: side, sheetID: sheetID, serial: (previous?.serial ?? 0) + 1)
     }
 }
 
 enum DeepLink: Equatable {
     /// A tab to show, and optionally a module on the Overview to bring into view.
     case overview(focus: OverviewFocus?)
-    /// The asset drill-down: sheets, sections and the rows inside them.
-    case assets
+    /// One side's drill-down: sheets, sections and the rows inside them.
+    case book(PortfolioSide)
     case widgets
     case settings
 
@@ -63,7 +72,7 @@ enum DeepLink: Equatable {
     var url: URL {
         switch self {
         case let .overview(focus): return Self.url(for: focus)
-        case .assets: return URL(string: "\(Self.scheme)://assets")!
+        case let .book(side): return URL(string: "\(Self.scheme)://\(side.rawValue)")!
         case .widgets: return URL(string: "\(Self.scheme)://widgets")!
         case .settings: return URL(string: "\(Self.scheme)://settings")!
         }
@@ -77,8 +86,10 @@ enum DeepLink: Equatable {
     /// rather than opening nothing.
     init(url: URL) {
         switch url.host()?.lowercased() {
-        case "assets":
-            self = .assets
+        case let host? where PortfolioSide(rawValue: host) != nil:
+            // Table-driven rather than a case per side, so a side added to the
+            // model is routable without touching this switch.
+            self = .book(PortfolioSide(rawValue: host)!)
         case "widgets":
             self = .widgets
         case "settings":

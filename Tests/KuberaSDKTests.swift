@@ -197,6 +197,96 @@ final class KuberaSDKTests: XCTestCase {
         XCTAssertEqual(detail.assets.last?.value, 300_000)
     }
 
+    // MARK: - Debts
+
+    /// The `## Debts` table is served beside the asset ones and was parsed by
+    /// nothing until the Debts screen needed it. Its columns differ from every
+    /// asset table's — separate `Sheet` and `Section` rather than the combined
+    /// cell, no `Asset Class`, and `ID` and `Since` of its own — so this pins
+    /// that the shared row reader copes with all of that.
+    func testDebtRowsAreReadFromTheirOwnTable() throws {
+        let detail = try XCTUnwrap(detail(portfolioMarkdown))
+        let debts = try XCTUnwrap(detail.debts)
+
+        XCTAssertEqual(debts.map(\.name), ["Mortgage"])
+        XCTAssertEqual(debts.first?.value, 340_000, "debts are the positive magnitudes Kubera states")
+        XCTAssertEqual(debts.first?.sheet, "Loans")
+        XCTAssertEqual(debts.first?.section, "Section 1")
+        XCTAssertNil(debts.first?.assetClass, "that table has no asset class column")
+    }
+
+    /// The two sides stay separate: a debt must never be counted as a holding,
+    /// which is the bug that would make every asset total wrong.
+    func testDebtRowsDoNotLeakIntoTheAssets() throws {
+        let detail = try XCTUnwrap(detail(portfolioMarkdown))
+
+        XCTAssertFalse(detail.assets.contains { $0.name == "Mortgage" })
+        XCTAssertEqual(detail.assets.map(\.name).sorted(), ["Bitcoin", "Home", "Index funds", "Others (12 positions)"])
+    }
+
+    /// A payload with no such table is not a payload with no debts, and the
+    /// difference is the reason the field is optional: an older cache decodes to
+    /// nil, and only a parse that actually looked answers with a list.
+    func testAPayloadWithoutADebtsTableStillParses() throws {
+        let markdown = """
+        ## Summary
+
+        | Metric | Value |
+        | ---- | ---: |
+        | Net Worth | 1,200,000 |
+        | Total Debt | 370,000 |
+        """
+        let detail = try XCTUnwrap(detail(markdown))
+
+        XCTAssertEqual(detail.debtTotal, 370_000, "the summary metric is unaffected")
+        XCTAssertEqual(detail.debts, [], "a table that is not there yields no rows")
+    }
+
+    /// The same tolerance the asset tables get: a debts table that spells its
+    /// labels the other way round still reads.
+    func testDebtsToleratesTheCombinedSheetSectionColumn() throws {
+        let markdown = """
+        ## Summary
+
+        | Metric | Value |
+        | ---- | ---: |
+        | Net Worth | 1,200,000 |
+
+        ## Debts
+
+        | Name | Value (USD) | Sheet > Section |
+        | ---- | ---: | ---- |
+        | Mortgage | 340,000 | Loans > Property |
+        | Card | 4,000 | |
+        """
+        let debts = try XCTUnwrap(detail(markdown)?.debts)
+
+        XCTAssertEqual(debts.map(\.name), ["Mortgage", "Card"])
+        XCTAssertEqual(debts.first?.sheet, "Loans")
+        XCTAssertEqual(debts.first?.section, "Property")
+        XCTAssertNil(debts.last?.sheet, "an unfiled debt keeps its nil rather than borrowing the row above")
+    }
+
+    /// Malformed debt rows are skipped exactly as malformed asset rows are.
+    func testMalformedDebtRowsAreSkipped() throws {
+        let markdown = """
+        ## Summary
+
+        | Metric | Value |
+        | Net Worth | 1,200,000 |
+
+        ## Debts
+
+        | ID | Name | Value | Sheet | Section |
+        | d-1 | Mortgage | 340,000 | Loans | Property |
+        | d-2 | | 4,000 | Cards | |
+        | d-3 | No value | — | Cards | |
+        """
+        let debts = try XCTUnwrap(detail(markdown)?.debts)
+
+        XCTAssertEqual(debts.map(\.name), ["Mortgage"])
+    }
+
     func testSplitSheetSectionHandlesPartialAndMissingCells() {
         XCTAssertEqual(Kubera.Parse.splitSheetSection("Investments > Brokerage").sheet, "Investments")
         XCTAssertEqual(Kubera.Parse.splitSheetSection("Investments > Brokerage").section, "Brokerage")

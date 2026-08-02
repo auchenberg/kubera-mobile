@@ -1,8 +1,13 @@
 import Foundation
 
-/// The sheets → sections → assets hierarchy behind the asset detail screen: the
-/// same shape Kubera's web app tabs through, grouped and ranked once so the view
-/// is layout only.
+/// The sheets → sections → rows hierarchy behind the Assets and Debts screens:
+/// the same shape Kubera's web app tabs through, grouped and ranked once so the
+/// view is layout only.
+///
+/// One model for both sides. What you own and what you owe are filed the same
+/// way in Kubera — sheets holding sections holding rows — so the maths here does
+/// not know which it is grouping, and `PortfolioSide` is the only thing that
+/// decides which rows arrive.
 ///
 /// Foundation-only and pure, exactly like `OverviewChart`, `OverviewModules` and
 /// `Sankey` — the test bundle compiles this without the app target.
@@ -17,11 +22,14 @@ import Foundation
 ///   money, just unfiled.
 /// - **Zero and negative rows are kept.** Kubera shows them, and a table whose
 ///   rows do not sum to the total it prints is a table the reader cannot check.
+///   Debt rows arrive as the positive magnitudes Kubera states them in, so a
+///   debt book totals upwards and agrees with the DEBTS card; nothing here
+///   negates a value.
 ///   This is the one place this file differs from `composition`, which drops
 ///   non-positive groups because a negative share of a pie is not a thing.
 /// - **Ranking is by value, name breaking ties**, at all three levels, so the
 ///   same portfolio always renders in the same order.
-struct AssetBook: Hashable, Sendable {
+struct PortfolioBook: Hashable, Sendable {
     // MARK: - Levels
 
     /// One asset as a table row: the name and the value, which is all our data
@@ -129,7 +137,7 @@ struct AssetBook: Hashable, Sendable {
     static func sheetID(
         forGroup name: String,
         at level: OverviewModules.CompositionLevel,
-        resolvingSectionsIn book: AssetBook?
+        resolvingSectionsIn book: PortfolioBook?
     ) -> String? {
         let wanted = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !wanted.isEmpty, wanted != OverviewModules.otherGroupName else { return nil }
@@ -141,18 +149,23 @@ struct AssetBook: Hashable, Sendable {
 
     // MARK: - Building
 
-    /// Groups a portfolio's assets. A nil detail — the MCP fetch has not landed —
-    /// builds the empty book, so a caller never has to decide between two screens.
-    init(_ detail: PortfolioDetail?, unsortedName: String = OverviewModules.unsortedGroupName) {
-        self.init(assets: detail?.assets ?? [], unsortedName: unsortedName)
+    /// Groups one side of a portfolio. A nil detail — the MCP fetch has not
+    /// landed — builds the empty book, so a caller never has to decide between
+    /// two screens.
+    init(
+        _ side: PortfolioSide,
+        in detail: PortfolioDetail?,
+        unsortedName: String = OverviewModules.unsortedGroupName
+    ) {
+        self.init(rows: detail?.rows(side) ?? [], unsortedName: unsortedName)
     }
 
-    init(assets: [PortfolioDetail.Asset], unsortedName: String = OverviewModules.unsortedGroupName) {
+    init(rows: [PortfolioDetail.Asset], unsortedName: String = OverviewModules.unsortedGroupName) {
         // Grouped through dictionaries and ranked afterwards rather than sorted
         // in place: the input order is Kubera's ranking of the whole portfolio,
         // which says nothing about the order inside a section.
         var grouped: [String: [String: [PortfolioDetail.Asset]]] = [:]
-        for asset in assets {
+        for asset in rows {
             let sheet = Self.label(asset.sheet, fallback: unsortedName)
             let section = Self.label(asset.section, fallback: unsortedName)
             grouped[sheet, default: [:]][section, default: []].append(asset)
@@ -161,10 +174,10 @@ struct AssetBook: Hashable, Sendable {
         var sheets: [Sheet] = []
         for (sheetName, sectionsByName) in grouped {
             var sections: [Section] = []
-            for (sectionName, assets) in sectionsByName {
+            for (sectionName, rows) in sectionsByName {
                 let sectionID = "\(sheetName)\(Self.idSeparator)\(sectionName)"
-                let ranked = assets.sorted(by: Self.precedes)
-                let rows = ranked.enumerated().map { index, asset in
+                let ranked = rows.sorted(by: Self.precedes)
+                let ordered = ranked.enumerated().map { index, asset in
                     // The index rather than the name: two rows in one section may
                     // carry the same name, and after ranking the position is the
                     // only thing that separates them.
@@ -176,8 +189,8 @@ struct AssetBook: Hashable, Sendable {
                 }
                 sections.append(Section(
                     name: sectionName,
-                    rows: rows,
-                    total: rows.reduce(0) { $0 + $1.value },
+                    rows: ordered,
+                    total: ordered.reduce(0) { $0 + $1.value },
                     id: sectionID
                 ))
             }
@@ -224,5 +237,56 @@ struct AssetBook: Hashable, Sendable {
 
     private static func precedes(_ left: Sheet, _ right: Sheet) -> Bool {
         left.total == right.total ? left.name < right.name : left.total > right.total
+    }
+}
+
+// MARK: - Sides
+
+/// Which side of the portfolio a book shows: what you own, or what you owe.
+///
+/// One value carries everything that differs between the two screens — which
+/// rows a book is built from, what the screen is called, and which tab it lives
+/// in. That is what let the Debts screen reuse the Assets one rather than fork
+/// it: the difference between them is this enum and nothing else.
+enum PortfolioSide: String, CaseIterable, Hashable, Sendable {
+    case assets
+    case debts
+
+    /// The screen's heading fallback and its tab's label.
+    var title: String {
+        switch self {
+        case .assets: "Assets"
+        case .debts: "Debts"
+        }
+    }
+
+    /// What one row is called, for the table's column header: a debt listed
+    /// under "ASSET" reads as a filing error.
+    var rowNoun: String {
+        switch self {
+        case .assets: "Asset"
+        case .debts: "Debt"
+        }
+    }
+
+    /// Where the screen lives. Spelled out rather than derived from `rawValue`
+    /// so the compiler checks the pairing when either enum gains a case.
+    var tab: AppTab {
+        switch self {
+        case .assets: .assets
+        case .debts: .debts
+        }
+    }
+}
+
+extension PortfolioDetail {
+    /// One side's rows. Debts are optional on the payload — a cache written
+    /// before they were parsed has none — and an absent list is no rows here,
+    /// because a screen with nothing to show is what "nobody looked" looks like.
+    func rows(_ side: PortfolioSide) -> [Asset] {
+        switch side {
+        case .assets: assets
+        case .debts: debts ?? []
+        }
     }
 }

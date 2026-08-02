@@ -35,6 +35,7 @@ final class AppTabTests: XCTestCase {
     /// leaves behind must not decide whether it works.
     func testTheArgumentIsReadLenientlyAboutCaseAndSpace() {
         XCTAssertEqual(AppTab.initial(fromLaunchArgument: "ASSETS"), .assets)
+        XCTAssertEqual(AppTab.initial(fromLaunchArgument: "Debts"), .debts)
         XCTAssertEqual(AppTab.initial(fromLaunchArgument: "Widgets"), .widgets)
         XCTAssertEqual(AppTab.initial(fromLaunchArgument: " settings "), .settings)
     }
@@ -42,7 +43,7 @@ final class AppTabTests: XCTestCase {
     /// The raw values are a documented command's vocabulary — renaming a case
     /// silently breaks `-KuberaInitialTab <name>` for whoever scripted it.
     func testTheArgumentVocabularyIsStable() {
-        XCTAssertEqual(AppTab.allCases.map(\.rawValue), ["overview", "assets", "widgets", "settings"])
+        XCTAssertEqual(AppTab.allCases.map(\.rawValue), ["overview", "assets", "debts", "widgets", "settings"])
     }
 
     // MARK: - Putting a tab back

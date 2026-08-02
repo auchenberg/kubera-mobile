@@ -269,6 +269,23 @@ extension DemoDataTests {
         XCTAssertGreaterThan(detail.assets.count, 5, "the composition breakdown needs rows to group")
     }
 
+    /// The demo has to advertise every screen the signed-in app has, and the
+    /// Debts tab is one of them: without debt rows it would render its empty
+    /// state in the demo and read as a feature that does not work.
+    func testDebtRowsSumToTheDebtTotal() throws {
+        let debts = try XCTUnwrap(DemoData.detail.debts)
+
+        XCTAssertFalse(debts.isEmpty, "the Debts tab would be empty in the demo")
+        XCTAssertEqual(
+            debts.reduce(0) { $0 + $1.value },
+            try XCTUnwrap(DemoData.detail.debtTotal),
+            accuracy: 0.01,
+            "the demo's debt rows must add up to the total it prints"
+        )
+        XCTAssertTrue(debts.allSatisfy { $0.value > 0 }, "debts are stated as positive magnitudes")
+        XCTAssertTrue(debts.allSatisfy { $0.sheet != nil }, "every demo debt is filed")
+    }
+
     func testAssetsCoverSeveralSheetsSoCompositionHasGroups() {
         let sheets = Set(DemoData.detail.assets.compactMap(\.sheet))
         XCTAssertGreaterThan(sheets.count, 3, "grouping by sheet should produce several bars")

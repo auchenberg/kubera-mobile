@@ -2,7 +2,7 @@ import XCTest
 
 /// Every figure here is synthetic (a fictional portfolio); this repo is public.
 ///
-/// The suite pins three decisions `AssetBook` makes that the screen cannot make
+/// The suite pins three decisions `PortfolioBook` makes that the screen cannot make
 /// for itself:
 ///
 /// - Nothing is dropped, so the sheet totals always sum to the portfolio's asset
@@ -14,7 +14,7 @@ import XCTest
 ///   because a negative share of a whole is not a share.
 /// - Ranking is by value with the name breaking ties, at all three levels, so
 ///   the same portfolio always renders in the same order.
-final class AssetBookTests: XCTestCase {
+final class PortfolioBookTests: XCTestCase {
     private func asset(
         _ name: String,
         _ value: Double,
@@ -34,7 +34,10 @@ final class AssetBookTests: XCTestCase {
     /// A portfolio whose asset side is exactly what its holdings add up to, so
     /// "the book totals the asset side" is a real assertion rather than a
     /// restatement of the same sum.
-    private func detail(_ assets: [PortfolioDetail.Asset]) -> PortfolioDetail {
+    private func detail(
+        _ assets: [PortfolioDetail.Asset],
+        debts: [PortfolioDetail.Asset]? = nil
+    ) -> PortfolioDetail {
         PortfolioDetail(
             currency: "USD",
             netWorth: nil,
@@ -46,6 +49,7 @@ final class AssetBookTests: XCTestCase {
             costBasis: nil,
             unrealizedGain: nil,
             assets: assets,
+            debts: debts,
             updatedAt: 0
         )
     }
@@ -62,14 +66,14 @@ final class AssetBookTests: XCTestCase {
 
     func testSheetTotalsSumToThePortfoliosAssetSide() {
         let portfolio = detail(sample)
-        let book = AssetBook(portfolio)
+        let book = PortfolioBook(.assets, in: portfolio)
 
         XCTAssertEqual(book.total, portfolio.assetTotal!, accuracy: 0.001)
         XCTAssertEqual(book.sheets.reduce(0) { $0 + $1.total }, portfolio.assetTotal!, accuracy: 0.001)
     }
 
     func testEachSheetTotalsItsOwnSections() {
-        for sheet in AssetBook(detail(sample)).sheets {
+        for sheet in PortfolioBook(.assets, in: detail(sample)).sheets {
             XCTAssertEqual(
                 sheet.total,
                 sheet.sections.reduce(0) { $0 + $1.total },
@@ -80,7 +84,7 @@ final class AssetBookTests: XCTestCase {
     }
 
     func testEachSectionTotalsItsOwnRows() {
-        for sheet in AssetBook(detail(sample)).sheets {
+        for sheet in PortfolioBook(.assets, in: detail(sample)).sheets {
             for section in sheet.sections {
                 XCTAssertEqual(
                     section.total,
@@ -93,7 +97,7 @@ final class AssetBookTests: XCTestCase {
     }
 
     func testEveryAssetLandsInExactlyOneRow() {
-        let book = AssetBook(assets: sample + [asset("Unfiled", 1_000)])
+        let book = PortfolioBook(rows: sample + [asset("Unfiled", 1_000)])
         let rows = book.sheets.flatMap { $0.sections.flatMap(\.rows) }
 
         XCTAssertEqual(rows.count, sample.count + 1)
@@ -103,7 +107,7 @@ final class AssetBookTests: XCTestCase {
     // MARK: - Unsorted parking
 
     func testAssetsWithNoSheetOrSectionAreParkedUnderUnsorted() {
-        let book = AssetBook(assets: [asset("Unfiled", 5_000)])
+        let book = PortfolioBook(rows: [asset("Unfiled", 5_000)])
 
         XCTAssertEqual(book.sheets.map(\.name), [OverviewModules.unsortedGroupName])
         XCTAssertEqual(book.sheets[0].sections.map(\.name), [OverviewModules.unsortedGroupName])
@@ -111,7 +115,7 @@ final class AssetBookTests: XCTestCase {
     }
 
     func testBlankAndWhitespaceLabelsParkTheSameWayAsMissingOnes() {
-        let book = AssetBook(assets: [
+        let book = PortfolioBook(rows: [
             asset("Nil both", 1_000),
             asset("Empty both", 1_000, sheet: "", section: ""),
             asset("Whitespace both", 1_000, sheet: "   ", section: "\n\t "),
@@ -127,14 +131,14 @@ final class AssetBookTests: XCTestCase {
     /// A sheet with a section missing keeps its own name and parks only the
     /// level that is absent — the asset is filed, just not all the way down.
     func testOnlyTheMissingLevelIsParked() {
-        let book = AssetBook(assets: [asset("Car", 62_000, sheet: "Vehicles", section: nil)])
+        let book = PortfolioBook(rows: [asset("Car", 62_000, sheet: "Vehicles", section: nil)])
 
         XCTAssertEqual(book.sheets.map(\.name), ["Vehicles"])
         XCTAssertEqual(book.sheets[0].sections.map(\.name), [OverviewModules.unsortedGroupName])
     }
 
     func testLabelsAreTrimmedBeforeGrouping() {
-        let book = AssetBook(assets: [
+        let book = PortfolioBook(rows: [
             asset("A", 10, sheet: "Investments", section: "Taxable"),
             asset("B", 10, sheet: "  Investments  ", section: " Taxable\n"),
         ])
@@ -150,7 +154,7 @@ final class AssetBookTests: XCTestCase {
     /// pinned to the end: it is real money, and a large unfiled balance is
     /// exactly the thing the reader should see first.
     func testUnsortedIsRankedByTotalLikeAnyOtherSheet() {
-        let book = AssetBook(assets: [
+        let book = PortfolioBook(rows: [
             asset("Unfiled", 900_000),
             asset("Checking", 48_000, sheet: "Cash", section: "Everyday"),
         ])
@@ -161,11 +165,11 @@ final class AssetBookTests: XCTestCase {
     // MARK: - Ordering
 
     func testSheetsAreRankedByTotalDescending() {
-        XCTAssertEqual(AssetBook(detail(sample)).sheets.map(\.name), ["Investments", "Cash"])
+        XCTAssertEqual(PortfolioBook(.assets, in: detail(sample)).sheets.map(\.name), ["Investments", "Cash"])
     }
 
     func testSheetsWithEqualTotalsAreOrderedByName() {
-        let book = AssetBook(assets: [
+        let book = PortfolioBook(rows: [
             asset("A", 100, sheet: "Zebra", section: "One"),
             asset("B", 100, sheet: "Alpha", section: "One"),
             asset("C", 100, sheet: "Mango", section: "One"),
@@ -175,7 +179,7 @@ final class AssetBookTests: XCTestCase {
     }
 
     func testSectionsAreRankedByTotalDescendingThenByName() {
-        let book = AssetBook(assets: [
+        let book = PortfolioBook(rows: [
             asset("A", 10, sheet: "S", section: "Small"),
             asset("B", 90, sheet: "S", section: "Large"),
             asset("C", 10, sheet: "S", section: "Also small"),
@@ -185,7 +189,7 @@ final class AssetBookTests: XCTestCase {
     }
 
     func testAssetsAreRankedByValueDescendingThenByName() {
-        let book = AssetBook(assets: [
+        let book = PortfolioBook(rows: [
             asset("Middle", 50, sheet: "S", section: "T"),
             asset("Zeta", 100, sheet: "S", section: "T"),
             asset("Alpha", 100, sheet: "S", section: "T"),
@@ -197,7 +201,7 @@ final class AssetBookTests: XCTestCase {
     // MARK: - Degenerate books
 
     func testEmptyBook() {
-        let book = AssetBook(assets: [])
+        let book = PortfolioBook(rows: [])
 
         XCTAssertTrue(book.isEmpty)
         XCTAssertTrue(book.sheets.isEmpty)
@@ -207,11 +211,11 @@ final class AssetBookTests: XCTestCase {
     }
 
     func testNilDetailBuildsTheEmptyBook() {
-        XCTAssertTrue(AssetBook(nil).isEmpty)
+        XCTAssertTrue(PortfolioBook(.assets, in: nil).isEmpty)
     }
 
     func testSingleSheetWithASingleSection() {
-        let book = AssetBook(assets: [asset("Home", 450_000, sheet: "Real estate", section: "Primary")])
+        let book = PortfolioBook(rows: [asset("Home", 450_000, sheet: "Real estate", section: "Primary")])
 
         XCTAssertEqual(book.sheets.count, 1)
         XCTAssertEqual(book.sheets[0].sections.count, 1)
@@ -223,7 +227,7 @@ final class AssetBookTests: XCTestCase {
     /// Two assets may carry the same name in one section — Kubera does not stop
     /// you having two "Savings" rows — so both survive and stay addressable.
     func testAssetsSharingANameKeepBothRows() {
-        let book = AssetBook(assets: [
+        let book = PortfolioBook(rows: [
             asset("Savings", 26_000, sheet: "Cash", section: "Reserve"),
             asset("Savings", 14_000, sheet: "Cash", section: "Reserve"),
         ])
@@ -239,14 +243,14 @@ final class AssetBookTests: XCTestCase {
     /// derived from the asset at all.
     func testIdenticalAssetsStillGetDistinctRowIDs() {
         let duplicate = asset("Savings", 26_000, sheet: "Cash", section: "Reserve")
-        let rows = AssetBook(assets: [duplicate, duplicate]).sheets[0].sections[0].rows
+        let rows = PortfolioBook(rows: [duplicate, duplicate]).sheets[0].sections[0].rows
 
         XCTAssertEqual(rows.count, 2)
         XCTAssertNotEqual(rows[0].id, rows[1].id)
     }
 
     func testSectionsSharingANameAcrossSheetsGetDistinctIDs() {
-        let book = AssetBook(assets: [
+        let book = PortfolioBook(rows: [
             asset("A", 100, sheet: "Investments", section: "Taxable"),
             asset("B", 50, sheet: "Family", section: "Taxable"),
         ])
@@ -258,7 +262,7 @@ final class AssetBookTests: XCTestCase {
     // MARK: - Zero and negative values
 
     func testZeroValuedAssetsAreKept() {
-        let book = AssetBook(assets: [
+        let book = PortfolioBook(rows: [
             asset("Closed account", 0, sheet: "Cash", section: "Everyday"),
             asset("Checking", 48_000, sheet: "Cash", section: "Everyday"),
         ])
@@ -268,7 +272,7 @@ final class AssetBookTests: XCTestCase {
     }
 
     func testNegativeAssetsAreKeptAndCountAgainstTheirTotals() {
-        let book = AssetBook(assets: [
+        let book = PortfolioBook(rows: [
             asset("Overdrawn", -2_000, sheet: "Cash", section: "Everyday"),
             asset("Checking", 10_000, sheet: "Cash", section: "Everyday"),
         ])
@@ -283,7 +287,7 @@ final class AssetBookTests: XCTestCase {
     /// is part of the sheet total either way, and a row missing from a table
     /// that prints its own sum is unreadable.
     func testASectionWithANegativeTotalStillAppears() {
-        let book = AssetBook(assets: [
+        let book = PortfolioBook(rows: [
             asset("Loan against policy", -5_000, sheet: "Misc", section: "Borrowed"),
             asset("Watch", 34_000, sheet: "Misc", section: "Watches"),
         ])
@@ -295,7 +299,7 @@ final class AssetBookTests: XCTestCase {
     // MARK: - Lookups and view helpers
 
     func testSheetLookupFallsBackToTheLargestSheet() {
-        let book = AssetBook(detail(sample))
+        let book = PortfolioBook(.assets, in: detail(sample))
 
         XCTAssertEqual(book.sheet(id: nil)?.name, "Investments")
         XCTAssertEqual(book.sheet(id: "Retired sheet")?.name, "Investments")
@@ -303,13 +307,13 @@ final class AssetBookTests: XCTestCase {
     }
 
     func testSheetTotalsExposedForTheSwitchersSharedUnit() {
-        XCTAssertEqual(AssetBook(detail(sample)).sheetTotals, [860_000, 74_000])
+        XCTAssertEqual(PortfolioBook(.assets, in: detail(sample)).sheetTotals, [860_000, 74_000])
     }
 
     /// The figures a sheet's table prints — every row, every section footer, and
     /// the sheet's own total — so one `Format.unit` can cover the column.
     func testSheetAmountsCoverRowsAndTotals() {
-        let sheet = AssetBook(detail(sample)).sheets[0]
+        let sheet = PortfolioBook(.assets, in: detail(sample)).sheets[0]
 
         XCTAssertEqual(sheet.rowCount, 3)
         XCTAssertEqual(sheet.amounts.count, sheet.rowCount + sheet.sections.count + 1)
@@ -326,8 +330,8 @@ final class AssetBookTests: XCTestCase {
 /// tables had nothing to total and the disclosure control had nothing to hide —
 /// so its depth is asserted here rather than left to whoever edits the fixture
 /// next.
-extension AssetBookTests {
-    private var demoBook: AssetBook { AssetBook(DemoData.detail) }
+extension PortfolioBookTests {
+    private var demoBook: PortfolioBook { PortfolioBook(.assets, in: DemoData.detail) }
 
     func testDemoBookTotalsTheDemoAssetSide() throws {
         let book = demoBook
@@ -407,9 +411,9 @@ extension AssetBookTests {
 /// by section carries a name that may belong to several sheets, or to none.
 /// Resolving that here rather than in the view keeps the ambiguity rule
 /// testable, and keeps the screen's API down to one optional id.
-extension AssetBookTests {
+extension PortfolioBookTests {
     func testASectionNameHeldByOneSheetResolvesToThatSheet() {
-        let book = AssetBook(detail(sample))
+        let book = PortfolioBook(.assets, in: detail(sample))
 
         XCTAssertEqual(book.sheetID(forSection: "Taxable"), "Investments")
         XCTAssertEqual(book.sheetID(forSection: "Reserve"), "Cash")
@@ -419,7 +423,7 @@ extension AssetBookTests {
     /// destination, so the caller opens the default view rather than being sent
     /// to whichever sheet happened to be larger.
     func testASectionNameSharedBySheetsResolvesToNothing() {
-        let book = AssetBook(assets: [
+        let book = PortfolioBook(rows: [
             asset("A", 100, sheet: "Investments", section: "Misc"),
             asset("B", 50, sheet: "Collectibles", section: "Misc"),
         ])
@@ -430,13 +434,13 @@ extension AssetBookTests {
     /// The same rule reaching the case it was written for: unfiled rows can sit
     /// under every sheet at once, so "Unsorted" usually points nowhere.
     func testUnsortedResolvesOnlyWhenOneSheetHasUnfiledRows() {
-        let single = AssetBook(assets: [
+        let single = PortfolioBook(rows: [
             asset("Filed", 100, sheet: "Investments", section: "Taxable"),
             asset("Unfiled", 50, sheet: "Vehicles", section: nil),
         ])
         XCTAssertEqual(single.sheetID(forSection: OverviewModules.unsortedGroupName), "Vehicles")
 
-        let several = AssetBook(assets: [
+        let several = PortfolioBook(rows: [
             asset("Unfiled here", 100, sheet: "Investments", section: nil),
             asset("Unfiled there", 50, sheet: "Vehicles", section: nil),
         ])
@@ -444,24 +448,24 @@ extension AssetBookTests {
     }
 
     func testAnUnknownOrBlankSectionNameResolvesToNothing() {
-        let book = AssetBook(detail(sample))
+        let book = PortfolioBook(.assets, in: detail(sample))
 
         XCTAssertNil(book.sheetID(forSection: "Retired section"))
         XCTAssertNil(book.sheetID(forSection: ""))
         XCTAssertNil(book.sheetID(forSection: "   "))
-        XCTAssertNil(AssetBook(assets: []).sheetID(forSection: "Taxable"))
+        XCTAssertNil(PortfolioBook(rows: []).sheetID(forSection: "Taxable"))
     }
 
     /// Trimmed the same way the labels themselves are, so a name that arrives
     /// with the whitespace Kubera's markdown left on it still resolves.
     func testSectionNamesAreTrimmedBeforeResolving() {
-        XCTAssertEqual(AssetBook(detail(sample)).sheetID(forSection: "  Taxable \n"), "Investments")
+        XCTAssertEqual(PortfolioBook(.assets, in: detail(sample)).sheetID(forSection: "  Taxable \n"), "Investments")
     }
 
     /// The two halves of a deep link, together: whatever the resolver answers —
     /// including nil — `sheet(id:)` turns into a sheet the screen can open.
     func testEveryResolverAnswerOpensASheet() {
-        let book = AssetBook(detail(sample))
+        let book = PortfolioBook(.assets, in: detail(sample))
 
         for name in ["Taxable", "Reserve", "Retired section", ""] {
             XCTAssertNotNil(
@@ -472,7 +476,7 @@ extension AssetBookTests {
     }
 
     func testTheDemoBooksSectionsResolveWhereTheyAreUnique() {
-        let book = AssetBook(DemoData.detail)
+        let book = PortfolioBook(.assets, in: DemoData.detail)
 
         XCTAssertEqual(book.sheetID(forSection: "Taxable"), "Investments")
         XCTAssertEqual(book.sheetID(forSection: "Wallets"), "Crypto")
@@ -484,11 +488,11 @@ extension AssetBookTests {
 
 /// The composition card hands `AssetDetailView` a row name and expects a sheet
 /// back. That contract spans two modules — `OverviewModules.composition` decides
-/// what a row is called, `AssetBook` decides what a sheet is called — and
+/// what a row is called, `PortfolioBook` decides what a sheet is called — and
 /// neither file can hold the test on its own. If either changes how it trims or
 /// labels a group, the link starts opening the wrong sheet silently, so it is
 /// pinned here.
-extension AssetBookTests {
+extension PortfolioBookTests {
     /// Caps off, so every group is a real one rather than part of the fold.
     private func sheetGroups(_ assets: [PortfolioDetail.Asset]) -> [OverviewModules.CompositionGroup] {
         OverviewModules.composition(assets, by: .sheet, maximumGroups: .max, minimumPercent: 0)
@@ -496,7 +500,7 @@ extension AssetBookTests {
 
     func testEverySheetLevelRowNamesASheetInTheBook() {
         let assets = sample + [asset("Unfiled", 12_000), asset("Car", 62_000, sheet: "Vehicles")]
-        let book = AssetBook(assets: assets)
+        let book = PortfolioBook(rows: assets)
 
         for group in sheetGroups(assets) {
             XCTAssertNotNil(
@@ -511,7 +515,7 @@ extension AssetBookTests {
     func testTheUnsortedRowNamesTheUnsortedSheet() {
         let assets = [asset("Filed", 100, sheet: "Investments", section: "Taxable"), asset("Unfiled", 50)]
         let names = sheetGroups(assets).map(\.name)
-        let book = AssetBook(assets: assets)
+        let book = PortfolioBook(rows: assets)
 
         XCTAssertTrue(names.contains(OverviewModules.unsortedGroupName))
         XCTAssertNotNil(book.sheets.first { $0.id == OverviewModules.unsortedGroupName })
@@ -522,7 +526,7 @@ extension AssetBookTests {
     /// default view because it counts money from several sheets at once.
     func testEveryRowTheDemoOverviewDrawsResolvesOrIsTheFold() {
         let assets = DemoData.detail.assets
-        let book = AssetBook(assets: assets)
+        let book = PortfolioBook(rows: assets)
 
         for group in OverviewModules.composition(assets, by: .sheet) {
             if group.name == OverviewModules.otherGroupName { continue }
@@ -539,15 +543,15 @@ extension AssetBookTests {
 
 // MARK: - Where a composition row lands
 
-/// `AssetBook.sheetID(forGroup:at:resolvingSectionsIn:)` is the whole of the
+/// `PortfolioBook.sheetID(forGroup:at:resolvingSectionsIn:)` is the whole of the
 /// Overview's routing decision. It used to live in the view, where the test
 /// bundle could not reach it; the rules it encodes are the kind that break
 /// quietly — a row that opens the wrong sheet still opens *a* sheet — so they
 /// are pinned here.
-extension AssetBookTests {
+extension PortfolioBookTests {
     func testASheetRowNamesItsOwnSheet() {
         XCTAssertEqual(
-            AssetBook.sheetID(forGroup: "Crypto", at: .sheet, resolvingSectionsIn: nil),
+            PortfolioBook.sheetID(forGroup: "Crypto", at: .sheet, resolvingSectionsIn: nil),
             "Crypto"
         )
     }
@@ -558,7 +562,7 @@ extension AssetBookTests {
     func testASheetRowResolvesWithoutABook() {
         for name in ["Investments", OverviewModules.unsortedGroupName] {
             XCTAssertEqual(
-                AssetBook.sheetID(forGroup: name, at: .sheet, resolvingSectionsIn: nil),
+                PortfolioBook.sheetID(forGroup: name, at: .sheet, resolvingSectionsIn: nil),
                 name,
                 "\(name) needed a book it should not have needed"
             )
@@ -566,20 +570,20 @@ extension AssetBookTests {
     }
 
     func testASectionRowResolvesThroughTheBook() {
-        let book = AssetBook(detail(sample))
+        let book = PortfolioBook(.assets, in: detail(sample))
 
         XCTAssertEqual(
-            AssetBook.sheetID(forGroup: "Taxable", at: .section, resolvingSectionsIn: book),
+            PortfolioBook.sheetID(forGroup: "Taxable", at: .section, resolvingSectionsIn: book),
             "Investments"
         )
-        XCTAssertNil(AssetBook.sheetID(forGroup: "Taxable", at: .section, resolvingSectionsIn: nil))
+        XCTAssertNil(PortfolioBook.sheetID(forGroup: "Taxable", at: .section, resolvingSectionsIn: nil))
     }
 
     /// The fold is nobody's sheet, at either level — including the case that
     /// makes it a rule rather than a spelling: a portfolio that really does have
     /// a sheet named "Other", whose row has still absorbed the rest of the list.
     func testTheOtherFoldNeverResolves() {
-        let book = AssetBook(assets: [
+        let book = PortfolioBook(rows: [
             asset("A", 100, sheet: OverviewModules.otherGroupName, section: "Bits"),
             asset("B", 900, sheet: "Investments", section: "Taxable"),
         ])
@@ -587,32 +591,32 @@ extension AssetBookTests {
         XCTAssertNotNil(book.sheets.first { $0.id == OverviewModules.otherGroupName })
         for level in OverviewModules.CompositionLevel.allCases {
             XCTAssertNil(
-                AssetBook.sheetID(forGroup: OverviewModules.otherGroupName, at: level, resolvingSectionsIn: book),
+                PortfolioBook.sheetID(forGroup: OverviewModules.otherGroupName, at: level, resolvingSectionsIn: book),
                 "the fold resolved at \(level)"
             )
         }
     }
 
     func testAmbiguousAndBlankGroupsResolveToNothing() {
-        let book = AssetBook(assets: [
+        let book = PortfolioBook(rows: [
             asset("A", 100, sheet: "Investments", section: "Misc"),
             asset("B", 50, sheet: "Collectibles", section: "Misc"),
         ])
 
-        XCTAssertNil(AssetBook.sheetID(forGroup: "Misc", at: .section, resolvingSectionsIn: book))
+        XCTAssertNil(PortfolioBook.sheetID(forGroup: "Misc", at: .section, resolvingSectionsIn: book))
         for level in OverviewModules.CompositionLevel.allCases {
-            XCTAssertNil(AssetBook.sheetID(forGroup: "", at: level, resolvingSectionsIn: book))
-            XCTAssertNil(AssetBook.sheetID(forGroup: "   ", at: level, resolvingSectionsIn: book))
+            XCTAssertNil(PortfolioBook.sheetID(forGroup: "", at: level, resolvingSectionsIn: book))
+            XCTAssertNil(PortfolioBook.sheetID(forGroup: "   ", at: level, resolvingSectionsIn: book))
         }
     }
 
     /// Whatever the rule answers, the screen can open it — nil included.
     func testEveryAnswerOpensASheet() {
-        let book = AssetBook(detail(sample))
+        let book = PortfolioBook(.assets, in: detail(sample))
 
         for level in OverviewModules.CompositionLevel.allCases {
             for group in OverviewModules.composition(sample, by: level) {
-                let resolved = AssetBook.sheetID(forGroup: group.name, at: level, resolvingSectionsIn: book)
+                let resolved = PortfolioBook.sheetID(forGroup: group.name, at: level, resolvingSectionsIn: book)
                 XCTAssertNotNil(book.sheet(id: resolved), "\(group.name) at \(level)")
             }
         }
@@ -626,9 +630,9 @@ extension AssetBookTests {
 /// That only produces the leading tab of the switcher because nil and "the first
 /// sheet" are the same answer here — which is this book's promise, not the
 /// screen's, so it is pinned here.
-extension AssetBookTests {
+extension PortfolioBookTests {
     func testClearingTheSelectionLandsOnTheLeadingSheet() {
-        let book = AssetBook(detail(sample))
+        let book = PortfolioBook(.assets, in: detail(sample))
 
         XCTAssertEqual(book.sheet(id: nil)?.id, book.sheets.first?.id)
         XCTAssertEqual(book.sheet(id: nil)?.name, "Investments", "the leftmost tab is the largest sheet")
@@ -637,7 +641,7 @@ extension AssetBookTests {
     /// The same on the fixture the previews and the demo run use, where the
     /// switcher has six tabs to walk back to the start of.
     func testTheDemoBooksResetLandsOnItsFirstTab() {
-        let book = AssetBook(DemoData.detail)
+        let book = PortfolioBook(.assets, in: DemoData.detail)
 
         XCTAssertEqual(book.sheet(id: nil)?.name, book.sheets.first?.name)
         XCTAssertEqual(book.sheet(id: nil)?.name, "Investments")
@@ -646,6 +650,106 @@ extension AssetBookTests {
     /// A reset on an empty book has nothing to land on and must not invent
     /// something to show.
     func testAResetOnAnEmptyBookStillHasNoSheet() {
-        XCTAssertNil(AssetBook(assets: []).sheet(id: nil))
+        XCTAssertNil(PortfolioBook(rows: []).sheet(id: nil))
+    }
+}
+
+// MARK: - The other side of the book
+
+/// A debt book is the same maths over different rows, which is the whole claim
+/// the Debts screen rests on: if grouping, ranking, parking and conservation
+/// hold for what you owe exactly as they do for what you own, one screen can
+/// serve both. These pin that, and the sign convention it depends on.
+extension PortfolioBookTests {
+    private var debtRows: [PortfolioDetail.Asset] {
+        [
+            asset("Mortgage", 300_000, sheet: "Loans", section: "Property"),
+            asset("Auto loan", 41_000, sheet: "Loans", section: "Vehicles"),
+            asset("Rewards card", 6_500, sheet: "Cards", section: "Everyday"),
+            asset("Store card", 2_500, sheet: "Cards", section: "Everyday"),
+        ]
+    }
+
+    func testADebtBookGroupsAndRanksLikeAnAssetOne() {
+        let book = PortfolioBook(rows: debtRows)
+
+        XCTAssertEqual(book.sheets.map(\.name), ["Loans", "Cards"])
+        XCTAssertEqual(book.sheets[0].sections.map(\.name), ["Property", "Vehicles"])
+        XCTAssertEqual(book.sheets[1].sections[0].rows.map(\.name), ["Rewards card", "Store card"])
+        XCTAssertEqual(book.total, 350_000, accuracy: 0.01)
+    }
+
+    /// Debts stay positive magnitudes, the way Kubera states them and the way
+    /// the parser keeps them. A book that negated them would total downwards and
+    /// disagree with the DEBTS card it was opened from.
+    func testDebtsAreKeptAsPositiveMagnitudes() {
+        let book = PortfolioBook(.debts, in: detail([], debts: debtRows))
+
+        XCTAssertTrue(book.sheets.allSatisfy { $0.total > 0 })
+        XCTAssertEqual(book.total, debtRows.reduce(0) { $0 + $1.value }, accuracy: 0.01)
+    }
+
+    /// The side is the only thing that decides which rows arrive; one detail
+    /// yields two books that never see each other's rows.
+    func testEachSideBuildsFromItsOwnRows() {
+        let portfolio = detail(sample, debts: debtRows)
+        let assets = PortfolioBook(.assets, in: portfolio)
+        let debts = PortfolioBook(.debts, in: portfolio)
+
+        XCTAssertEqual(assets.total, portfolio.assetTotal!, accuracy: 0.01)
+        XCTAssertEqual(debts.total, 350_000, accuracy: 0.01)
+        XCTAssertFalse(assets.sheets.contains { $0.name == "Loans" })
+        XCTAssertFalse(debts.sheets.contains { $0.name == "Investments" })
+    }
+
+    /// A payload parsed before debts were read has none, which must build the
+    /// empty book rather than trapping or borrowing the asset rows.
+    func testAMissingDebtListBuildsTheEmptyBook() {
+        let book = PortfolioBook(.debts, in: detail(sample, debts: nil))
+
+        XCTAssertTrue(book.isEmpty)
+        XCTAssertNil(book.sheet(id: nil))
+    }
+
+    func testUnfiledDebtsParkLikeUnfiledAssets() {
+        let book = PortfolioBook(rows: [asset("Personal loan", 12_000)])
+
+        XCTAssertEqual(book.sheets.map(\.name), [OverviewModules.unsortedGroupName])
+        XCTAssertEqual(book.sheets[0].sections.map(\.name), [OverviewModules.unsortedGroupName])
+    }
+
+    // MARK: - Sides
+
+    func testASideNamesItsScreenAndItsTab() {
+        XCTAssertEqual(PortfolioSide.assets.title, "Assets")
+        XCTAssertEqual(PortfolioSide.debts.title, "Debts")
+        XCTAssertEqual(PortfolioSide.assets.tab, .assets)
+        XCTAssertEqual(PortfolioSide.debts.tab, .debts)
+    }
+
+    /// Both enums spell a side the same way, which is what makes
+    /// `kubera://debts` reach the Debts tab without a mapping table.
+    func testEverySideHasAMatchingTab() {
+        for side in PortfolioSide.allCases {
+            XCTAssertEqual(side.tab.rawValue, side.rawValue, side.rawValue)
+        }
+    }
+
+    // MARK: - The demo's debt book
+
+    func testTheDemoDebtBookTotalsTheDemoDebt() throws {
+        let book = PortfolioBook(.debts, in: DemoData.detail)
+
+        XCTAssertEqual(book.total, DemoData.snapshot.debtTotal, accuracy: 0.01)
+        XCTAssertEqual(book.total, try XCTUnwrap(DemoData.detail.debtTotal), accuracy: 0.01)
+    }
+
+    func testTheDemoDebtBookHasEnoughDepthToExerciseTheScreen() {
+        let book = PortfolioBook(.debts, in: DemoData.detail)
+
+        XCTAssertEqual(book.sheets.map(\.name), ["Loans", "Cards"])
+        XCTAssertEqual(book.sheets.flatMap(\.sections).count, 4)
+        XCTAssertEqual(book.sheets.reduce(0) { $0 + $1.rowCount }, 5)
+        XCTAssertTrue(book.sheets.allSatisfy { $0.total > 0 })
     }
 }

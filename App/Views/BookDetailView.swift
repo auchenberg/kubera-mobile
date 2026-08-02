@@ -1,8 +1,13 @@
 import SwiftUI
 import UIKit
 
-/// The asset drill-down: Kubera's own sheet switcher over its section tables,
-/// at phone width.
+/// One side of the portfolio, drilled down: Kubera's own sheet switcher over its
+/// section tables, at phone width.
+///
+/// Assets and Debts are the same screen. Kubera files what you owe exactly like
+/// what you own — sheets holding sections holding rows — so `side` is the entire
+/// difference between the two tabs: which rows arrive, what the heading falls
+/// back to, which tab a reset and a request name, and what the empty state says.
 ///
 /// The desktop app puts every sheet in one row of tabs and every section in a
 /// collapsible table with a column header and a footer total. That structure
@@ -11,14 +16,16 @@ import UIKit
 /// and IRR columns, which our MCP payload does not carry. Name and value is
 /// what the data says, so name and value is what a row prints.
 ///
-/// All grouping, ranking and totalling is `AssetBook`'s; this file is layout,
+/// All grouping, ranking and totalling is `PortfolioBook`'s; this file is layout,
 /// selection and disclosure state only.
-struct AssetDetailView: View {
-    private let book: AssetBook
+struct BookDetailView: View {
+    private let side: PortfolioSide
+    private let book: PortfolioBook
     private let currency: String
     private let masked: Bool
     private let compactNumbers: Bool
-    /// The latest request to show this screen, from `AppStore`.
+    /// The latest request to show a book, from `AppStore`. Requests naming the
+    /// other side are ignored, so both screens can watch one channel.
     ///
     /// It has two jobs, which is why it is both read and watched. Read once at
     /// construction, it seeds the switcher — a request that arrives before this
@@ -30,38 +37,44 @@ struct AssetDetailView: View {
     ///
     /// A request carrying no sheet leaves the selection alone, because "show me
     /// the assets" is not "show me a particular book".
-    private let request: AssetsRequest?
+    private let request: BookRequest?
 
     /// A sheet this book does not have — one renamed or emptied since the
     /// request was made — falls back to the largest sheet through
-    /// `AssetBook.sheet(id:)` rather than showing nothing.
+    /// `PortfolioBook.sheet(id:)` rather than showing nothing.
     init(
-        book: AssetBook,
+        side: PortfolioSide,
+        book: PortfolioBook,
         currency: String,
         masked: Bool,
         compactNumbers: Bool = true,
-        request: AssetsRequest? = nil
+        request: BookRequest? = nil
     ) {
+        self.side = side
         self.book = book
         self.currency = currency
         self.masked = masked
         self.compactNumbers = compactNumbers
         self.request = request
-        _selectedSheetID = State(initialValue: request?.sheetID)
+        // Only a request for this side may seed it; the other screen's request
+        // is not this screen's business, even on the first frame.
+        _selectedSheetID = State(initialValue: request?.side == side ? request?.sheetID : nil)
     }
 
     /// The form the Overview wires: a nil detail is the fetch not having landed,
     /// which builds the empty book and renders the empty state rather than
     /// making the caller choose between two screens.
     init(
+        side: PortfolioSide,
         detail: PortfolioDetail?,
         currency: String,
         masked: Bool,
         compactNumbers: Bool = true,
-        request: AssetsRequest? = nil
+        request: BookRequest? = nil
     ) {
         self.init(
-            book: AssetBook(detail),
+            side: side,
+            book: PortfolioBook(side, in: detail),
             currency: currency,
             masked: masked,
             compactNumbers: compactNumbers,
@@ -74,7 +87,7 @@ struct AssetDetailView: View {
 
     /// The sheet on screen: seeded and re-seeded from `request`, and owned by
     /// the switcher in between. Nil means nobody has chosen, which
-    /// `AssetBook.sheet(id:)` reads as the largest sheet — as it does for an id
+    /// `PortfolioBook.sheet(id:)` reads as the largest sheet — as it does for an id
     /// a refetch has renamed away.
     @State private var selectedSheetID: String?
     /// Collapsed rather than expanded ids: sections open by default, so the
@@ -88,20 +101,20 @@ struct AssetDetailView: View {
     /// stop at an inset and look clipped.
     private static let screenInset: CGFloat = 20
 
-    private var selectedSheet: AssetBook.Sheet? { book.sheet(id: selectedSheetID) }
+    private var selectedSheet: PortfolioBook.Sheet? { book.sheet(id: selectedSheetID) }
 
     /// The screen's heading: the sheet the switcher is on, so it says where you
     /// are rather than only what it is.
     ///
-    /// "Assets" is the fallback for a book with no sheets, and is also the tab's
-    /// own name, so the heading is never blank and never a name the reader
-    /// cannot see anything behind.
+    /// The side's own name is the fallback for a book with no sheets, and is
+    /// also the tab's name, so the heading is never blank and never a name the
+    /// reader cannot see anything behind.
     ///
     /// This reads `selectedSheet`, which is seeded in `init` — a deep-linked
     /// open therefore carries the right name in its first frame. Moving that
     /// seed to `onAppear` would put "Assets" on screen for a frame before the
     /// real name replaced it.
-    private var title: String { selectedSheet?.name ?? "Assets" }
+    private var title: String { selectedSheet?.name ?? side.title }
 
     var body: some View {
         ScrollView {
@@ -113,7 +126,7 @@ struct AssetDetailView: View {
                 // root usually is its tab, but this one is a switcher over five
                 // or six books of figures, and "which one am I looking at" is
                 // the question the top of the screen should answer — the tab bar
-                // below still says Assets. The cost is that the name also
+                // below still names the side. The cost is that the name also
                 // appears in the selected tab just under it; the heading answers
                 // where you are, the row answers where else you can go.
                 ScreenHeader(title)
@@ -144,7 +157,7 @@ struct AssetDetailView: View {
         // the Widgets and Settings tabs, and there is no back button to keep —
         // the Overview no longer pushes this screen, it switches to its tab.
         .toolbar(.hidden, for: .navigationBar)
-        .scrollsToTopOnTabReset(of: .assets)
+        .scrollsToTopOnTabReset(of: side.tab)
         // This screen's own share of a reset: the state above, put back the way
         // it is on a fresh build. Declared here rather than known anywhere
         // central — the scroll above is a separate participant, and neither
@@ -152,14 +165,14 @@ struct AssetDetailView: View {
         //
         // Clearing the selection rather than naming the first sheet is what
         // makes "as first seen" literally true: nil is "nobody has chosen",
-        // which `AssetBook` reads as the largest sheet, exactly as it does when
+        // which `PortfolioBook` reads as the largest sheet, exactly as it does when
         // the screen is built. Which sections were folded is transient too, so
         // they come back open.
         //
         // It composes with `request` rather than fighting it: a later deep link
         // carries a new serial, so it still wins after a reset, and the request
         // already spent does not re-apply itself.
-        .onTabReset(of: .assets) {
+        .onTabReset(of: side.tab) {
             selectedSheetID = nil
             collapsed = []
         }
@@ -167,7 +180,7 @@ struct AssetDetailView: View {
             // Only an explicit sheet moves the switcher. A bare "show me the
             // assets" — the ASSETS card, `kubera://assets` — leaves the reader
             // on whatever they were last looking at.
-            guard let sheetID = new?.sheetID else { return }
+            guard let new, new.side == side, let sheetID = new.sheetID else { return }
             withAnimation(reduceMotion ? nil : .snappy(duration: 0.25)) {
                 selectedSheetID = sheetID
             }
@@ -210,7 +223,7 @@ struct AssetDetailView: View {
         }
     }
 
-    private func sheetTab(_ sheet: AssetBook.Sheet, unit: Format.Unit) -> some View {
+    private func sheetTab(_ sheet: PortfolioBook.Sheet, unit: Format.Unit) -> some View {
         let active = sheet.id == selectedSheet?.id
 
         return Button {
@@ -250,7 +263,7 @@ struct AssetDetailView: View {
     // MARK: - Section tables
 
     @ViewBuilder
-    private func sections(of sheet: AssetBook.Sheet) -> some View {
+    private func sections(of sheet: PortfolioBook.Sheet) -> some View {
         // One unit for the whole sheet, rows and totals alike: a footer in a
         // different notation from the rows above it cannot be checked against
         // them. At accessibility sizes the figure compacts whatever the
@@ -266,7 +279,7 @@ struct AssetDetailView: View {
         }
     }
 
-    private func sectionCard(_ section: AssetBook.Section, unit: Format.Unit) -> some View {
+    private func sectionCard(_ section: PortfolioBook.Section, unit: Format.Unit) -> some View {
         let expanded = !collapsed.contains(section.id)
 
         return Card(padding: .cardRows) {
@@ -300,7 +313,7 @@ struct AssetDetailView: View {
     /// while the section is collapsed — collapsing a section should hide its
     /// rows, not the figure they add up to.
     private func sectionHeader(
-        _ section: AssetBook.Section,
+        _ section: PortfolioBook.Section,
         expanded: Bool,
         unit: Format.Unit
     ) -> some View {
@@ -364,7 +377,7 @@ struct AssetDetailView: View {
     /// and a header would point at columns that no longer exist.
     private var columnHeader: some View {
         HStack(spacing: 8) {
-            Text("Asset")
+            Text(side.rowNoun)
             Spacer(minLength: 12)
             Text("Value")
         }
@@ -384,7 +397,7 @@ struct AssetDetailView: View {
     ///
     /// A negative value stays `Theme.text`: green and red mean direction of
     /// change in this app, and a balance is not a change.
-    private func assetRow(_ row: AssetBook.Row, unit: Format.Unit) -> some View {
+    private func assetRow(_ row: PortfolioBook.Row, unit: Format.Unit) -> some View {
         let name = Text(row.name)
             .font(.subheadline)
             .foregroundStyle(Theme.text)
@@ -412,7 +425,7 @@ struct AssetDetailView: View {
 
     /// The footer row, carrying only the value: the desktop's cost and IRR
     /// totals have no source in our data.
-    private func totalRow(_ section: AssetBook.Section, unit: Format.Unit) -> some View {
+    private func totalRow(_ section: PortfolioBook.Section, unit: Format.Unit) -> some View {
         let label = Text("Total")
             .font(.caption2.weight(.semibold))
             .kerning(1)
@@ -440,11 +453,17 @@ struct AssetDetailView: View {
 
     // MARK: - Empty
 
-    /// Shown when the detail fetch has not landed, or landed with no holdings.
-    /// It explains an absence rather than pretending to be a table.
+    /// Shown when the detail fetch has not landed, or landed with nothing on
+    /// this side. It explains an absence rather than pretending to be a table.
+    ///
+    /// A portfolio with no debts is a real and happy state, unlike one with no
+    /// assets, so the two sides do not read the same: one is waiting for data,
+    /// the other may simply be finished.
     private var emptyState: some View {
         Card {
-            Text("No assets to show yet. Sheets and sections fill in once Kubera's portfolio detail loads.")
+            Text(side == .assets
+                ? "No assets to show yet. Sheets and sections fill in once Kubera's portfolio detail loads."
+                : "No debts to show. Anything you owe in Kubera appears here, filed by sheet and section.")
                 .font(.subheadline)
                 .foregroundStyle(Theme.dim)
                 .fixedSize(horizontal: false, vertical: true)
@@ -455,44 +474,51 @@ struct AssetDetailView: View {
 #if DEBUG
 #Preview("Assets") {
     NavigationStack {
-        AssetDetailView(detail: DemoData.detail, currency: "USD", masked: false)
+        BookDetailView(side: .assets, detail: DemoData.detail, currency: "USD", masked: false)
+    }
+}
+
+#Preview("Debts") {
+    NavigationStack {
+        BookDetailView(side: .debts, detail: DemoData.detail, currency: "USD", masked: false)
     }
 }
 
 #Preview("Assets — requested on Crypto") {
     NavigationStack {
-        AssetDetailView(
+        BookDetailView(
+            side: .assets,
             detail: DemoData.detail,
             currency: "USD",
             masked: false,
-            request: AssetsRequest(sheetID: "Crypto", serial: 1)
+            request: BookRequest(side: .assets, sheetID: "Crypto", serial: 1)
         )
     }
 }
 
 #Preview("Assets — masked") {
     NavigationStack {
-        AssetDetailView(detail: DemoData.detail, currency: "USD", masked: true)
+        BookDetailView(side: .assets, detail: DemoData.detail, currency: "USD", masked: true)
     }
 }
 
-#Preview("Assets — dark") {
+#Preview("Debts — dark") {
     NavigationStack {
-        AssetDetailView(detail: DemoData.detail, currency: "USD", masked: false)
+        BookDetailView(side: .debts, detail: DemoData.detail, currency: "USD", masked: false)
     }
     .preferredColorScheme(.dark)
 }
 
 #Preview("Assets — AX5") {
     NavigationStack {
-        AssetDetailView(detail: DemoData.detail, currency: "USD", masked: false)
+        BookDetailView(side: .assets, detail: DemoData.detail, currency: "USD", masked: false)
     }
     .environment(\.dynamicTypeSize, .accessibility5)
 }
 
-#Preview("Assets — empty") {
+#Preview("Debts — empty") {
     NavigationStack {
-        AssetDetailView(detail: nil, currency: "USD", masked: false)
+        BookDetailView(side: .debts, detail: nil, currency: "USD", masked: false)
     }
 }
 #endif

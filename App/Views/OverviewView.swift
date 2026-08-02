@@ -988,39 +988,48 @@ struct OverviewView: View {
 
     private var statPair: some View {
         pairLayout {
-            // ASSETS is a link and DEBTS is not, because only the asset side has
-            // a screen behind it — `PortfolioDetail.assets` carries no debts. The
-            // link waits for the detail fetch: before it lands there is nothing
-            // to push to but an empty state, and a card that answers a tap with
-            // "nothing here" is worse than one that does not answer.
-            if hasAssetDetail {
-                // No sheet: the card names the whole asset side, so it asks for
-                // the tab and leaves whatever sheet the reader last chose.
-                Button {
-                    store.showAssets()
-                } label: {
-                    statCard("ASSETS", value: snapshot.assetTotal, series: assetSeries, metric: .asset)
-                }
-                .buttonStyle(.plain)
-                // The card's four elements — the figure and the two trend rows —
-                // merge into one link announcement here. That is the trade a
-                // whole-card link makes: keeping them separate would need the
-                // link to become an accessibility container, which leaves
-                // nothing for VoiceOver to activate. Nothing is lost, it is read
-                // in one pass instead of four.
-                .accessibilityHint("Opens the asset details")
-            } else {
+            // Both cards lead to their own side's screen now that the payload's
+            // `## Debts` table is parsed. Each waits for the rows it would show:
+            // before the fetch lands there is nothing behind the card but an
+            // empty state, and a card that answers a tap with "nothing here" is
+            // worse than one that does not answer.
+            statLink(.assets) {
                 statCard("ASSETS", value: snapshot.assetTotal, series: assetSeries, metric: .asset)
             }
-            statCard("DEBTS", value: snapshot.debtTotal, series: debtSeries, metric: .debt)
+            statLink(.debts) {
+                statCard("DEBTS", value: snapshot.debtTotal, series: debtSeries, metric: .debt)
+            }
         }
     }
 
-    /// Whether there is an asset book to open. The detail fetch is decoration
-    /// everywhere else on this screen; here it decides whether a tap target
-    /// exists at all.
-    private var hasAssetDetail: Bool {
-        detail?.assets.isEmpty == false
+    /// Wraps a stat card in the tap that opens its side, when that side has rows
+    /// to show. The detail fetch is decoration everywhere else on this screen;
+    /// here it decides whether a tap target exists at all.
+    ///
+    /// No sheet is named: a card stands for the whole side, so it asks for the
+    /// tab and leaves whatever sheet the reader last chose there.
+    @ViewBuilder
+    private func statLink(
+        _ side: PortfolioSide,
+        @ViewBuilder card: () -> some View
+    ) -> some View {
+        if detail?.rows(side).isEmpty == false {
+            Button {
+                store.showBook(side)
+            } label: {
+                card()
+            }
+            .buttonStyle(.plain)
+            // The card's four elements — the figure and the two trend rows —
+            // merge into one link announcement here. That is the trade a
+            // whole-card link makes: keeping them separate would need the link
+            // to become an accessibility container, which leaves nothing for
+            // VoiceOver to activate. Nothing is lost, it is read in one pass
+            // instead of four.
+            .accessibilityHint("Opens the \(side.title.lowercased()) details")
+        } else {
+            card()
+        }
     }
 
     /// Two cards abreast, stacked at accessibility sizes: half the screen width
@@ -1597,13 +1606,13 @@ struct OverviewView: View {
         }
     }
 
-    /// The sheet a tapped row should open on. The rule lives in `AssetBook`,
+    /// The sheet a tapped row should open on. The rule lives in `PortfolioBook`,
     /// where it can be tested; this is only the level the card is showing.
     private func sheetID(
         for group: OverviewModules.CompositionGroup,
-        in book: AssetBook?
+        in book: PortfolioBook?
     ) -> String? {
-        AssetBook.sheetID(forGroup: group.name, at: compositionLevel, resolvingSectionsIn: book)
+        PortfolioBook.sheetID(forGroup: group.name, at: compositionLevel, resolvingSectionsIn: book)
     }
 
     private var compositionGroups: [OverviewModules.CompositionGroup] {
@@ -1627,7 +1636,7 @@ struct OverviewView: View {
         // has to be resolved against the whole book. A scrub re-renders this
         // card on every touch move, and one book per row per frame is work a
         // large portfolio would feel.
-        let book = compositionLevel == .section ? AssetBook(detail) : nil
+        let book = compositionLevel == .section ? PortfolioBook(.assets, in: detail) : nil
 
         return Card {
             VStack(alignment: .leading, spacing: 12) {
@@ -1677,7 +1686,7 @@ struct OverviewView: View {
         // made tapping the Overview tab from there do nothing at all, because
         // they had never left it.
         return Button {
-            store.showAssets(sheetID: sheetID)
+            store.showBook(.assets, sheetID: sheetID)
         } label: {
             VStack(alignment: .leading, spacing: 6) {
                 heading {
